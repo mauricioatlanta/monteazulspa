@@ -1,0 +1,664 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title|default:"Inicio" }} | Monteazul SPA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0c10;
+      --surface: rgba(255,255,255,0.03);
+      --surface-hover: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.08);
+      --text: #f0f2f5;
+      --muted: rgba(255,255,255,0.5);
+      --accent: #00f0ff;
+      --accent-soft: rgba(0,240,255,0.12);
+      --glow: rgba(0,240,255,0.35);
+      --success: #00e676;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .bg-mesh {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 120% 80% at 50% -20%, rgba(0,240,255,0.08), transparent 50%),
+        radial-gradient(ellipse 80% 60% at 100% 50%, rgba(120,80,255,0.06), transparent 45%),
+        linear-gradient(180deg, var(--bg) 0%, #0d1016 100%);
+      pointer-events: none;
+    }
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+      background: rgba(10,12,16,0.7);
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .logo-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+    .logo-link img { height: 36px; width: auto; display: block; }
+    .logo-text {
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: 0.06em;
+    }
+    .logo-sub { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav a {
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: color 0.2s, background 0.2s;
+    }
+    .nav a:hover { color: var(--accent); background: var(--surface-hover); }
+    .nav a.here { color: var(--accent); background: var(--accent-soft); }
+
+    .hero {
+      position: relative;
+      padding: 48px 24px 56px;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(0,240,255,0.25);
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .hero-badge::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{ opacity:1 } 50%{ opacity:0.5 } }
+    .hero h1 {
+      font-weight: 800;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 14px;
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .hero p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.6;
+      max-width: 480px;
+      margin: 0 auto 36px;
+    }
+
+    .validator-wrap {
+      position: relative;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .validator-card {
+      background: rgba(15,18,24,0.92);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius);
+      padding: 32px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+      backdrop-filter: blur(12px);
+    }
+    .validator-title {
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .steps-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+    .step-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 0.8rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .step-pill .num {
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+    }
+    .step-pill.active {
+      border-color: rgba(0,240,255,0.4);
+      color: var(--text);
+      box-shadow: 0 0 0 1px rgba(0,240,255,0.15);
+    }
+    .step-pill.active .num { background: var(--accent-soft); color: var(--accent); }
+    .step-pill.done { border-color: rgba(0,230,118,0.3); color: var(--success); }
+    .step-pill.done .num { background: rgba(0,230,118,0.15); color: var(--success); }
+    .step-conn { width: 20px; height: 2px; background: var(--border); flex-shrink: 0; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .field label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.88);
+    }
+    .field select {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255,255,255,0.18);
+      background: #151a22;
+      color: #f0f2f5;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 500;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .field select option {
+      background: #151a22;
+      color: #f0f2f5;
+    }
+    .field select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+    .field select:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      background: #0f1218;
+      color: rgba(255,255,255,0.6);
+    }
+    .field .hint {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.4;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    .btn-submit {
+      padding: 16px 28px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: linear-gradient(135deg, var(--accent), #00c4d4);
+      color: #0a0c10;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px var(--glow);
+    }
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-clear {
+      padding: 14px 20px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .btn-clear:hover { color: var(--text); border-color: var(--muted); }
+
+    .links-row {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 32px;
+    }
+    .links-row a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface-hover);
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .links-row a:hover { border-color: var(--accent); color: var(--accent); }
+
+    .wa-float {
+      position: fixed;
+      left: 20px;
+      bottom: 20px;
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      border-radius: 999px;
+      background: rgba(0,230,118,0.12);
+      border: 1px solid rgba(0,230,118,0.3);
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+      transition: box-shadow 0.2s;
+    }
+    .wa-float:hover { box-shadow: 0 12px 40px rgba(0,230,118,0.2); }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 70;
+      max-width: 360px;
+      padding: 16px 20px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: rgba(10,12,16,0.95);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+      display: none;
+    }
+    .toast.show { display: block; animation: slideIn 0.25s ease; }
+    @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .toast strong { display: block; font-size: 0.9rem; margin-bottom: 4px; }
+    .toast p { font-size: 0.85rem; color: var(--muted); }
+
+    .footer {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px 48px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+    .footer-credits {
+      display: block;
+      margin-top: 12px;
+      font-size: 0.8rem;
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-mesh" aria-hidden="true"></div>
+  <div class="grid-overlay" aria-hidden="true"></div>
+
+  <header class="header">
+    <div class="header-inner">
+      <a class="logo-link" href="/">
+        <img src="/media/logomonteazul.png" alt="">
+        <span>
+          <span class="logo-text">Monteazul SPA</span>
+          <div class="logo-sub">Ingeniería en escapes</div>
+        </span>
+      </a>
+      <nav class="nav">
+        <a href="/">Inicio</a>
+        <a href="{% url 'core:vehicle_search' %}" class="here">Buscar por vehículo</a>
+        <a href="{% url 'catalog:product_list' %}">Catálogo</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="hero">
+    <div class="hero-badge">Mercado Chile • Desde 1980</div>
+    <h1>Repuestos que calzan en tu vehículo</h1>
+    <p>Elige año, marca, modelo y motor. Te mostramos solo productos compatibles.</p>
+
+    <div class="validator-wrap" id="buscador">
+      <div class="validator-card">
+        <div class="validator-title">Validador de compatibilidad</div>
+        <div class="steps-line" aria-label="Progreso">
+          <div class="step-pill active" id="st1"><span class="num">1</span> Año</div>
+          <span class="step-conn"></span>
+          <div class="step-pill" id="st2"><span class="num">2</span> Marca</div>
+          <span class="step-conn"></span>
+          <div class="step-pill" id="st3"><span class="num">3</span> Modelo</div>
+          <span class="step-conn"></span>
+          <div class="step-pill" id="st4"><span class="num">4</span> Motor</div>
+        </div>
+
+        <form method="post" action="/validar-vehiculo/" id="vehicleForm">
+          {% csrf_token %}
+          <div class="form-grid">
+            <div class="field">
+              <label for="year">Año</label>
+              <select id="year" name="year" required>
+                <option value="">Año</option>
+                {% for y in years %}
+                  <option value="{{ y }}">{{ y }}</option>
+                {% endfor %}
+              </select>
+              <span class="hint">Paso 1: año del vehículo</span>
+            </div>
+            <div class="field">
+              <label for="brand">Marca</label>
+              <select id="brand" name="brand" required disabled>
+                <option value="">Marca</option>
+                {% for b in brands %}
+                  <option value="{{ b.id }}">{{ b.name }}</option>
+                {% endfor %}
+              </select>
+              <span class="hint">Paso 2: elige marca</span>
+            </div>
+            <div class="field">
+              <label for="model">Modelo</label>
+              <select id="model" name="model" required disabled>
+                <option value="">Modelo</option>
+              </select>
+              <span class="hint">Paso 3: modelo</span>
+            </div>
+            <div class="field">
+              <label for="engine">Motor (opcional)</label>
+              <select id="engine" name="engine" disabled>
+                <option value="">Motor</option>
+              </select>
+              <span class="hint">Paso 4: motor si aplica</span>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn-submit" id="btnSearch" disabled>Ver repuestos compatibles</button>
+            <button type="button" class="btn-clear" id="btnClear">Limpiar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="links-row">
+      <a href="{% url 'catalog:product_list' %}">Ver catálogo completo</a>
+      <a href="#contacto">Hablar con un experto</a>
+    </div>
+  </main>
+
+  <a class="wa-float" id="contacto" href="https://wa.me/{{ whatsapp_number }}?text=Hola%20Monteazul%2C%20necesito%20ayuda%20con%20compatibilidad%20de%20escape" target="_blank" rel="noopener" title="Contactar vendedor por WhatsApp">💬 Contactar vendedor</a>
+
+  <div class="toast" id="toast" role="status">
+    <strong id="toastTitle">Listo</strong>
+    <p id="toastMsg">Mensaje</p>
+  </div>
+
+  <footer class="footer">
+    © {% now "Y" %} Monteazul SPA • Barros Borgono 71, Providencia, Santiago, Región Metropolitana • Fundada 07/06/2016<br>
+    <span class="footer-credits">Sitio creado por <strong>Atlanta Holding</strong></span>
+  </footer>
+
+  <script>
+    const yearSelect = document.getElementById('year');
+    const brandSelect = document.getElementById('brand');
+    const modelSelect = document.getElementById('model');
+    const engineSelect = document.getElementById('engine');
+    const btnSearch = document.getElementById('btnSearch');
+    const btnClear = document.getElementById('btnClear');
+    const st1 = document.getElementById('st1');
+    const st2 = document.getElementById('st2');
+    const st3 = document.getElementById('st3');
+    const st4 = document.getElementById('st4');
+    const toast = document.getElementById('toast');
+    const toastTitle = document.getElementById('toastTitle');
+    const toastMsg = document.getElementById('toastMsg');
+    let toastT = null;
+
+    function showToast(title, msg) {
+      toastTitle.textContent = title;
+      toastMsg.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastT);
+      toastT = setTimeout(() => toast.classList.remove('show'), 2800);
+    }
+    function setStep(active) {
+      [st1, st2, st3, st4].forEach((el, i) => {
+        el.classList.remove('active', 'done');
+        if (i + 1 === active) el.classList.add('active');
+        if (i + 1 < active) el.classList.add('done');
+      });
+    }
+    function markDone(el) { el.classList.add('done'); el.classList.remove('active'); }
+    function unDone(el) { el.classList.remove('done'); }
+
+    function canSearch() {
+      return yearSelect.value && brandSelect.value && modelSelect.value;
+    }
+
+    function resetAfterYear() {
+      brandSelect.value = '';
+      brandSelect.disabled = true;
+      modelSelect.innerHTML = '<option value="">Modelo</option>';
+      modelSelect.disabled = true;
+      engineSelect.innerHTML = '<option value="">Motor</option>';
+      engineSelect.disabled = true;
+      unDone(st2); unDone(st3); unDone(st4);
+      setStep(1);
+      btnSearch.disabled = true;
+    }
+    function resetAfterBrand() {
+      modelSelect.innerHTML = '<option value="">Modelo</option>';
+      modelSelect.disabled = true;
+      engineSelect.innerHTML = '<option value="">Motor</option>';
+      engineSelect.disabled = true;
+      unDone(st3); unDone(st4);
+      setStep(2);
+      btnSearch.disabled = true;
+    }
+    function resetAfterModel() {
+      engineSelect.innerHTML = '<option value="">Motor</option>';
+      engineSelect.disabled = true;
+      unDone(st4);
+      setStep(3);
+      btnSearch.disabled = true;
+    }
+
+    yearSelect.addEventListener('change', () => {
+      if (!yearSelect.value) {
+        resetAfterYear();
+        return;
+      }
+      brandSelect.disabled = false;
+      markDone(st1);
+      setStep(2);
+      showToast('Año listo', 'Elige la marca.');
+      btnSearch.disabled = !canSearch();
+    });
+
+    brandSelect.addEventListener('change', async () => {
+      if (!brandSelect.value) {
+        resetAfterBrand();
+        return;
+      }
+      modelSelect.disabled = true;
+      modelSelect.innerHTML = '<option value="">Cargando...</option>';
+      try {
+        const res = await fetch('/api/modelos/?brand_id=' + encodeURIComponent(brandSelect.value));
+        const data = await res.json();
+        modelSelect.innerHTML = '<option value="">Modelo</option>';
+        (data.models || []).forEach(m => {
+          const o = document.createElement('option');
+          o.value = m.id;
+          o.textContent = m.name;
+          modelSelect.appendChild(o);
+        });
+        modelSelect.disabled = false;
+        markDone(st2);
+        setStep(3);
+        showToast('Modelos listos', 'Elige modelo.');
+      } catch (e) {
+        modelSelect.innerHTML = '<option value="">Error</option>';
+        showToast('Error', 'No se pudieron cargar modelos.');
+      }
+      engineSelect.innerHTML = '<option value="">Motor</option>';
+      engineSelect.disabled = true;
+      btnSearch.disabled = !canSearch();
+    });
+
+    modelSelect.addEventListener('change', async () => {
+      if (!modelSelect.value) {
+        resetAfterModel();
+        return;
+      }
+      engineSelect.disabled = true;
+      engineSelect.innerHTML = '<option value="">Cargando...</option>';
+      try {
+        const res = await fetch('/api/motores/?model_id=' + encodeURIComponent(modelSelect.value));
+        const data = await res.json();
+        engineSelect.innerHTML = '<option value="">Motor (opcional)</option>';
+        (data.engines || []).forEach(e => {
+          const o = document.createElement('option');
+          o.value = e.id;
+          o.textContent = e.name + (e.fuel_type ? ' (' + e.fuel_type + ')' : '');
+          engineSelect.appendChild(o);
+        });
+        engineSelect.disabled = false;
+        markDone(st3);
+        setStep(4);
+        showToast('Motores listos', 'Opcional: elige motor.');
+      } catch (e) {
+        engineSelect.innerHTML = '<option value="">Motor (opcional)</option>';
+        engineSelect.disabled = false;
+        setStep(4);
+      }
+      btnSearch.disabled = !canSearch();
+    });
+
+    engineSelect.addEventListener('change', () => {
+      if (engineSelect.value) markDone(st4); else unDone(st4);
+      btnSearch.disabled = !canSearch();
+      if (canSearch()) showToast('Listo', 'Puedes ver repuestos compatibles.');
+    });
+
+    btnClear.addEventListener('click', () => {
+      yearSelect.value = '';
+      brandSelect.value = '';
+      brandSelect.disabled = true;
+      modelSelect.innerHTML = '<option value="">Modelo</option>';
+      modelSelect.disabled = true;
+      engineSelect.innerHTML = '<option value="">Motor</option>';
+      engineSelect.disabled = true;
+      setStep(1);
+      btnSearch.disabled = true;
+      showToast('Limpio', 'Elige año para comenzar.');
+    });
+
+    if (yearSelect.value) {
+      brandSelect.disabled = false;
+      markDone(st1);
+      setStep(2);
+    }
+    btnSearch.disabled = !canSearch();
+  </script>
+  <footer class="site-footer" style="margin-top:2rem;padding:24px 18px;text-align:center;color:var(--muted);font-size:0.875rem;border-top:1px solid var(--border);">
+    <p>© 2026 Monteazul Spa • Barros Borgono 71, Providencia, Santiago, Región Metropolitana • Fundada 07/06/2016</p>
+    <p style="margin-top:6px;opacity:0.85;">Sitio creado por Atlanta Holding</p>
+  </footer>
+</body>
+</html>

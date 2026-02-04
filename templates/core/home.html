@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+  <div style="max-width:1100px;margin:0 auto;padding:28px 18px;color:#fff;">
+    <h1 style="margin:0 0 8px;font-family:Orbitron,Inter;font-weight:900;letter-spacing:.02em;">Panel de inicio</h1>
+    <p style="margin:0 0 18px;color:rgba(255,255,255,.7);line-height:1.6">
+      Acceso rápido al catálogo y al validador de compatibilidad.
+    </p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <a href="{% url 'core:home' %}" style="padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.18);text-decoration:none;color:#fff;background:rgba(255,255,255,.04)">🏁 Bienvenida</a>
+      <a href="{% url 'catalog:product_list' %}" style="padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.18);text-decoration:none;color:#fff;background:rgba(255,255,255,.04)">🛒 Catálogo</a>
+    </div>
+  </div>
+{% endblock %}

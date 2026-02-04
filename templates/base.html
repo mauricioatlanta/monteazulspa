@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Monteazul Spa{% endblock %}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #0a0c10;
+            color: #e8ecf4;
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+        .site-footer {
+            margin-top: auto;
+            padding: 24px 18px;
+            text-align: center;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.875rem;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        .site-footer p { margin: 4px 0; }
+        .site-footer .credits { margin-top: 8px; color: rgba(255,255,255,0.5); }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    {% block content %}{% endblock %}
+    <footer class="site-footer">
+        <p>© 2026 Monteazul Spa • Barros Borgono 71, Providencia, Santiago, Región Metropolitana • Fundada 07/06/2016</p>
+        <p class="credits">Sitio creado por Atlanta Holding</p>
+    </footer>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

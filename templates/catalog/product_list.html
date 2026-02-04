@@ -1,0 +1,694 @@
+{% load catalog_filters %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo | Monteazul Spa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0c1322;
+            --navy-mid: #121c2e;
+            --navy-light: #1a2742;
+            --navy-surface: rgba(255,255,255,0.04);
+            --navy-border: rgba(255,255,255,0.08);
+            --cyan: #00d4ff;
+            --cyan-soft: rgba(0,212,255,0.15);
+            --cyan-glow: rgba(0,212,255,0.25);
+            --text: #e8ecf4;
+            --text-muted: rgba(255,255,255,0.55);
+            --white: #ffffff;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', system-ui, sans-serif;
+            background: var(--navy);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 100% 60% at 50% -10%, rgba(0,212,255,0.06), transparent 50%),
+                linear-gradient(180deg, var(--navy) 0%, #0f1828 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        body > * { position: relative; z-index: 1; }
+
+        /* Header azul marino, glass */
+        .header {
+            background: rgba(12,19,34,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--navy-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .logo-link {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 800;
+            font-size: 1.25rem;
+            letter-spacing: 0.06em;
+        }
+        .logo-link:hover { color: var(--cyan); }
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .header-nav a {
+            padding: 10px 16px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.03em;
+            border-radius: 8px;
+            transition: color 0.2s, background 0.2s;
+        }
+        .header-nav a:hover { color: var(--cyan); background: var(--cyan-soft); }
+        .header-nav a.active { color: var(--cyan); background: var(--cyan-soft); }
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .search-form {
+            display: flex;
+            border: 1px solid var(--navy-border);
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--navy-surface);
+        }
+        .search-form input {
+            width: 200px;
+            padding: 10px 14px;
+            border: none;
+            background: transparent;
+            color: var(--text);
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .search-form input::placeholder { color: var(--text-muted); }
+        .search-form button {
+            padding: 10px 14px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .search-form button:hover { color: var(--cyan); }
+
+        /* Bloque buscar por vehículo – glass */
+        .vehicle-search-block {
+            text-align: center;
+            padding: 28px 24px;
+            margin-bottom: 28px;
+            background: var(--navy-surface);
+            border: 1px solid var(--navy-border);
+            border-radius: 14px;
+            backdrop-filter: blur(12px);
+        }
+        .vehicle-search-label {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            font-weight: 500;
+        }
+        .btn-vehicle-search {
+            display: inline-block;
+            padding: 14px 28px;
+            background: var(--cyan-soft);
+            color: var(--cyan);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 0.04em;
+            border-radius: 10px;
+            border: 1px solid rgba(0,212,255,0.3);
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .btn-vehicle-search:hover {
+            background: rgba(0,212,255,0.25);
+            box-shadow: 0 0 24px var(--cyan-glow);
+        }
+
+        /* Contenido principal */
+        .main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 48px 24px 64px;
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 32px;
+            align-items: start;
+        }
+        @media (max-width: 900px) {
+            .main { grid-template-columns: 1fr; }
+        }
+        .catalog-sidebar {
+            position: sticky;
+            top: 100px;
+            background: var(--navy-surface);
+            border: 1px solid var(--navy-border);
+            border-radius: 14px;
+            padding: 22px;
+            backdrop-filter: blur(12px);
+        }
+        .catalog-sidebar h3 {
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--cyan);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--navy-border);
+        }
+        .filter-list { list-style: none; }
+        .filter-list li { margin-bottom: 4px; }
+        .filter-list a {
+            display: block;
+            padding: 10px 14px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: background 0.2s, color 0.2s;
+        }
+        .filter-list a:hover {
+            background: var(--cyan-soft);
+            color: var(--cyan);
+        }
+        .filter-list a.active {
+            background: var(--cyan-soft);
+            color: var(--cyan);
+            font-weight: 700;
+            border: 1px solid rgba(0,212,255,0.3);
+        }
+        .filter-list .subcategory {
+            padding-left: 24px;
+            font-size: 0.85rem;
+        }
+        .filter-list .subcategory a { padding: 8px 12px; color: var(--text-muted); }
+        .filter-list .subcategory a:hover,
+        .filter-list .subcategory a.active { color: var(--cyan); }
+        .catalog-content { min-width: 0; }
+        .breadcrumb-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .breadcrumb-bar a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+        .breadcrumb-bar a:hover { color: var(--cyan); }
+        .breadcrumb-bar .sep { opacity: 0.6; }
+        .section-title {
+            font-weight: 800;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            letter-spacing: -0.02em;
+            margin-bottom: 28px;
+            color: var(--text);
+        }
+        .section-title .product-count {
+            font-weight: 500;
+            font-size: 0.75em;
+            color: var(--text-muted);
+            margin-left: 8px;
+        }
+        .results-info {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 24px;
+        }
+        .results-info strong { color: var(--cyan); }
+
+        /* Grid productos – tarjetas glass futuristas */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 22px;
+        }
+        .product-card {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            background: var(--navy-surface);
+            border: 1px solid var(--navy-border);
+            border-radius: 14px;
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+            transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+        }
+        .product-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(0,212,255,0.3);
+            box-shadow: 0 12px 40px rgba(0,212,255,0.12);
+        }
+        .product-card-img {
+            width: 100%;
+            aspect-ratio: 1.05;
+            background: var(--navy-light);
+            position: relative;
+            overflow: hidden;
+        }
+        .product-card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .product-card-img .no-img {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .product-card-body { padding: 20px; }
+        .product-card-cat {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--cyan);
+            margin-bottom: 6px;
+        }
+        .product-card-name {
+            font-weight: 600;
+            font-size: 1rem;
+            line-height: 1.35;
+            margin-bottom: 8px;
+            color: var(--text);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .product-card-sku {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .product-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .product-card-price {
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: var(--cyan);
+        }
+        .product-card-cta {
+            padding: 10px 18px;
+            background: var(--cyan-soft);
+            color: var(--cyan);
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 0.04em;
+            border-radius: 8px;
+            border: 1px solid rgba(0,212,255,0.25);
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .product-card:hover .product-card-cta {
+            background: rgba(0,212,255,0.25);
+            box-shadow: 0 0 16px var(--cyan-glow);
+        }
+
+        /* Estado vacío */
+        .empty {
+            text-align: center;
+            padding: 64px 24px;
+            background: var(--navy-surface);
+            border: 1px solid var(--navy-border);
+            border-radius: 14px;
+        }
+        .empty h3 {
+            font-size: 1.35rem;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+        .empty p { color: var(--text-muted); }
+
+        /* Footer azul marino */
+        .footer {
+            background: var(--navy-mid);
+            border-top: 1px solid var(--navy-border);
+            color: var(--text-muted);
+            margin-top: 48px;
+        }
+        .footer-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 48px 24px 32px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 32px;
+        }
+        .footer-col h4 {
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+        .footer-col ul { list-style: none; }
+        .footer-col a {
+            display: block;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 4px 0;
+            transition: color 0.2s;
+        }
+        .footer-col a:hover { color: var(--cyan); }
+        .footer-bottom {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 24px;
+            border-top: 1px solid var(--navy-border);
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .footer-credits {
+            display: block;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            opacity: 0.85;
+        }
+
+        .search-loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px;
+            color: var(--cyan);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .search-loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--navy-border);
+            border-top-color: var(--cyan);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Botón flotante WhatsApp - contactar vendedor */
+        .wa-float {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            z-index: 60;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 18px;
+            border-radius: 999px;
+            background: rgba(0,230,118,0.12);
+            border: 1px solid rgba(0,230,118,0.3);
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .wa-float:hover { box-shadow: 0 12px 40px rgba(0,230,118,0.25); transform: translateY(-2px); }
+
+        @media (max-width: 768px) {
+            .header-nav { display: none; }
+            .search-form input { width: 140px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a class="logo-link" href="/">MONTEAZUL SPA</a>
+            <nav class="header-nav">
+                <a href="/">Inicio</a>
+                <a href="{% url 'catalog:product_list' %}" class="active">Catálogo</a>
+                <a href="{% url 'core:vehicle_search' %}">Buscar por vehículo</a>
+                <a href="{% url 'cart:view' %}">Carrito</a>
+            </nav>
+            <div class="header-actions">
+                <form class="search-form" method="get" action="{% url 'catalog:product_list' %}" id="searchForm" data-cat="{{ cat_slug|default:'' }}">
+                    {% if cat_slug %}<input type="hidden" name="cat" value="{{ cat_slug }}">{% endif %}
+                    <input type="text" name="q" value="{{ q }}" placeholder="Buscar SKU, nombre o categoría…" id="searchInput" autocomplete="off">
+                    <button type="submit">🔍</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <aside class="catalog-sidebar">
+            <h3>Filtrar por categoría</h3>
+            <ul class="filter-list">
+                <li>
+                    <a href="{% url 'catalog:product_list' %}{% if q %}?q={{ q|urlencode }}{% endif %}" {% if not current_category %}class="active"{% endif %}>Todos los productos</a>
+                </li>
+                {% for root in root_categories %}
+                    <li>
+                        <a href="{% url 'catalog:product_list' %}?cat={{ root.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category.id == root.id %}class="active"{% endif %}>{{ root.name }}</a>
+                        {% if root.children_list %}
+                            <ul class="filter-list subcategory">
+                                {% for sub in root.children_list %}
+                                    <li>
+                                        <a href="{% url 'catalog:product_list' %}?cat={{ sub.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category.id == sub.id %}class="active"{% endif %}>{{ sub.name }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </aside>
+
+        <div class="catalog-content">
+            <div class="vehicle-search-block">
+                <p class="vehicle-search-label">¿Sabes el año, marca y modelo de tu vehículo?</p>
+                <a href="{% url 'core:vehicle_search' %}" class="btn-vehicle-search">Buscar repuestos por vehículo</a>
+            </div>
+
+            <div class="breadcrumb-bar">
+                <a href="{% url 'catalog:product_list' %}">Catálogo</a>
+                {% if current_category %}
+                    <span class="sep">›</span>
+                    {% if current_category.parent %}
+                        <a href="{% url 'catalog:product_list' %}?cat={{ current_category.parent.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}">{{ current_category.parent.name }}</a>
+                        <span class="sep">›</span>
+                    {% endif %}
+                    <span>{{ current_category.name }}</span>
+                {% else %}
+                    <span class="sep">›</span>
+                    <span>Todos</span>
+                {% endif %}
+            </div>
+
+            <h2 class="section-title">
+                <span id="sectionTitle">{% if current_category %}{{ current_category.name }}{% else %}Productos{% endif %}</span>
+                <span class="product-count" id="productCount">({{ products|length }})</span>
+            </h2>
+
+            <p class="results-info" id="resultsInfo">{% if q %}Buscando: <strong>{{ q }}</strong>{% endif %}</p>
+
+            <div id="productsContainer">
+                {% if products %}
+                <div class="products-grid" id="productsGrid">
+                    {% for product in products %}
+                        <a href="{% url 'catalog:product_detail' product.slug %}" class="product-card">
+                            <div class="product-card-img">
+                                {% if product.images.first %}
+                                    <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                                {% else %}
+                                    <span class="no-img">Sin imagen</span>
+                                {% endif %}
+                            </div>
+                            <div class="product-card-body">
+                                <div class="product-card-cat">
+                                    {% if product.category.parent %}{{ product.category.parent.name }} › {% endif %}{{ product.category.name }}
+                                </div>
+                                <h3 class="product-card-name">{{ product.name }}</h3>
+                                <div class="product-card-sku">{{ product.sku }}</div>
+                                <div class="product-card-footer">
+                                    <span class="product-card-price">{{ product.price|pesos_cl }}</span>
+                                    <span class="product-card-cta">Ver más</span>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty" id="emptyState">
+                    <h3>No hay productos</h3>
+                    <p>{% if q %}Prueba con otros términos.{% elif current_category %}No hay productos en esta categoría.{% else %}Aún no hay productos en el catálogo.{% endif %}</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="search-loading" id="searchLoading" aria-hidden="true" style="display: none;">
+                <span class="search-loading-spinner"></span>
+                <span>Buscando…</span>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-col">
+                <h4>Productos</h4>
+                <ul>
+                    <li><a href="{% url 'catalog:product_list' %}">Catálogo</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Ayuda</h4>
+                <ul>
+                    <li><a href="{% url 'core:vehicle_search' %}">Buscar por vehículo</a></li>
+                    <li><a href="/">Inicio</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Monteazul Spa</h4>
+                <ul>
+                    <li><a href="/">Inicio</a></li>
+                    <li><a href="{% url 'cart:view' %}">Carrito</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © {% now "Y" %} Monteazul Spa • Barros Borgono 71, Providencia, Santiago, Región Metropolitana • Fundada 07/06/2016<br>
+            <span class="footer-credits">Sitio creado por <strong>Atlanta Holding</strong></span>
+        </div>
+    </footer>
+
+    <script>
+    (function() {
+        var searchInput = document.getElementById('searchInput');
+        var searchForm = document.getElementById('searchForm');
+        var productsContainer = document.getElementById('productsContainer');
+        var productCount = document.getElementById('productCount');
+        var resultsInfo = document.getElementById('resultsInfo');
+        var searchLoading = document.getElementById('searchLoading');
+        var catSlug = (searchForm && searchForm.getAttribute('data-cat')) || '';
+        var debounceTimer = null;
+        var DEBOUNCE_MS = 280;
+
+        function escapeHtml(s) {
+            if (!s) return '';
+            var div = document.createElement('div');
+            div.textContent = s;
+            return div.innerHTML;
+        }
+
+        function renderProducts(data) {
+            var products = data.products || [];
+            var count = data.count || 0;
+            productCount.textContent = '(' + count + ')';
+            if (resultsInfo) resultsInfo.innerHTML = searchInput.value.trim() ? 'Buscando: <strong>' + escapeHtml(searchInput.value.trim()) + '</strong>' : '';
+
+            if (products.length === 0) {
+                productsContainer.innerHTML = '<div class="empty" id="emptyState"><h3>No hay productos</h3><p>Prueba con otros términos o quita el filtro de categoría.</p></div>';
+                return;
+            }
+            var html = '<div class="products-grid" id="productsGrid">';
+            for (var i = 0; i < products.length; i++) {
+                var p = products[i];
+                var catDisplay = p.category_parent ? escapeHtml(p.category_parent) + ' › ' : '';
+                catDisplay += escapeHtml(p.category_name);
+                var imgHtml = p.image_url
+                    ? '<img src="' + escapeHtml(p.image_url) + '" alt="' + escapeHtml(p.name) + '">'
+                    : '<span class="no-img">Sin imagen</span>';
+                html += '<a href="' + escapeHtml(p.url) + '" class="product-card">' +
+                    '<div class="product-card-img">' + imgHtml + '</div>' +
+                    '<div class="product-card-body">' +
+                    '<div class="product-card-cat">' + catDisplay + '</div>' +
+                    '<h3 class="product-card-name">' + escapeHtml(p.name) + '</h3>' +
+                    '<div class="product-card-sku">' + escapeHtml(p.sku) + '</div>' +
+                    '<div class="product-card-footer">' +
+                    '<span class="product-card-price">' + escapeHtml(p.price_display) + '</span>' +
+                    '<span class="product-card-cta">Ver más</span></div></div></a>';
+            }
+            html += '</div>';
+            productsContainer.innerHTML = html;
+        }
+
+        function doSearch() {
+            var q = searchInput.value.trim();
+            var params = new URLSearchParams();
+            if (q) params.set('q', q);
+            if (catSlug) params.set('cat', catSlug);
+            searchLoading.style.display = 'flex';
+            productsContainer.style.opacity = '0.5';
+
+            fetch('{% url "catalog:product_search_api" %}?' + params.toString(), {
+                method: 'GET',
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                renderProducts(data);
+            })
+            .catch(function() {
+                productsContainer.innerHTML = '<div class="empty"><h3>Error al buscar</h3><p>Intenta recargar la página.</p></div>';
+            })
+            .finally(function() {
+                searchLoading.style.display = 'none';
+                productsContainer.style.opacity = '1';
+            });
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(doSearch, DEBOUNCE_MS);
+            });
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    clearTimeout(debounceTimer);
+                    doSearch();
+                }
+            });
+        }
+    })();
+    </script>
+    <footer class="site-footer" style="margin-top:2rem;padding:24px 24px 32px;text-align:center;color:var(--text-muted);font-size:0.875rem;border-top:1px solid var(--navy-border);">
+        <p>© 2026 Monteazul Spa • Barros Borgono 71, Providencia, Santiago, Región Metropolitana • Fundada 07/06/2016</p>
+        <p style="margin-top:6px;opacity:0.85;">Sitio creado por Atlanta Holding</p>
+    </footer>
+    <a class="wa-float" href="https://wa.me/{{ whatsapp_number|default:'56900000000' }}?text=Hola%20Monteazul%2C%20quiero%20contactar%20a%20un%20vendedor" target="_blank" rel="noopener" title="Contactar vendedor por WhatsApp">💬 Contactar vendedor</a>
+</body>
+</html>

@@ -1,0 +1,311 @@
+{% load catalog_filters %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repuestos Compatibles | Monteazul Spa</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --color-primary: #1a1a2e;
+            --color-secondary: #16213e;
+            --color-accent: #0f3460;
+            --color-gold: #e94560;
+            --color-gold-light: #ff6b8a;
+            --color-text: #ffffff;
+            --color-text-muted: #b8b8b8;
+            --color-success: #2ecc71;
+            --color-border: #2a2a3e;
+            --gradient-dark: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 50%, #16213e 100%);
+            --gradient-gold: linear-gradient(135deg, #e94560 0%, #ff6b8a 100%);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--color-primary);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: var(--gradient-dark);
+            padding: 40px 20px;
+            border-bottom: 1px solid var(--color-border);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--color-gold);
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: 600;
+            transition: opacity 0.3s;
+        }
+        
+        .back-link:hover {
+            opacity: 0.8;
+        }
+        
+        .fitment-badge {
+            display: inline-block;
+            background: rgba(233, 69, 96, 0.2);
+            border: 1px solid var(--color-gold);
+            border-radius: 8px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .fitment-badge strong {
+            color: var(--color-gold);
+        }
+        
+        .results-header {
+            margin-top: 20px;
+        }
+        
+        .results-title {
+            font-size: clamp(2rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        
+        .results-count {
+            color: var(--color-text-muted);
+            font-size: 1.1rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        
+        .product-card {
+            background: rgba(22, 33, 62, 0.4);
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            display: block;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--color-gold);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.2);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 200px;
+            background: rgba(15, 52, 96, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text-muted);
+        }
+        
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .product-info {
+            padding: 20px;
+        }
+        
+        .product-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--color-text);
+            line-height: 1.4;
+        }
+        
+        .product-sku {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--color-border);
+        }
+        
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--color-success);
+        }
+        
+        .compatibility-badge {
+            display: inline-block;
+            background: rgba(46, 204, 113, 0.2);
+            color: var(--color-success);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 80px 20px;
+            background: rgba(22, 33, 62, 0.4);
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+        }
+        
+        .no-results-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .no-results-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .no-results-text {
+            color: var(--color-text-muted);
+            margin-bottom: 30px;
+        }
+        
+        .btn-primary {
+            display: inline-block;
+            padding: 14px 30px;
+            background: var(--gradient-gold);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(233, 69, 96, 0.6);
+        }
+        .wa-float {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            z-index: 60;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 18px;
+            border-radius: 999px;
+            background: rgba(46, 204, 113, 0.15);
+            border: 1px solid rgba(46, 204, 113, 0.4);
+            color: var(--color-text);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .wa-float:hover { box-shadow: 0 12px 40px rgba(46, 204, 113, 0.3); transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="{% url 'core:vehicle_search' %}" class="back-link">
+                ← Volver a inicio
+            </a>
+            
+            <div class="fitment-badge">
+                <strong>Vehículo validado:</strong> 
+                {{ fitment.brand }} {{ fitment.model }} {{ fitment.year }}
+                {% if fitment.engine %} - {{ fitment.engine }}{% endif %}
+            </div>
+            
+            <div class="results-header">
+                <h1 class="results-title">Repuestos Compatibles</h1>
+                <p class="results-count">
+                    Encontramos <strong>{{ count }}</strong> producto{{ count|pluralize }} compatible{{ count|pluralize }} con tu vehículo
+                </p>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        {% if products %}
+            <div class="products-grid">
+                {% for product in products %}
+                    <a href="{% url 'catalog:product_detail' product.slug %}" class="product-card">
+                        <div class="product-image">
+                            {% if product.images.first %}
+                                <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                            {% else %}
+                                <span>Sin imagen</span>
+                            {% endif %}
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-name">{{ product.name }}</h3>
+                            <div class="product-sku">SKU: {{ product.sku }}</div>
+                            {% if product.euro_norm %}
+                                <div style="margin-bottom: 10px;">
+                                    <span class="compatibility-badge">{{ product.get_euro_norm_display }}</span>
+                                </div>
+                            {% endif %}
+                            <div class="product-footer">
+                                <div class="product-price">{{ product.price|pesos_cl }}</div>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-results">
+                <div class="no-results-icon">🔍</div>
+                <h2 class="no-results-title">No encontramos repuestos compatibles</h2>
+                <p class="no-results-text">
+                    No tenemos productos compatibles para {{ fitment.brand }} {{ fitment.model }} {{ fitment.year }}.
+                    <br>Puede que necesitemos agregar más compatibilidades a nuestro catálogo.
+                </p>
+                <a href="{% url 'core:vehicle_search' %}" class="btn-primary">Validar otro vehículo</a>
+            </div>
+        {% endif %}
+    </div>
+    <footer class="site-footer" style="margin-top:2rem;padding:24px 20px;text-align:center;color:var(--color-text-muted);font-size:0.875rem;border-top:1px solid var(--color-border);">
+        <p>© 2026 Monteazul Spa • Barros Borgono 71, Providencia, Santiago, Región Metropolitana • Fundada 07/06/2016</p>
+        <p style="margin-top:6px;opacity:0.85;">Sitio creado por Atlanta Holding</p>
+    </footer>
+    <a class="wa-float" href="https://wa.me/{{ whatsapp_number }}?text=Hola%20Monteazul%2C%20quiero%20contactar%20a%20un%20vendedor" target="_blank" rel="noopener" title="Contactar vendedor por WhatsApp">💬 Contactar vendedor</a>
+</body>
+</html>

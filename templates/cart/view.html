@@ -1,0 +1,559 @@
+{% load catalog_filters %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras - Monteazul Spa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0c1322;
+            --navy-mid: #121c2e;
+            --navy-light: #1a2742;
+            --navy-surface: rgba(255,255,255,0.04);
+            --navy-border: rgba(255,255,255,0.08);
+            --cyan: #00d4ff;
+            --cyan-soft: rgba(0,212,255,0.15);
+            --cyan-glow: rgba(0,212,255,0.25);
+            --text: #e8ecf4;
+            --text-muted: rgba(255,255,255,0.55);
+            --white: #ffffff;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', system-ui, sans-serif;
+            background: var(--navy);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+        .bg-mesh {
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 120% 80% at 50% -20%, rgba(0,212,255,0.08), transparent 50%),
+                radial-gradient(ellipse 80% 60% at 100% 50%, rgba(120,80,255,0.06), transparent 45%),
+                linear-gradient(180deg, var(--navy) 0%, #0f1828 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.5;
+        }
+        body > *:not(.bg-mesh):not(.grid-bg) { position: relative; z-index: 1; }
+
+        /* Header azul marino, glass */
+        .header {
+            background: rgba(12,19,34,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--navy-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .logo-link {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 800;
+            font-size: 1.25rem;
+            letter-spacing: 0.06em;
+        }
+        .logo-link:hover { color: var(--cyan); }
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .header-nav a {
+            padding: 10px 16px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.03em;
+            border-radius: 8px;
+            transition: color 0.2s, background 0.2s;
+        }
+        .header-nav a:hover { color: var(--cyan); background: var(--cyan-soft); }
+        .header-nav a.active { color: var(--cyan); background: var(--cyan-soft); }
+
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 48px 24px 64px;
+        }
+        .breadcrumb-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .breadcrumb-bar a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+        .breadcrumb-bar a:hover { color: var(--cyan); }
+        .breadcrumb-bar .sep { opacity: 0.6; }
+        .page-title {
+            font-weight: 800;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            letter-spacing: -0.02em;
+            margin-bottom: 28px;
+            color: var(--text);
+        }
+
+        .messages { margin-bottom: 24px; }
+        .message {
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid transparent;
+        }
+        .message.success {
+            background: rgba(0,230,118,0.1);
+            color: #7fffd4;
+            border-color: rgba(0,230,118,0.25);
+        }
+        .message.error {
+            background: rgba(255,82,82,0.1);
+            color: #ff8a80;
+            border-color: rgba(255,82,82,0.25);
+        }
+        .message.warning {
+            background: rgba(255,193,7,0.1);
+            color: #ffe082;
+            border-color: rgba(255,193,7,0.25);
+        }
+
+        .cart-content {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 28px;
+        }
+        .cart-items {
+            background: var(--navy-surface);
+            border: 1px solid var(--navy-border);
+            border-radius: 14px;
+            padding: 28px;
+            backdrop-filter: blur(12px);
+        }
+        .cart-item {
+            display: grid;
+            grid-template-columns: 100px 1fr auto auto;
+            gap: 20px;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--navy-border);
+            align-items: center;
+        }
+        .cart-item:last-child { border-bottom: none; }
+        .item-image {
+            width: 100px;
+            height: 100px;
+            background: var(--navy-light);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--navy-border);
+        }
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .item-image .no-img {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+        .item-info { display: flex; flex-direction: column; gap: 6px; }
+        .item-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .item-sku {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .item-price {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .quantity-input {
+            width: 72px;
+            padding: 10px 12px;
+            border: 1px solid var(--navy-border);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.95rem;
+            background: var(--navy-surface);
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .quantity-input:focus {
+            outline: none;
+            border-color: rgba(0,212,255,0.4);
+        }
+        .btn-update {
+            padding: 10px 18px;
+            background: var(--cyan-soft);
+            color: var(--cyan);
+            border: 1px solid rgba(0,212,255,0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .btn-update:hover {
+            background: rgba(0,212,255,0.25);
+            box-shadow: 0 0 20px var(--cyan-glow);
+        }
+        .item-total {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--cyan);
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .btn-remove {
+            padding: 8px 14px;
+            background: rgba(255,82,82,0.15);
+            color: #ff8a80;
+            border: 1px solid rgba(255,82,82,0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: background 0.2s;
+        }
+        .btn-remove:hover { background: rgba(255,82,82,0.25); }
+
+        .cart-summary {
+            background: var(--navy-surface);
+            border: 1px solid var(--navy-border);
+            border-radius: 14px;
+            padding: 28px;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+            backdrop-filter: blur(12px);
+        }
+        .summary-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--cyan);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--navy-border);
+        }
+        .summary-row:last-child { border-bottom: none; }
+        .summary-label { color: var(--text-muted); font-weight: 500; }
+        .summary-value { font-weight: 700; color: var(--text); }
+        .summary-total { font-size: 1.4rem; color: var(--cyan); font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+        .btn-checkout {
+            width: 100%;
+            padding: 16px;
+            background: var(--cyan-soft);
+            color: var(--cyan);
+            border: 1px solid rgba(0,212,255,0.3);
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: default;
+            margin-top: 20px;
+            opacity: 0.6;
+        }
+        .btn-continue {
+            display: block;
+            text-align: center;
+            padding: 14px 24px;
+            margin-top: 14px;
+            background: var(--cyan-soft);
+            color: var(--cyan);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 0.04em;
+            border-radius: 10px;
+            border: 1px solid rgba(0,212,255,0.3);
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .btn-continue:hover {
+            background: rgba(0,212,255,0.25);
+            box-shadow: 0 0 24px var(--cyan-glow);
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 64px 28px;
+            background: var(--navy-surface);
+            border: 1px solid var(--navy-border);
+            border-radius: 14px;
+            backdrop-filter: blur(12px);
+        }
+        .empty-cart-icon {
+            font-size: 4rem;
+            margin-bottom: 24px;
+            opacity: 0.6;
+        }
+        .empty-cart h3 {
+            color: var(--text);
+            font-weight: 700;
+            margin-bottom: 12px;
+            font-size: 1.35rem;
+        }
+        .empty-cart p {
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+        .empty-cart .btn-continue {
+            display: inline-block;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--navy-mid);
+            border-top: 1px solid var(--navy-border);
+            color: var(--text-muted);
+            margin-top: 48px;
+        }
+        .footer-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 48px 24px 32px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 32px;
+        }
+        .footer-col h4 {
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+        .footer-col ul { list-style: none; }
+        .footer-col a {
+            display: block;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 4px 0;
+            transition: color 0.2s;
+        }
+        .footer-col a:hover { color: var(--cyan); }
+        .footer-bottom {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 24px;
+            border-top: 1px solid var(--navy-border);
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .footer-credits {
+            display: block;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            opacity: 0.85;
+        }
+
+        .wa-float {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            z-index: 60;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 18px;
+            border-radius: 999px;
+            background: rgba(0,230,118,0.12);
+            border: 1px solid rgba(0,230,118,0.3);
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .wa-float:hover { box-shadow: 0 12px 40px rgba(0,230,118,0.25); transform: translateY(-2px); }
+
+        @media (max-width: 900px) {
+            .cart-content { grid-template-columns: 1fr; }
+            .cart-summary { position: static; }
+        }
+        @media (max-width: 640px) {
+            .cart-item {
+                grid-template-columns: 80px 1fr;
+                gap: 14px;
+            }
+            .item-image { width: 80px; height: 80px; }
+            .item-quantity, .item-total { grid-column: 1 / -1; }
+            .item-quantity { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-mesh" aria-hidden="true"></div>
+    <div class="grid-bg" aria-hidden="true"></div>
+
+    <header class="header">
+        <div class="header-inner">
+            <a class="logo-link" href="/">MONTEAZUL SPA</a>
+            <nav class="header-nav">
+                <a href="/">Inicio</a>
+                <a href="{% url 'catalog:product_list' %}">Catálogo</a>
+                <a href="{% url 'core:vehicle_search' %}">Buscar por vehículo</a>
+                <a href="{% url 'cart:view' %}" class="active">Carrito</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="breadcrumb-bar">
+            <a href="{% url 'catalog:product_list' %}">Catálogo</a>
+            <span class="sep">›</span>
+            <span>Carrito</span>
+        </div>
+
+        <h1 class="page-title">Carrito de Compras</h1>
+
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if cart_items %}
+            <div class="cart-content">
+                <div class="cart-items">
+                    {% for item in cart_items %}
+                        <div class="cart-item">
+                            <div class="item-image">
+                                {% if item.product.images.first %}
+                                    <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}">
+                                {% else %}
+                                    <div class="no-img">Sin imagen</div>
+                                {% endif %}
+                            </div>
+                            <div class="item-info">
+                                <div class="item-name">{{ item.product.name }}</div>
+                                <div class="item-sku">SKU: {{ item.product.sku }}</div>
+                                <div class="item-price">{{ item.product.price|pesos_cl }} c/u</div>
+                            </div>
+                            <div class="item-quantity">
+                                <form method="post" action="{% url 'cart:update' item.product.slug %}" style="display: flex; gap: 10px; align-items: center;">
+                                    {% csrf_token %}
+                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" class="quantity-input">
+                                    <button type="submit" class="btn-update">Actualizar</button>
+                                </form>
+                                <form method="post" action="{% url 'cart:remove' item.product.slug %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-remove">Eliminar</button>
+                                </form>
+                            </div>
+                            <div class="item-total">{{ item.total|pesos_cl }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="cart-summary">
+                    <h2 class="summary-title">Resumen</h2>
+                    <div class="summary-row">
+                        <span class="summary-label">Items:</span>
+                        <span class="summary-value">{{ cart_items|length }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Total:</span>
+                        <span class="summary-value summary-total">{{ total|pesos_cl }}</span>
+                    </div>
+                    <button class="btn-checkout" disabled>Proceder al Checkout (Fase 3)</button>
+                    <a href="{% url 'catalog:product_list' %}" class="btn-continue">Seguir Comprando</a>
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-cart">
+                <div class="empty-cart-icon">🛒</div>
+                <h3>Tu carrito está vacío</h3>
+                <p>Agrega productos desde el catálogo para comenzar</p>
+                <a href="{% url 'catalog:product_list' %}" class="btn-continue">Ver Productos</a>
+            </div>
+        {% endif %}
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-col">
+                <h4>Productos</h4>
+                <ul>
+                    <li><a href="{% url 'catalog:product_list' %}">Catálogo</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Ayuda</h4>
+                <ul>
+                    <li><a href="{% url 'core:vehicle_search' %}">Buscar por vehículo</a></li>
+                    <li><a href="/">Inicio</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Monteazul Spa</h4>
+                <ul>
+                    <li><a href="/">Inicio</a></li>
+                    <li><a href="{% url 'cart:view' %}">Carrito</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © {% now "Y" %} Monteazul Spa • Barros Borgono 71, Providencia, Santiago, Región Metropolitana • Fundada 07/06/2016<br>
+            <span class="footer-credits">Sitio creado por <strong>Atlanta Holding</strong></span>
+        </div>
+    </footer>
+
+    <a class="wa-float" href="https://wa.me/{{ whatsapp_number|default:'56900000000' }}?text=Hola%20Monteazul%2C%20quiero%20contactar%20a%20un%20vendedor" target="_blank" rel="noopener" title="Contactar vendedor por WhatsApp">💬 Contactar vendedor</a>
+</body>
+</html>
