@@ -1,29 +1,59 @@
 # Python
 __pycache__/
 *.py[cod]
+*.pyo
+*.pyd
 *$py.class
 *.so
 .Python
-venv/
+*.log
+*.sqlite3
+*.db
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 .venv/
+venv/
 env/
 
 # Django
-*.log
-local_settings.py
-db.sqlite3
 media/
 staticfiles/
+local_settings.py
+.env
+.env.*
+*.pot
+*.mo
 
-# IDE / OS
-.idea/
-.vscode/
+# Node / Tailwind
+node_modules/
+dist/
+.build/
+.cache/
+
+# OS / IDE
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
 
-# Node (solo para build de Tailwind; el resultado static/css/tailwind.css se commitea)
-node_modules/
+# Reports / datasets / dumps
+reports/
+*.csv
+*.xlsx
+*.zip
+*.tar
+*.gz
 
-# Entorno
-.env
-.env.local
+# MonteAzul: assets pesados (si los quieres fuera del repo)
+imagenes/
+misc/*.csv
+misc/*.json
+entradas.txt
+audit_images_report.csv
+dedupe_products_report.csv
+twcat_*.csv
+twcat*.zip
+
+# Admin static (no se versiona normalmente)
+static/admin/
