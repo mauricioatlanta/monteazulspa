@@ -1,9 +1,15 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Monteazul Spa{% endblock %}</title>
+    <meta name="theme-color" content="#0a0c10">
+    <title>{% block title %}Monteazul Spa | Especialistas en Catalíticos y Repuestos{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Venta de catalíticos y repuestos automotrices en Santiago. Barros Borgoño 71, Providencia. Envíos a todo Chile.{% endblock %}">
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+    <!-- Favicon temporal (emoji). Cuando tengas logo: guarda favicon.ico en static/img/ y sustituye por: <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}"> -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚗</text></svg>">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -24,13 +30,29 @@
         .site-footer p { margin: 4px 0; }
         .site-footer .credits { margin-top: 8px; color: rgba(255,255,255,0.5); }
     </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Monteazul Spa",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Barros Borgoño 71",
+        "addressLocality": "Providencia",
+        "addressRegion": "Región Metropolitana",
+        "addressCountry": "CL"
+      },
+      "url": "{{ SITE_URL|default:'https://monteazulspa.cl' }}",
+      "telephone": "+56 9 7950 3154"
+    }
+    </script>
     {% block extra_head %}{% endblock %}
 </head>
 <body>
     {% block content %}{% endblock %}
     <footer class="site-footer">
-        <p>© 2026 Monteazul Spa • Barros Borgono 71, Providencia, Santiago, Región Metropolitana • Fundada 07/06/2016</p>
-        <p class="credits">Sitio creado por Atlanta Holding</p>
+        <p>© {% now "Y" %} Monteazul Spa • Barros Borgoño 71, Providencia, Santiago, Región Metropolitana • Fundada 07/06/2016</p>
+        <p class="credits">Sitio creado por Atlanta Global Solutions</p>
     </footer>
     {% block extra_js %}{% endblock %}
 </body>

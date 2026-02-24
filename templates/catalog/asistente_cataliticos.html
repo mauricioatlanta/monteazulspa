@@ -1,0 +1,581 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistente de Selección | Convertidores Catalíticos | Monteazul Spa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #050810;
+            --navy-mid: #0a0f1a;
+            --navy-light: #0f1625;
+            --navy-surface: rgba(255,255,255,0.05);
+            --navy-border: rgba(255,255,255,0.08);
+            --cyan: #00e5ff;
+            --cyan-soft: rgba(0,229,255,0.12);
+            --cyan-glow: rgba(0,229,255,0.35);
+            --accent: #7c3aed;
+            --accent-glow: rgba(124,58,237,0.2);
+            --text: #e8ecf4;
+            --text-muted: rgba(255,255,255,0.55);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', system-ui, sans-serif;
+            background: var(--navy);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+        /* Fondo futurista: gradientes suaves + grid sutil */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 90% 60% at 15% 15%, rgba(124,58,237,0.12), transparent 50%),
+                radial-gradient(ellipse 80% 50% at 85% 85%, rgba(0,229,255,0.08), transparent 50%),
+                radial-gradient(ellipse 120% 70% at 50% 0%, rgba(0,229,255,0.06), transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0,229,255,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,229,255,0.025) 1px, transparent 1px);
+            background-size: 56px 56px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .header {
+            background: rgba(5,8,16,0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--navy-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo-link {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+        .logo-link:hover { color: var(--cyan); }
+        .header-nav a {
+            padding: 10px 16px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            transition: color 0.2s, background 0.2s;
+        }
+        .header-nav a:hover { color: var(--cyan); background: var(--cyan-soft); }
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 48px 24px 64px;
+        }
+        .breadcrumb {
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .breadcrumb a { color: var(--cyan); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 {
+            font-size: clamp(1.75rem, 4vw, 2.25rem);
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(110deg, #00e5ff 0%, #00ffaa 40%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 20px rgba(0,229,255,0.2));
+        }
+        .subtitle {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            margin-bottom: 36px;
+            line-height: 1.6;
+        }
+        /* Stepper */
+        .stepper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        .stepper::before {
+            content: "";
+            position: absolute;
+            top: 22px;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--navy-border), var(--navy-border));
+            border-radius: 3px;
+            z-index: 0;
+        }
+        .stepper .step-progress {
+            position: absolute;
+            top: 22px;
+            left: 10%;
+            height: 3px;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--cyan), var(--accent));
+            box-shadow: 0 0 12px var(--cyan-glow);
+            z-index: 1;
+            transition: width 0.4s ease;
+        }
+        .step {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+        .step-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: rgba(10,15,26,0.9);
+            border: 1px solid var(--navy-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
+        }
+        .step.active .step-icon {
+            border-color: rgba(0,229,255,0.6);
+            background: var(--cyan-soft);
+            box-shadow: 0 0 18px var(--cyan-glow);
+        }
+        .step.done .step-icon {
+            border-color: rgba(0,230,118,0.5);
+            background: rgba(0,230,118,0.12);
+            box-shadow: 0 0 10px rgba(0,230,118,0.15);
+        }
+        .step-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-align: center;
+        }
+        .step.active .step-label { color: var(--cyan); }
+        .step.done .step-label { color: rgba(255,255,255,0.7); }
+        /* Panels: glass suave y amigable */
+        .wizard-panel {
+            display: none;
+            background: linear-gradient(145deg, rgba(10,15,26,0.85), rgba(5,8,16,0.9));
+            border: 1px solid var(--navy-border);
+            border-radius: 20px;
+            padding: 36px 32px;
+            margin-bottom: 28px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.03);
+        }
+        .wizard-panel.active {
+            display: block;
+            border-color: rgba(0,229,255,0.12);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,229,255,0.06), inset 0 1px 0 rgba(255,255,255,0.03);
+        }
+        .wizard-panel h3 {
+            font-size: 1.22rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 22px;
+            letter-spacing: 0.01em;
+        }
+        .wizard-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        @media (max-width: 520px) {
+            .wizard-options { grid-template-columns: 1fr; }
+        }
+        .wizard-option {
+            display: block;
+            padding: 26px 22px;
+            background: linear-gradient(145deg, rgba(15,22,35,0.7), rgba(8,12,22,0.85));
+            border: 1px solid var(--navy-border);
+            border-radius: 16px;
+            color: var(--text);
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.25s, background 0.25s, box-shadow 0.25s, transform 0.2s ease;
+        }
+        .wizard-option:hover {
+            border-color: rgba(0,229,255,0.4);
+            background: var(--cyan-soft);
+            box-shadow: 0 6px 24px rgba(0,229,255,0.08);
+            transform: translateY(-2px);
+        }
+        .wizard-option.selected {
+            border-color: rgba(0,229,255,0.7);
+            background: var(--cyan-soft);
+            box-shadow: 0 0 20px var(--cyan-glow), inset 0 0 24px rgba(0,229,255,0.04);
+        }
+        .wizard-option .option-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .wizard-option .option-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+        .wizard-option .option-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .wizard-panel-year .year-input-wrap {
+            margin-bottom: 16px;
+        }
+        .wizard-panel-year .year-select-wrap {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+        }
+        .wizard-panel-year select#annoInput {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 100%;
+            max-width: 200px;
+            padding: 14px 44px 14px 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            background: #0f1625;
+            color: #e8ecf4;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .wizard-panel-year select#annoInput:hover {
+            border-color: rgba(0,229,255,0.4);
+        }
+        .wizard-panel-year select#annoInput:focus {
+            outline: none;
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 2px rgba(0,229,255,0.2);
+        }
+        .wizard-panel-year select#annoInput option {
+            background: #0f1625;
+            color: #e8ecf4;
+        }
+        .wizard-panel-year .year-select-wrap::after {
+            content: "";
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 6px solid var(--cyan);
+            pointer-events: none;
+        }
+        .wizard-panel-year .year-hint {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+        .wizard-panel-year .euro-map {
+            margin-top: 20px;
+            padding: 18px;
+            background: rgba(5,8,16,0.6);
+            border: 1px solid var(--navy-border);
+            border-radius: 12px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .wizard-panel-year .euro-map strong { color: var(--cyan); }
+        .wizard-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #00e5ff, #00ffaa);
+            color: #031018;
+            border-radius: 12px;
+        }
+        .btn-primary:hover {
+            box-shadow: 0 0 28px rgba(0,255,200,0.45);
+            transform: scale(1.02);
+        }
+        .btn-secondary {
+            background: var(--navy-surface);
+            color: var(--cyan);
+            border: 1px solid rgba(0,212,255,0.3);
+        }
+        .btn-secondary:hover { background: var(--cyan-soft); }
+        .btn-results {
+            font-size: 1.05rem;
+            padding: 18px 32px;
+        }
+        .link-normativas {
+            display: inline-block;
+            margin-top: 24px;
+            color: var(--cyan);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .link-normativas:hover { text-decoration: underline; }
+        .sr-only {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0,0,0,0) !important;
+            clip-path: inset(50%) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a class="logo-link" href="/">MONTEAZUL SPA</a>
+            <nav class="header-nav">
+                <a href="/">Inicio</a>
+                <a href="{% url 'catalog:product_list' %}">Catálogo</a>
+                <a href="{% url 'catalog:product_list' %}?cat=cataliticos">Catalíticos</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="breadcrumb">
+            <a href="{% url 'catalog:product_list' %}">Catálogo</a> ›
+            <a href="{% url 'catalog:product_list' %}?cat=cataliticos">Convertidores Catalíticos</a> ›
+            Asistente de selección
+        </div>
+
+        <h1>Asistente de Selección Inteligente</h1>
+        <p class="subtitle">Responde 3 preguntas y te mostramos solo los catalíticos compatibles con tu vehículo.</p>
+
+        <div class="stepper" role="list" aria-label="Pasos del asistente">
+            <div class="step-progress" id="stepProgress" style="width: 0%;"></div>
+            <div class="step active" id="step1Indicator" role="listitem">
+                <span class="step-icon" aria-hidden="true">⛽</span>
+                <span class="step-label">Combustible</span>
+            </div>
+            <div class="step" id="step2Indicator" role="listitem">
+                <span class="step-icon" aria-hidden="true">📅</span>
+                <span class="step-label">Año</span>
+            </div>
+            <div class="step" id="step3Indicator" role="listitem">
+                <span class="step-icon" aria-hidden="true">🔧</span>
+                <span class="step-label">Tipo</span>
+            </div>
+        </div>
+
+        <form method="get" action="{% url 'catalog:product_list' %}" id="wizardForm">
+            <input type="hidden" name="fuel" id="formFuel" value="">
+            <input type="hidden" name="anno" id="formAnno" value="">
+            <input type="hidden" name="tipo" id="formTipo" value="">
+
+            <div class="wizard-panel active" id="panel1" role="tabpanel" aria-labelledby="step1Indicator">
+                <h3>¿Qué combustible usa tu vehículo?</h3>
+                <div class="wizard-options">
+                    <button type="button" class="wizard-option" data-value="bencina" data-step="1">
+                        <span class="option-icon">⛽</span>
+                        <span class="option-title">Bencina</span>
+                        <span class="option-desc">Gasolina</span>
+                    </button>
+                    <button type="button" class="wizard-option" data-value="diesel" data-step="1">
+                        <span class="option-icon">🛢️</span>
+                        <span class="option-title">Diesel</span>
+                        <span class="option-desc">Diésel</span>
+                    </button>
+                </div>
+                <div class="wizard-actions">
+                    <button type="button" class="btn btn-primary" id="next1">Siguiente</button>
+                </div>
+            </div>
+
+            <div class="wizard-panel wizard-panel-year" id="panel2" role="tabpanel" aria-labelledby="step2Indicator">
+                <h3>¿De qué año es tu vehículo?</h3>
+                <p class="year-hint">Define la normativa Euro (3, 4 o 5) de tu catalítico.</p>
+                <div class="year-input-wrap">
+                    <div class="year-select-wrap">
+                        <select id="annoInput" aria-label="Año del vehículo" required>
+                            <option value="">Selecciona el año</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="euro-map">
+                    <strong>Referencia:</strong> Antes de 2006 → Euro 3 · 2006 a 2010 → Euro 4 · 2011 en adelante → Euro 5. En autos 2011 o más nuevos solo mostramos Euro 5 para evitar falla de «Check Engine».
+                </div>
+                <div class="wizard-actions">
+                    <button type="button" class="btn btn-secondary" id="back2">Atrás</button>
+                    <button type="button" class="btn btn-primary" id="next2">Siguiente</button>
+                </div>
+            </div>
+
+            <div class="wizard-panel" id="panel3" role="tabpanel" aria-labelledby="step3Indicator">
+                <h3>¿Buscas una solución económica o la pieza original?</h3>
+                <div class="wizard-options">
+                    <button type="button" class="wizard-option" data-value="twg" data-step="3">
+                        <span class="option-icon">🔩</span>
+                        <span class="option-title">Económica / Universal (TWG)</span>
+                        <span class="option-desc">Instalación con soldadura</span>
+                    </button>
+                    <button type="button" class="wizard-option" data-value="clf" data-step="3">
+                        <span class="option-icon">✓</span>
+                        <span class="option-title">Ensamble Directo CLF</span>
+                        <span class="option-desc">Plug & Play por modelo</span>
+                    </button>
+                </div>
+                <div class="wizard-actions">
+                    <button type="button" class="btn btn-secondary" id="back3">Atrás</button>
+                    <button type="submit" class="btn btn-primary btn-results" id="btnResults">Ver mis resultados compatibles</button>
+                </div>
+            </div>
+        </form>
+
+        <p><a href="{% url 'normativas' %}" class="link-normativas">¿Por qué es importante elegir la norma correcta? Historia y normas Euro →</a></p>
+    </main>
+
+    <script>
+    (function() {
+        var form = document.getElementById('wizardForm');
+        var formFuel = document.getElementById('formFuel');
+        var formAnno = document.getElementById('formAnno');
+        var formTipo = document.getElementById('formTipo');
+        var annoInput = document.getElementById('annoInput');
+        var stepProgress = document.getElementById('stepProgress');
+        var panels = [document.getElementById('panel1'), document.getElementById('panel2'), document.getElementById('panel3')];
+        var steps = [document.getElementById('step1Indicator'), document.getElementById('step2Indicator'), document.getElementById('step3Indicator')];
+        var currentStep = 1;
+
+        // Rellenar años 1960..2026 ascendente
+        var startYear = 1960, endYear = 2026;
+        for (var y = startYear; y <= endYear; y++) {
+            var opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = y;
+            annoInput.appendChild(opt);
+        }
+
+        function goToStep(step) {
+            currentStep = step;
+            panels.forEach(function(p, i) {
+                p.classList.toggle('active', i + 1 === step);
+            });
+            steps.forEach(function(s, i) {
+                s.classList.remove('active');
+                s.classList.remove('done');
+                if (i + 1 < step) s.classList.add('done');
+                if (i + 1 === step) s.classList.add('active');
+            });
+            if (stepProgress) {
+                var pct = step <= 1 ? 0 : (step - 1) * 40;
+                stepProgress.style.width = pct + '%';
+            }
+        }
+
+        function validateStep2() {
+            var v = annoInput.value;
+            if (!v) return false;
+            var y = parseInt(v, 10);
+            return !isNaN(y) && y >= 1960 && y <= 2026;
+        }
+
+        document.querySelectorAll('.wizard-option[data-step="1"]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.wizard-option[data-step="1"]').forEach(function(b) { b.classList.remove('selected'); });
+                btn.classList.add('selected');
+                formFuel.value = btn.getAttribute('data-value');
+            });
+        });
+
+        document.querySelectorAll('.wizard-option[data-step="3"]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.wizard-option[data-step="3"]').forEach(function(b) { b.classList.remove('selected'); });
+                btn.classList.add('selected');
+                formTipo.value = btn.getAttribute('data-value');
+            });
+        });
+
+        document.getElementById('next1').addEventListener('click', function() {
+            if (formFuel.value) goToStep(2);
+        });
+
+        document.getElementById('next2').addEventListener('click', function() {
+            if (validateStep2()) {
+                formAnno.value = annoInput.value;
+                goToStep(3);
+            } else {
+                annoInput.reportValidity();
+            }
+        });
+
+        document.getElementById('back2').addEventListener('click', function() { goToStep(1); });
+        document.getElementById('back3').addEventListener('click', function() { goToStep(2); });
+
+        form.addEventListener('submit', function() {
+            formAnno.value = annoInput.value;
+            if (!formFuel.value || !formTipo.value) {
+                if (!formFuel.value) goToStep(1);
+                else if (!formTipo.value) goToStep(3);
+                return false;
+            }
+            if (!validateStep2()) {
+                goToStep(2);
+                return false;
+            }
+        });
+    })();
+    </script>
+</body>
+</html>

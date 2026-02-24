@@ -1,0 +1,41 @@
+{% comment %}
+  Modal de ubicación para envío. Región y comuna como selects filtrados por región.
+  Al guardar se envía a set-location y se persiste en session.
+{% endcomment %}
+<div id="location-modal" class="fixed inset-0 z-[100] hidden" aria-hidden="true" role="dialog" aria-labelledby="location-modal-title"
+     data-url-regiones="{% url 'core:api_regiones' %}"
+     data-url-comunas="{% url 'core:api_comunas' %}"
+     data-saved-region="{{ shipping_location_region|default:'' }}"
+     data-saved-comuna="{{ shipping_location_comuna|default:'' }}">
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="location-modal-backdrop"></div>
+  <div class="absolute inset-0 flex items-center justify-center p-4">
+    <div class="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#0d1117] shadow-2xl" id="location-modal-panel">
+      <div class="p-6">
+        <h2 id="location-modal-title" class="text-xl font-bold text-white mb-1">Indica tu ubicación</h2>
+        <p class="text-sm text-white/60 mb-4">Para calcular tiempos de envío y disponibilidad.</p>
+        <form id="location-form" method="post" action="{% url 'core:set_location' %}">
+          {% csrf_token %}
+          <input type="hidden" name="region" id="location-region-value" value="{{ shipping_location_region|default:'' }}">
+          <div class="space-y-4">
+            <div>
+              <label for="location-region" class="block text-sm font-medium text-white/80 mb-1">Región</label>
+              <select id="location-region" class="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 px-4 text-white focus:border-[#00f0ff]/50 focus:ring-1 focus:ring-[#00f0ff]/30 focus:outline-none" aria-label="Seleccionar región">
+                <option value="">Selecciona una región</option>
+              </select>
+            </div>
+            <div>
+              <label for="location-comuna" class="block text-sm font-medium text-white/80 mb-1">Comuna</label>
+              <select id="location-comuna" name="comuna" class="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 px-4 text-white focus:border-[#00f0ff]/50 focus:ring-1 focus:ring-[#00f0ff]/30 focus:outline-none disabled:opacity-60" aria-label="Seleccionar comuna" disabled>
+                <option value="">Primero elige una región</option>
+              </select>
+            </div>
+          </div>
+          <div class="mt-6 flex gap-3">
+            <button type="button" id="location-close" class="flex-1 py-2.5 px-4 rounded-xl border border-white/20 text-white/90 font-semibold hover:bg-white/5 transition-colors">Cancelar</button>
+            <button type="submit" class="flex-1 py-2.5 px-4 rounded-xl bg-[#00f0ff] text-[#0a0c10] font-bold hover:bg-[#00d4e6] transition-colors">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

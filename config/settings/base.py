@@ -29,6 +29,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.humanize",
+    "django.contrib.sitemaps",
 
     # Apps
     "apps.core.apps.CoreConfig",
@@ -42,6 +44,9 @@ INSTALLED_APPS = [
     "apps.shipping.apps.ShippingConfig",
     "apps.audit.apps.AuditConfig",
     "apps.reports.apps.ReportsConfig",
+    "apps.ops.apps.OpsConfig",
+    "apps.reviews.apps.ReviewsConfig",
+    "apps.blog.apps.BlogConfig",
 ]
 
 MIDDLEWARE = [
@@ -101,3 +106,12 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# --- Transbank Webpay Plus (NUNCA hardcode; usar .env) ---
+TBK_ENV = env("TBK_ENV", default="integration").strip().lower()
+TBK_COMMERCE_CODE = env("TBK_COMMERCE_CODE", default="597055555532").strip()
+TBK_API_KEY = env("TBK_API_KEY", default="").strip()
+TBK_RETURN_URL = env(
+    "TBK_RETURN_URL",
+    default="https://monteazulspa.cl/carrito/webpay/retorno/",
+).strip()

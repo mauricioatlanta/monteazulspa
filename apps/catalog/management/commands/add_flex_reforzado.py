@@ -14,29 +14,30 @@ from django.core.management.base import BaseCommand
 from django.utils.text import slugify
 
 from apps.catalog.models import Category, Product, ProductImage
+from apps.catalog.flexibles_nomenclature import FLEXIBLES_NIPPLES_NOMENCLATURE
 
 
-# 2x6 y 2x8 reforzados con nipple = 2x6 y 2x8 con extensión (mismo producto)
+# 2 X 6 y 2 X 8 reforzados con nipple (nomenclatura lista de precios: "flex reforzado with napples")
 PRODUCTS = [
     {
         "sku": "2X6EXT-REF",
-        "name": "Flexible reforzado con nipple 2\" x 6\" (con extensión)",
+        "name": FLEXIBLES_NIPPLES_NOMENCLATURE["2X6EXT-REF"],
         "price": Decimal("24990"),
         "cost_price": Decimal("0"),
         "weight": Decimal("0.55"),
         "volume": Decimal("0.55"),
         "image_filename": "2x6extension.png",
-        "alt_text": "Flexible reforzado con nipple 2 x 6 pulgadas, calidad superior",
+        "alt_text": "Flexible reforzado con nipple 2 X 6 pulgadas, calidad superior",
     },
     {
         "sku": "2X8EXT-REF",
-        "name": "Flexible reforzado con nipple 2\" x 8\" (con extensión)",
+        "name": FLEXIBLES_NIPPLES_NOMENCLATURE["2X8EXT-REF"],
         "price": Decimal("27990"),
         "cost_price": Decimal("0"),
         "weight": Decimal("0.65"),
         "volume": Decimal("0.65"),
         "image_filename": "2x8extension.png",
-        "alt_text": "Flexible reforzado con nipple 2 x 8 pulgadas, calidad superior",
+        "alt_text": "Flexible reforzado con nipple 2 X 8 pulgadas, calidad superior",
     },
 ]
 

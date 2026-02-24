@@ -19,7 +19,26 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.sitemaps.views import sitemap
+from django.views.generic import TemplateView
+
 from apps.core import views as core_views
+from apps.catalog.views import normativas as catalog_normativas
+from config.sitemaps import (
+    StaticViewSitemap,
+    ProductSitemap,
+    CategorySitemap,
+    BlogPostSitemap,
+    VehicleLandingSitemap,
+)
+
+sitemaps = {
+    "static": StaticViewSitemap,
+    "categories": CategorySitemap,
+    "products": ProductSitemap,
+    "blog": BlogPostSitemap,
+    "vehicles": VehicleLandingSitemap,
+}
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -27,15 +46,51 @@ urlpatterns = [
     # Alias sin namespace para compatibilidad
     path("validar-vehiculo/", core_views.validate_vehicle, name="validate_vehicle"),
 
+    # Home público (nombre 'home' para enlaces desde app cataliticos)
+    path("inicio/", core_views.home, name="home"),
+
     # Sitio público / home con namespace core
     path("", include(("apps.core.urls", "core"), namespace="core")),
 
     # Catálogo y carrito
     path("productos/", include(("apps.catalog.urls", "catalog"), namespace="catalog")),
+    path("normativas/", catalog_normativas, name="normativas"),
     path("carrito/", include(("apps.cart.urls", "cart"), namespace="cart")),
+    path("blog/", include(("apps.blog.urls", "blog"), namespace="blog")),
+    # Centro de Operaciones (OWNER / ADMIN_OPERACIONES)
+    path("ops/", include(("apps.ops.urls", "ops"), namespace="ops")),
+    # Alias /operaciones/ -> mismo que ops (p. ej. /operaciones/catalogo/)
+    path("operaciones/", include(("apps.ops.urls", "ops"), namespace="operations")),
+    path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="django_sitemap"),
+    path(
+        "robots.txt",
+        TemplateView.as_view(template_name="seo/robots.txt", content_type="text/plain"),
+        name="robots_txt",
+    ),
+    path("nosotros/", TemplateView.as_view(template_name="pages/nosotros.html"), name="nosotros"),
+    path("garantias/", TemplateView.as_view(template_name="pages/garantias.html"), name="garantias"),
+    path("devoluciones/", TemplateView.as_view(template_name="pages/devoluciones.html"), name="devoluciones"),
+    path("faq/", TemplateView.as_view(template_name="pages/faq.html"), name="faq"),
 ]
+
+# Incluir app cataliticos si está disponible (proyecto hermano en ../cataliticos)
+# Usar string para include() hace que Django cargue las URLs bajo demanda (al resolver),
+# evitando importar modelos antes de que las apps estén listas.
+import sys
+from pathlib import Path
+_cataliticos_root = Path(settings.BASE_DIR).parent / "cataliticos"
+if _cataliticos_root.exists():
+    if str(_cataliticos_root) not in sys.path:
+        sys.path.insert(0, str(_cataliticos_root))
+    urlpatterns += [
+        path("cataliticos/", include("cataliticos.urls", namespace="cataliticos")),
+    ]
 
 # Servir archivos media en desarrollo
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# Handlers de error personalizados
+handler404 = "apps.core.views.page_404"
+handler500 = "apps.core.views.page_500"

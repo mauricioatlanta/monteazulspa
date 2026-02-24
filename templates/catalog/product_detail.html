@@ -1,470 +1,579 @@
-{% load catalog_filters %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ product.name }} - Monteazul Spa</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #0a0c10;
-            --surface: rgba(255,255,255,0.03);
-            --surface-hover: rgba(255,255,255,0.06);
-            --border: rgba(255,255,255,0.08);
-            --text: #f0f2f5;
-            --muted: rgba(255,255,255,0.5);
-            --accent: #00f0ff;
-            --accent-soft: rgba(0,240,255,0.12);
-            --yellow: #ffc800;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Outfit', system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        .bg-mesh {
-            position: fixed;
-            inset: 0;
-            background:
-                radial-gradient(ellipse 120% 80% at 50% -20%, rgba(0,240,255,0.08), transparent 50%),
-                radial-gradient(ellipse 80% 60% at 100% 50%, rgba(120,80,255,0.06), transparent 45%),
-                linear-gradient(180deg, var(--bg) 0%, #0d1016 100%);
-            pointer-events: none;
-        }
-        .grid-bg {
-            position: fixed;
-            inset: 0;
-            background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
-            background-size: 48px 48px;
-            pointer-events: none;
-            opacity: 0.5;
-        }
-        .header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(20px);
-            background: rgba(10,12,16,0.7);
-            border-bottom: 1px solid var(--border);
-        }
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 14px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-        .logo-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: inherit;
-            font-weight: 800;
-            font-size: 1.35rem;
-            letter-spacing: 0.06em;
-        }
-        .logo-link:hover { color: var(--accent); }
-        .nav {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
-        .nav a {
-            padding: 10px 16px;
-            border-radius: 10px;
-            color: var(--muted);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: color 0.2s, background 0.2s;
-        }
-        .nav a:hover { color: var(--accent); background: var(--surface-hover); }
-        .container {
-            position: relative;
-            z-index: 1;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 32px 24px 48px;
-        }
-        .breadcrumb {
-            margin-bottom: 24px;
-            color: var(--muted);
-            font-size: 14px;
-        }
-        .breadcrumb a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-        .breadcrumb a:hover { text-decoration: underline; }
-        .product-detail {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            overflow: hidden;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            padding: 40px;
-        }
-        .product-images {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .main-image {
-            width: 100%;
-            height: 400px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        .main-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .thumbnail-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-        .thumbnail {
-            width: 100%;
-            height: 80px;
-            background: rgba(0,0,0,0.2);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            cursor: pointer;
-            overflow: hidden;
-            transition: border-color 0.2s;
-        }
-        .thumbnail:hover { border-color: var(--accent); }
-        .thumbnail img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .product-info {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .product-sku {
-            font-size: 14px;
-            color: var(--muted);
-        }
-        .product-title {
-            font-size: 2em;
-            font-weight: 800;
-            color: var(--text);
-            line-height: 1.2;
-            letter-spacing: -0.02em;
-        }
-        .product-category {
-            display: inline-block;
-            padding: 8px 14px;
-            background: var(--accent-soft);
-            color: var(--accent);
-            border: 1px solid rgba(0,240,255,0.25);
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        .product-price {
-            font-size: 2.5em;
-            font-weight: 800;
-            color: var(--yellow);
-        }
-        .product-quality {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 20px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            font-weight: 600;
-            color: var(--text);
-        }
-        .quality-score {
-            font-size: 1.2em;
-            color: var(--accent);
-        }
-        .product-specs {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-        }
-        .specs-title {
-            font-size: 1.2em;
-            font-weight: 700;
-            margin-bottom: 15px;
-            color: var(--text);
-        }
-        .specs-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
-        .spec-item {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        .spec-label {
-            font-size: 12px;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .spec-value {
-            font-size: 16px;
-            font-weight: 500;
-            color: var(--text);
-        }
-        .compatibility-section {
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 1px solid var(--border);
-        }
-        .compatibility-title {
-            font-size: 1.2em;
-            font-weight: 700;
-            margin-bottom: 15px;
-            color: var(--text);
-        }
-        .compatibility-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .compatibility-item {
-            padding: 12px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            color: var(--text);
-        }
-        .add-to-cart {
-            margin-top: 30px;
-        }
-        .btn-cart {
-            width: 100%;
-            padding: 16px;
-            background: var(--yellow);
-            color: #0a0c10;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 800;
-            font-family: inherit;
-            letter-spacing: 0.04em;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .btn-cart:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 32px rgba(255,200,0,0.25);
-        }
-        .btn-cart-secondary {
-            background: var(--accent-soft) !important;
-            color: var(--accent) !important;
-        }
-        .btn-cart-secondary:hover {
-            background: rgba(0,240,255,0.25) !important;
-        }
-        .stock-info {
-            margin-top: 10px;
-            font-size: 14px;
-            color: var(--muted);
-        }
-        .stock-available {
-            color: var(--accent);
-            font-weight: 600;
-        }
-        .stock-low {
-            color: #ffc800;
-            font-weight: 600;
-        }
-        .message-success { background: rgba(0,230,118,0.12); color: #00e676; border-color: rgba(0,230,118,0.3); }
-        .message-error { background: rgba(255,82,82,0.12); color: #ff5252; border-color: rgba(255,82,82,0.3); }
-        .message-warning { background: rgba(255,200,0,0.12); color: var(--yellow); border-color: rgba(255,200,0,0.3); }
-        @media (max-width: 768px) {
-            .product-detail {
-                grid-template-columns: 1fr;
-                padding: 24px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="bg-mesh" aria-hidden="true"></div>
-    <div class="grid-bg" aria-hidden="true"></div>
+{% extends "base_public.html" %}
+{% load catalog_filters %}{% load static %}{% load seo_tags %}
+{% with seo_title=product.seo_title|default:product.name %}
+{% with seo_desc=product.seo_description|default:product.ficha_tecnica|striptags|truncatechars:155 %}
+{% block meta_title %}{{ seo_title }} | MonteAzul SPA{% endblock %}
+{% block meta_description %}
+  {% if seo_desc %}{{ seo_desc }}{% else %}{{ product.name }} en MonteAzul SPA. Repuestos de escape en Santiago: retiro en bodega en Macul o despacho a todo Chile.{% endif %}
+{% endblock %}
+{% block og_title %}{{ seo_title }} | MonteAzul SPA{% endblock %}
+{% block og_description %}
+  {% if seo_desc %}{{ seo_desc }}{% else %}{{ product.name }} - Repuestos de escape en Chile.{% endif %}
+{% endblock %}
+{% endwith %}
+{% endwith %}
 
-    <header class="header">
-        <div class="header-content">
-            <a class="logo-link" href="/">🚀 Monteazul Spa</a>
-            <nav class="nav">
-                <a href="/">Inicio</a>
-                <a href="{% url 'catalog:product_list' %}">Productos</a>
-                <a href="{% url 'cart:view' %}">Carrito</a>
-            </nav>
+{% block extra_head %}
+<style>
+  .product-gallery-main { aspect-ratio: 1; }
+  @media (min-width: 768px) { .product-gallery-main { max-height: 480px; aspect-ratio: auto; } }
+  .product-gallery-main img { max-width: 80%; max-height: 80%; width: auto; height: auto; object-fit: contain; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+  {% if messages %}
+    <div class="mb-6 space-y-2">
+      {% for message in messages %}
+        <div class="p-4 rounded-xl border {% if message.tags == 'success' %}bg-emerald-500/10 border-emerald-500/30 text-emerald-400{% elif message.tags == 'error' %}bg-red-500/10 border-red-500/30 text-red-400{% else %}bg-amber-500/10 border-amber-500/30 text-amber-400{% endif %}">
+          {{ message }}
         </div>
-    </header>
-
-    <div class="container">
-        {% if messages %}
-            <div style="margin-bottom: 20px;">
-                {% for message in messages %}
-                    <div class="{% if message.tags == 'success' %}message-success{% elif message.tags == 'error' %}message-error{% else %}message-warning{% endif %}" style="padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid;">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-        
-        <div class="breadcrumb">
-            <a href="/">Inicio</a> / 
-            <a href="{% url 'catalog:product_list' %}">Productos</a> / 
-            {{ product.name }}
-        </div>
-
-        <div class="product-detail">
-            <div class="product-images">
-                <div class="main-image">
-                    {% if product.images.first %}
-                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" id="mainImage">
-                    {% else %}
-                        <span>Sin imagen</span>
-                    {% endif %}
-                </div>
-                {% if product.images.count > 1 %}
-                    <div class="thumbnail-grid">
-                        {% for image in product.images.all %}
-                            <div class="thumbnail" onclick="document.getElementById('mainImage').src='{{ image.image.url }}'">
-                                <img src="{{ image.image.url }}" alt="{{ product.name }}">
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="product-info">
-                <div class="product-sku">SKU: {{ product.sku }}</div>
-                <h1 class="product-title">{{ product.name }}</h1>
-                <span class="product-category">{{ product.category.name }}</span>
-                
-                <div class="product-price">{{ product.price|pesos_cl }}</div>
-                
-                <div class="product-quality">
-                    <span>Calificación:</span>
-                    <span class="quality-score">{{ product.quality_score }}/100</span>
-                </div>
-
-                <div class="product-specs">
-                    <h3 class="specs-title">Especificaciones Técnicas</h3>
-                    <div class="specs-grid">
-                        {% if product.euro_norm %}
-                            <div class="spec-item">
-                                <span class="spec-label">Norma Euro</span>
-                                <span class="spec-value">{{ product.get_euro_norm_display }}</span>
-                            </div>
-                        {% endif %}
-                        {% if product.material %}
-                            <div class="spec-item">
-                                <span class="spec-label">Material</span>
-                                <span class="spec-value">{{ product.get_material_display }}</span>
-                            </div>
-                        {% endif %}
-                        {% if product.install_type %}
-                            <div class="spec-item">
-                                <span class="spec-label">Tipo de Instalación</span>
-                                <span class="spec-value">{{ product.get_install_type_display }}</span>
-                            </div>
-                        {% endif %}
-                        <div class="spec-item">
-                            <span class="spec-label">Stock Disponible</span>
-                            <span class="spec-value">{{ product.stock }} unidades</span>
-                        </div>
-                    </div>
-                </div>
-
-                {% if product.compatibilities.exists %}
-                    <div class="compatibility-section">
-                        <h3 class="compatibility-title">Compatibilidad de Vehículos</h3>
-                        <div class="compatibility-list">
-                            {% for compat in product.compatibilities.all %}
-                                {% if compat.is_active %}
-                                    <div class="compatibility-item">
-                                        <strong>{{ compat.model }}</strong> 
-                                        ({{ compat.year_from }}-{{ compat.year_to }})
-                                        {% if compat.engine %} - {{ compat.engine }}{% endif %}
-                                        {% if compat.fuel_type %} - {{ compat.get_fuel_type_display }}{% endif %}
-                                        <span style="color: var(--muted); font-size: 12px;">({{ compat.get_confidence_display }})</span>
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% endif %}
-
-                <div class="add-to-cart">
-                    {% if product.stock > 0 %}
-                        <form method="post" action="{% url 'cart:add' product.slug %}" style="display: flex; flex-direction: column; gap: 15px;">
-                            {% csrf_token %}
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <label for="quantity" style="font-weight: 500;">Cantidad:</label>
-                                <input 
-                                    type="number" 
-                                    name="quantity" 
-                                    id="quantity" 
-                                    value="1" 
-                                    min="1" 
-                                    max="{{ product.stock }}"
-                                    style="padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; width: 100px; font-size: 16px; background: rgba(255,255,255,0.04); color: var(--text); font-family: inherit;"
-                                >
-                            </div>
-                            <button type="submit" class="btn-cart">
-                                Agregar al Carrito
-                            </button>
-                            <button type="submit" name="redirect" value="cart" class="btn-cart btn-cart-secondary">
-                                Agregar y Ver Carrito
-                            </button>
-                        </form>
-                    {% else %}
-                        <button class="btn-cart" disabled style="opacity: 0.5; cursor: not-allowed;">
-                            Sin Stock
-                        </button>
-                    {% endif %}
-                    <div class="stock-info">
-                        {% if product.stock > 0 %}
-                            <span class="stock-available">✓ Disponible ({{ product.stock }} unidades)</span>
-                        {% elif product.stock == 0 %}
-                            <span class="stock-low">⚠ Agotado</span>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
+      {% endfor %}
     </div>
-    <footer class="site-footer" style="margin-top:2rem;padding:24px;text-align:center;color:var(--muted);font-size:0.875rem;border-top:1px solid var(--border);">
-        <p>© 2026 Monteazul Spa • Barros Borgono 71, Providencia, Santiago, Región Metropolitana • Fundada 07/06/2016</p>
-        <p style="margin-top:6px;opacity:0.85;">Sitio creado por Atlanta Holding</p>
-    </footer>
-</body>
-</html>
+  {% endif %}
+
+  <nav class="text-sm text-white/50 mb-6" aria-label="Breadcrumb">
+    <a href="{% url 'core:home' %}" class="text-[#00f0ff] hover:underline">Inicio</a>
+    <span class="mx-2">/</span>
+    <a href="{% url 'catalog:product_list' %}" class="text-[#00f0ff] hover:underline">Productos</a>
+    <span class="mx-2">/</span>
+    <span class="text-white/70">{{ product.name|truncatewords:6 }}</span>
+  </nav>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "Inicio", "item": "{{ SITE_URL|default:'https://monteazulspa.cl' }}/"},
+      {"@type": "ListItem", "position": 2, "name": "Productos", "item": "{{ SITE_URL|default:'https://monteazulspa.cl' }}/productos/"},
+      {"@type": "ListItem", "position": 3, "name": "{{ product.name|escapejs }}", "item": "{% canonical_url %}"}
+
+    ]
+  }
+  </script>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- Galería / imagen -->
+    <section class="lg:col-span-7 rounded-2xl border border-white/10 bg-white/5 p-4">
+      <div class="product-gallery-main rounded-xl bg-black/40 flex items-center justify-center overflow-hidden">
+        {% with first_img=product.images.first %}
+          {% if first_img.image %}
+            <img src="{{ first_img.image.url }}" id="mainProductImage" class="w-full h-full object-contain" alt="{{ product.name }}" loading="lazy" width="600" height="600">
+          {% else %}
+            <img src="{% static 'img/placeholder-product.svg' %}" id="mainProductImage" class="w-3/4 h-3/4 object-contain opacity-60" alt="{{ product.name }}" loading="lazy" width="400" height="400">
+          {% endif %}
+        {% endwith %}
+      </div>
+      {% if product.images.count > 1 %}
+        <div class="grid grid-cols-4 gap-2 mt-4" role="list" aria-label="Galería del producto">
+          {% for image in product.images.all %}
+            {% if image.image %}
+              <button type="button" class="thumbnail-btn rounded-xl border-2 hover:border-[#00f0ff]/50 overflow-hidden bg-white/5 transition-colors focus:border-[#00f0ff] focus:outline-none {% if image.is_primary %}border-[#00f0ff]{% else %}border-white/10{% endif %}" data-src="{{ image.image.url }}" aria-label="{% if image.is_primary %}Imagen principal{% else %}Ver imagen {{ forloop.counter }}{% endif %}" role="listitem">
+                <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:product.name }}" class="w-full aspect-square object-cover" loading="lazy">
+              </button>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+      <div class="mt-4 text-sm opacity-80">
+        <div><span class="opacity-60">SKU:</span> {{ product.sku|default:"—" }}</div>
+        <div><span class="opacity-60">Categoría:</span> {{ product.category.name|default:"—" }}</div>
+      </div>
+    </section>
+
+    <!-- Buybox -->
+    <aside class="lg:col-span-5 rounded-2xl border border-white/10 bg-white/5 p-5">
+      <div class="text-xs text-emerald-300">
+        {% if product.stock > 0 %}
+          Stock disponible: {{ product.stock }}
+        {% else %}
+          <span class="text-amber-400">Sin stock</span>
+        {% endif %}
+      </div>
+      <h1 class="mt-2 text-2xl font-semibold">
+        {% if product.seo_h1 %}{{ product.seo_h1 }}{% else %}{{ product.name }}{% endif %}
+      </h1>
+      <p class="mt-2 text-sm text-white/75 leading-relaxed">
+        {% if product.seo_intro %}
+          {{ product.seo_intro }}
+        {% else %}
+          Repuesto de escape automotriz disponible en <strong>Santiago</strong>. Retiro en bodega en <strong>Macul</strong> o despacho a todo Chile.
+          {% if is_catalitico %}
+            {% if product.euro_norm %} Compatible con norma <strong>{{ product.get_euro_norm_display }}</strong>.{% endif %}
+            {% if product.diametro_entrada %} Diámetro <strong>{{ product.diametro_entrada }}"</strong>.{% endif %}
+            {% if product.tiene_sensor %} Incluye rosca para sensor O2.{% endif %}
+          {% endif %}
+        {% endif %}
+      </p>
+      <div class="flex flex-wrap items-center gap-2 mt-2">
+        {% if product.euro_norm %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-[#00f0ff]/10 border border-[#00f0ff]/20 text-[#00f0ff] text-xs font-semibold">{{ product.get_euro_norm_display }}</span>
+        {% endif %}
+        {% if product.combustible %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-white/10 border border-white/20 text-white/90 text-xs font-semibold">{{ product.get_combustible_display }}</span>
+        {% endif %}
+        {% if product.install_type %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-[#ffc800]/10 border border-[#ffc800]/20 text-[#ffc800] text-xs font-semibold">{{ product.get_install_type_display }}</span>
+        {% endif %}
+        {% if product.tiene_sensor %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold">Con sensor</span>
+        {% endif %}
+        {% if product.celdas %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-white/10 border border-white/20 text-white/90 text-xs font-semibold">{{ product.celdas }} CPSI</span>
+        {% endif %}
+      </div>
+
+      <div class="mt-4 flex flex-wrap items-end gap-3">
+        {% if product.compare_at_price and product.compare_at_price > product.price %}
+          <span class="inline-flex px-2 py-0.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold uppercase">Oferta</span>
+          <span class="text-lg text-white/50 line-through">{{ product.compare_at_price|pesos_cl }}</span>
+          <div class="text-3xl font-bold text-[#ffc800]">{{ product.price|pesos_cl }}</div>
+          <span class="text-sm text-white/60">IVA incluido</span>
+        {% else %}
+          <div class="text-3xl font-bold text-[#ffc800]">{{ product.price|pesos_cl }}</div>
+          <span class="text-sm text-white/60">IVA incluido</span>
+        {% endif %}
+      </div>
+
+      <!-- Cantidad -->
+      <div class="mt-4 flex items-center gap-2">
+        <button type="button" class="w-10 h-10 rounded-xl bg-black/30 border border-white/10 hover:bg-white/5 transition-colors" id="qty-minus" aria-label="Menos">−</button>
+        <input id="qty-input" type="number" min="1" max="{{ product.stock }}" class="w-16 h-10 text-center rounded-xl bg-black/30 border border-white/10 text-white [appearance:textfield]" value="1">
+        <button type="button" class="w-10 h-10 rounded-xl bg-black/30 border border-white/10 hover:bg-white/5 transition-colors" id="qty-plus" aria-label="Más">+</button>
+      </div>
+
+      <!-- Add to cart -->
+      <form method="post" action="{% url 'cart:add' product.slug %}" class="mt-4" id="add-to-cart-form">
+        {% csrf_token %}
+        <input type="hidden" name="quantity" id="qty-hidden" value="1">
+        <button type="submit" class="w-full h-12 rounded-xl bg-[#ffc800] text-[#0a0c10] font-semibold hover:bg-[#e6b300] transition-colors disabled:opacity-50 disabled:cursor-not-allowed" {% if product.stock == 0 %}disabled{% endif %}>
+          Agregar al carro
+        </button>
+      </form>
+      <a href="{% url 'cart:view' %}" class="mt-3 block text-center w-full h-12 leading-[48px] rounded-xl bg-white/10 border border-white/20 hover:bg-white/15 transition-colors font-semibold">
+        Comprar ahora
+      </a>
+
+      <!-- Medios de pago -->
+      <div class="mt-6 rounded-xl border border-white/10 bg-black/20 p-4 text-sm">
+        <div class="opacity-70 mb-2">Medios de pago</div>
+        <div class="flex flex-wrap gap-2 opacity-90">
+          <span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10">Webpay</span>
+          <span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10">Transferencia</span>
+          <span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10">CajaVecina</span>
+        </div>
+      </div>
+
+      <!-- Ayuda / Contacto -->
+      <div class="mt-4 rounded-xl border border-white/10 bg-black/20 p-4 text-sm">
+        <div class="opacity-70 mb-2">¿Necesitas ayuda?</div>
+        <a href="https://wa.me/{{ whatsapp_number|default:'56979503154' }}?text=Hola%20Monteazul%2C%20consulto%20por%20el%20producto%20{{ product.sku|urlencode }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-semibold hover:bg-emerald-500/30 transition-colors">
+          <span aria-hidden="true">💬</span> WhatsApp
+        </a>
+      </div>
+
+      <!-- Calcular llegada -->
+      <button id="btn-estimate" type="button" class="mt-4 w-full h-12 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors font-medium">
+        Calcular cuándo llega mi compra
+      </button>
+      <div id="estimate-result" class="mt-2 text-sm opacity-80"></div>
+    </aside>
+  </div>
+
+  {% if is_catalitico %}
+  {# —— Ficha técnica nivel industrial (catalíticos) —— #}
+  <section class="mt-8 rounded-2xl border border-white/10 bg-white/5 overflow-hidden" aria-labelledby="ficha-header">
+    <div class="p-5 sm:p-6 border-b border-white/10 bg-black/20" id="ficha-header">
+      <div class="text-xs font-mono text-white/60 uppercase tracking-wider">{{ product.sku }}</div>
+      <h2 class="text-xl font-bold mt-1">Convertidor Catalítico {% if product.install_type == 'PLUG_PLAY' %}Ensamble Directo{% else %}Universal{% endif %}</h2>
+      <p class="text-sm text-white/70 mt-1">Norma: {% if product.euro_norm %}{{ product.get_euro_norm_display }}{% else %}—{% endif %} · Combustible: {% if product.combustible %}{{ product.get_combustible_display }}{% else %}—{% endif %}</p>
+      <div class="flex flex-wrap gap-3 mt-4">
+        {% if product.euro_norm %}
+          <span class="inline-flex items-center px-4 py-2 rounded-xl bg-[#00f0ff]/15 border border-[#00f0ff]/30 text-[#00f0ff] font-bold text-sm uppercase tracking-wide">{{ product.get_euro_norm_display }}</span>
+        {% endif %}
+        {% if product.install_type == 'SOLDADURA' %}
+          <span class="inline-flex items-center px-4 py-2 rounded-xl bg-[#ffc800]/15 border border-[#ffc800]/30 text-[#ffc800] font-semibold text-sm">Soldable</span>
+        {% endif %}
+        {% if product.tiene_sensor %}
+          <span class="inline-flex items-center px-4 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-semibold text-sm">Con sensor</span>
+        {% else %}
+          <span class="inline-flex items-center px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white/70 font-medium text-sm">Sin sensor</span>
+        {% endif %}
+        {% if product.celdas %}
+          <span class="inline-flex items-center px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white/90 font-semibold text-sm">{{ product.celdas }} Celdas</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="p-5 sm:p-6">
+      <h3 class="text-lg font-semibold mb-3 text-white/90">Especificaciones técnicas</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border-collapse">
+          <tbody class="text-white/85">
+            {% if product.euro_norm %}
+            <tr class="border-b border-white/10"><td class="py-2 pr-4 text-white/50">Norma ambiental</td><td class="py-2 font-medium">{{ product.get_euro_norm_display }}</td></tr>
+            {% endif %}
+            {% if product.combustible %}
+            <tr class="border-b border-white/10"><td class="py-2 pr-4 text-white/50">Combustible</td><td class="py-2 font-medium">{{ product.get_combustible_display }}</td></tr>
+            {% endif %}
+            {% if product.diametro_entrada is not None %}
+            <tr class="border-b border-white/10"><td class="py-2 pr-4 text-white/50">Diámetro entrada</td><td class="py-2 font-medium">{{ product.diametro_entrada }}"</td></tr>
+            {% endif %}
+            {% if product.diametro_salida is not None %}
+            <tr class="border-b border-white/10"><td class="py-2 pr-4 text-white/50">Diámetro salida</td><td class="py-2 font-medium">{{ product.diametro_salida }}"</td></tr>
+            {% endif %}
+            {% if product.largo_mm %}
+            <tr class="border-b border-white/10"><td class="py-2 pr-4 text-white/50">Largo total</td><td class="py-2 font-medium">{{ product.largo_mm }} mm</td></tr>
+            {% endif %}
+            {% if product.install_type %}
+            <tr class="border-b border-white/10"><td class="py-2 pr-4 text-white/50">Tipo de instalación</td><td class="py-2 font-medium">{{ product.get_install_type_display }}</td></tr>
+            {% endif %}
+            <tr class="border-b border-white/10"><td class="py-2 pr-4 text-white/50">Rosca sensor O2</td><td class="py-2 font-medium">{% if product.tiene_sensor %}Sí{% else %}No{% endif %}</td></tr>
+            {% if product.celdas %}
+            <tr class="border-b border-white/10"><td class="py-2 pr-4 text-white/50">Densidad de celdas</td><td class="py-2 font-medium">{{ product.celdas }} CPSI</td></tr>
+            {% endif %}
+            {% if product.material %}
+            <tr class="border-b border-white/10"><td class="py-2 pr-4 text-white/50">Material carcasa</td><td class="py-2 font-medium">{{ product.get_material_display }}</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-6 rounded-xl bg-[#00f0ff]/5 border border-[#00f0ff]/20 p-4">
+        <h4 class="font-semibold text-[#00f0ff] mb-2">Compatibilidad estimada</h4>
+        <ul class="text-sm text-white/80 space-y-1">
+          {% if product.combustible %}
+          <li>Vehículos {{ product.get_combustible_display }} {% if product.euro_norm %}{{ product.get_euro_norm_display }}{% endif %}</li>
+          {% endif %}
+          <li>Sistemas {% if product.euro_norm %}{{ product.get_euro_norm_display }}{% else %}universales{% endif %}</li>
+          <li>Reemplazo universal adaptable</li>
+        </ul>
+      </div>
+      <div class="mt-4 rounded-xl bg-amber-500/10 border border-amber-500/20 p-4">
+        <h4 class="font-semibold text-amber-300 mb-2">Advertencias</h4>
+        <ul class="text-sm text-white/80 space-y-1 list-disc list-inside">
+          <li>La correcta instalación evita códigos de falla.</li>
+          <li>No reemplaza sistema DPF en Diesel.</li>
+          <li>Verifique normativa vigente.</li>
+        </ul>
+      </div>
+      <div class="mt-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-4">
+        <h4 class="font-semibold text-emerald-300 mb-2">Ventajas MonteAzul</h4>
+        <ul class="text-sm text-white/80 space-y-1">
+          <li>Producto nuevo</li>
+          <li>Garantía estructural</li>
+          <li>Stock permanente</li>
+          <li>Asesoría técnica</li>
+        </ul>
+      </div>
+      <div class="mt-4 rounded-xl bg-[#00f0ff]/10 border border-[#00f0ff]/25 p-4">
+        <h4 class="font-semibold text-[#00f0ff] mb-2">Certificación y normativa</h4>
+        <ul class="text-sm text-white/80 space-y-1">
+          <li>✔ Cumple normativa MTT Chile</li>
+          <li>✔ Norma Euro correspondiente</li>
+          <li>✔ Homologado para revisión técnica</li>
+        </ul>
+      </div>
+    </div>
+    {% if product.ficha_tecnica %}
+    <div class="p-5 sm:p-6 border-t border-white/10">
+      <h3 class="text-lg font-semibold mb-2 text-white/90">Descripción adicional</h3>
+      <div class="prose prose-invert prose-sm max-w-none text-white/80 whitespace-pre-line">{{ product.ficha_tecnica|linebreaksbr }}</div>
+    </div>
+    {% endif %}
+  </section>
+  {% else %}
+  {% if product.ficha_tecnica %}
+  <section class="mt-8 rounded-2xl border border-white/10 bg-white/5 p-5">
+    <h2 class="text-xl font-semibold mb-4">Ficha técnica</h2>
+    <div class="prose prose-invert prose-sm max-w-none text-white/80 whitespace-pre-line">{{ product.ficha_tecnica|linebreaksbr }}</div>
+  </section>
+  {% endif %}
+  <!-- Especificaciones (no catalítico) -->
+  <section class="mt-8 rounded-2xl border border-white/10 bg-white/5 p-5">
+    <h2 class="text-xl font-semibold mb-4">Especificaciones</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 text-sm">
+      {% if flexible_dims %}
+      <div class="col-span-2 sm:col-span-3 md:col-span-4"><span class="text-xs uppercase text-white/50">Medida (tubo flexible)</span><p class="font-medium text-white mt-1">{{ flexible_dims }}</p><p class="text-white/60 text-xs mt-0.5">El formato indica diámetro y largo en pulgadas (ej. 25×6 = 2.5″ × 6″).</p></div>
+      {% endif %}
+      <div><span class="text-xs uppercase text-white/50">Peso</span><p class="font-medium text-white">{% if product.weight is not None %}{{ product.weight }} kg{% else %}—{% endif %}</p></div>
+      <div><span class="text-xs uppercase text-white/50">Largo</span><p class="font-medium text-white">{% if product.length is not None %}{{ product.length }} cm{% else %}—{% endif %}</p></div>
+      <div><span class="text-xs uppercase text-white/50">Ancho</span><p class="font-medium text-white">{% if product.width is not None %}{{ product.width }} cm{% else %}—{% endif %}</p></div>
+      <div><span class="text-xs uppercase text-white/50">Alto</span><p class="font-medium text-white">{% if product.height is not None %}{{ product.height }} cm{% else %}—{% endif %}</p></div>
+      {% if product.euro_norm or product.combustible %}
+      <div><span class="text-xs uppercase text-white/50">Norma Euro</span><p class="font-medium text-white">{% if product.euro_norm %}{{ product.get_euro_norm_display }}{% else %}—{% endif %}</p></div>
+      <div><span class="text-xs uppercase text-white/50">Combustible</span><p class="font-medium text-white">{% if product.combustible %}{{ product.get_combustible_display }}{% else %}—{% endif %}</p></div>
+      {% endif %}
+      <div><span class="text-xs uppercase text-white/50">Material</span><p class="font-medium text-white">{% if product.material %}{{ product.get_material_display }}{% else %}—{% endif %}</p></div>
+      <div><span class="text-xs uppercase text-white/50">Instalación</span><p class="font-medium text-white">{% if product.install_type %}{{ product.get_install_type_display }}{% else %}—{% endif %}</p></div>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Compatibilidad -->
+  <section class="mt-8 rounded-2xl border border-white/10 bg-white/5 p-5">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <h2 class="text-xl font-semibold">Modelos compatibles</h2>
+      <input id="compat-search" class="h-10 px-3 rounded-xl bg-black/30 border border-white/10 text-white placeholder-white/40 focus:border-[#00f0ff]/50 focus:outline-none text-sm" placeholder="Buscar marca / modelo / año" type="search">
+    </div>
+    <div class="mt-4 overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="opacity-70 text-left">
+          <tr>
+            <th class="py-2 pr-4">Marca</th>
+            <th class="py-2 pr-4">Modelo</th>
+            <th class="py-2 pr-4">Años</th>
+            <th class="py-2 pr-4">Motor / Combustible</th>
+            <th class="py-2">Notas / Confianza</th>
+          </tr>
+        </thead>
+        <tbody id="compat-body">
+          {% for f in compat %}
+          <tr class="compat-row border-t border-white/10">
+            <td class="py-2 pr-4">{{ f.brand.name }}</td>
+            <td class="py-2 pr-4">{{ f.model.name }}</td>
+            <td class="py-2 pr-4">{{ f.year_from }} – {{ f.year_to }}</td>
+            <td class="py-2 pr-4 text-white/70">{% if f.engine %}{{ f.engine.name }}{% endif %}{% if f.fuel_type %} · {{ f.get_fuel_type_display }}{% endif %}</td>
+            <td class="py-2 text-white/60 text-xs">{% if f.notes %}{{ f.notes }}{% endif %}{% if f.notes and f.confidence %} · {% endif %}{% if f.confidence %}{{ f.get_confidence_display }}{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr><td class="py-3 opacity-70" colspan="5">Sin datos de compatibilidad.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- FAQ (SEO) -->
+  <section class="mt-8 rounded-2xl border border-white/10 bg-white/5 p-5" aria-labelledby="faq-title">
+    <div class="flex items-center justify-between gap-3">
+      <h2 id="faq-title" class="text-xl font-semibold">Preguntas frecuentes</h2>
+      <span class="text-xs text-white/50">Respuestas rápidas</span>
+    </div>
+
+    <div class="mt-4 space-y-3">
+      {% if is_catalitico %}
+        <details class="rounded-xl border border-white/10 bg-black/20 p-4">
+          <summary class="cursor-pointer font-semibold text-white/90">¿Este catalítico ayuda a pasar revisión técnica?</summary>
+          <p class="mt-2 text-sm text-white/75 leading-relaxed">
+            Depende del estado del motor, sensores y correcta instalación. Este producto es una solución de reemplazo para sistemas de escape y
+            {% if product.euro_norm %}está orientado a norma {{ product.get_euro_norm_display }}{% else %}cumplimiento estándar{% endif %}.
+          </p>
+        </details>
+
+        <details class="rounded-xl border border-white/10 bg-black/20 p-4">
+          <summary class="cursor-pointer font-semibold text-white/90">¿Es universal o ensamble directo?</summary>
+          <p class="mt-2 text-sm text-white/75 leading-relaxed">
+            {% if product.install_type == 'PLUG_PLAY' %}
+              Es <strong>ensamble directo</strong> (plug &amp; play). Se instala con calce específico.
+            {% else %}
+              Es <strong>universal</strong>. Normalmente requiere adaptación/instalación por soldadura según tu sistema de escape.
+            {% endif %}
+          </p>
+        </details>
+
+        <details class="rounded-xl border border-white/10 bg-black/20 p-4">
+          <summary class="cursor-pointer font-semibold text-white/90">¿Incluye sensor o rosca para sensor O2?</summary>
+          <p class="mt-2 text-sm text-white/75 leading-relaxed">
+            {% if product.tiene_sensor %}
+              Sí. Incluye rosca para sensor O2.
+            {% else %}
+              No incluye rosca para sensor O2 en este modelo.
+            {% endif %}
+          </p>
+        </details>
+
+        <details class="rounded-xl border border-white/10 bg-black/20 p-4">
+          <summary class="cursor-pointer font-semibold text-white/90">¿Puedo retirarlo en Santiago?</summary>
+          <p class="mt-2 text-sm text-white/75 leading-relaxed">
+            Sí: retiro en bodega en <strong>Macul</strong> (Santiago) o despacho a todo Chile.
+          </p>
+        </details>
+      {% else %}
+        <details class="rounded-xl border border-white/10 bg-black/20 p-4">
+          <summary class="cursor-pointer font-semibold text-white/90">¿Cómo sé si esta medida me sirve?</summary>
+          <p class="mt-2 text-sm text-white/75 leading-relaxed">
+            Revisa el diámetro y largo de tu pieza actual. Si tienes dudas, escríbenos por WhatsApp con tu modelo/año y te orientamos.
+          </p>
+        </details>
+
+        <details class="rounded-xl border border-white/10 bg-black/20 p-4">
+          <summary class="cursor-pointer font-semibold text-white/90">¿Hacen despacho?</summary>
+          <p class="mt-2 text-sm text-white/75 leading-relaxed">
+            Sí: despacho a todo Chile o retiro en bodega en <strong>Macul</strong> (Santiago).
+          </p>
+        </details>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- Reseñas -->
+  <section class="mt-8 rounded-2xl border border-white/10 bg-white/5 p-5" id="reseñas">
+    <h2 class="text-xl font-semibold mb-4">Reseñas ({{ approved_reviews|length }})</h2>
+    {% if approved_reviews %}
+    <div class="flex items-center gap-3 mb-4">
+      <div class="flex text-[#ffc800] text-xl" aria-label="Valoración promedio: {{ review_stats.avg }} de 5">
+        {% for i in "12345" %}
+          <span aria-hidden="true">{% if forloop.counter <= review_stats.avg %}★{% else %}☆{% endif %}</span>
+        {% endfor %}
+      </div>
+      <span class="text-white/80">{{ approved_reviews|length }} valoración{{ approved_reviews|length|pluralize:"es" }}</span>
+    </div>
+    <ul class="space-y-4">
+      {% for r in approved_reviews %}
+      <li class="border-t border-white/10 pt-4 first:border-t-0 first:pt-0">
+        <div class="flex gap-2 text-[#ffc800] text-sm" aria-label="Valoración: {{ r.rating }} de 5">
+          {% for i in "12345" %}<span>{% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}</span>{% endfor %}
+        </div>
+        {% if r.title %}<h3 class="font-semibold mt-1">{{ r.title }}</h3>{% endif %}
+        <p class="text-white/80 text-sm mt-1">{{ r.body }}</p>
+        <p class="text-white/50 text-xs mt-2">— {{ r.user.get_full_name|default:r.user.email|slice:":3" }}*** · Compra verificada</p>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% if can_review %}
+    <div class="mt-6 pt-4 border-t border-white/10">
+      <h3 class="font-semibold mb-2">Deja tu opinión</h3>
+      <form method="post" action="{% url 'catalog:review_submit' product.slug %}" class="space-y-3">
+        {% csrf_token %}
+        <div>
+          <label class="block text-sm text-white/70 mb-1">Valoración</label>
+          <select name="rating" required class="rounded-lg bg-black/30 border border-white/10 px-3 py-2 text-white">
+            <option value="5">5 estrellas</option>
+            <option value="4">4 estrellas</option>
+            <option value="3">3 estrellas</option>
+            <option value="2">2 estrellas</option>
+            <option value="1">1 estrella</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-white/70 mb-1">Comentario</label>
+          <textarea name="body" required rows="3" class="w-full rounded-lg bg-black/30 border border-white/10 px-3 py-2 text-white" placeholder="Cuéntanos tu experiencia..."></textarea>
+        </div>
+        <button type="submit" class="px-4 py-2 rounded-xl bg-[#ffc800] text-[#0a0c10] font-semibold hover:bg-[#e6b300]">Enviar reseña</button>
+      </form>
+    </div>
+    {% elif user_review %}
+    <p class="text-white/60 mt-4">Ya enviaste una reseña. Está pendiente de moderación.</p>
+    {% else %}
+    <p class="text-white/60">{% if approved_reviews %}¿Compraste este producto? Inicia sesión para dejar tu reseña.{% else %}Sé el primero en opinar después de tu compra.{% endif %}</p>
+    {% endif %}
+  </section>
+
+  <!-- Relacionados -->
+  <section class="mt-8">
+    <h2 class="text-xl font-semibold mb-4">Productos relacionados</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {% for p in related_products %}
+        <a href="{% url 'catalog:product_detail' p.slug %}" class="rounded-2xl border border-white/10 bg-white/5 p-3 hover:bg-white/10 transition-colors">
+          <div class="aspect-[4/3] rounded-xl bg-black/30 mb-2 flex items-center justify-center overflow-hidden">
+            {% with img=p.images.first %}
+              {% if img.image %}
+                <img src="{{ img.image.url }}" alt="{{ p.name }}" class="w-full h-full object-contain" loading="lazy">
+              {% else %}
+                <img src="{% static 'img/placeholder-product.svg' %}" alt="{{ p.name }}" class="w-2/3 h-2/3 object-contain opacity-60" loading="lazy">
+              {% endif %}
+            {% endwith %}
+          </div>
+          <div class="text-sm font-semibold line-clamp-2">{{ p.name }}</div>
+          <div class="text-[#ffc800] font-bold mt-1">{{ p.price|pesos_cl }} <span class="text-white/60 text-xs font-normal">IVA incluido</span></div>
+        </a>
+      {% empty %}
+        <p class="text-white/50 col-span-full">No hay productos relacionados.</p>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% with first_img=product.images.first %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ product.name|escapejs }}",
+  "sku": "{{ product.sku|escapejs }}",
+  "category": "{{ product.category.name|default:'Repuestos de escape'|escapejs }}",
+  "mpn": "{{ product.sku|escapejs }}",
+  {% if first_img and first_img.image %}"image": ["{{ request.scheme }}://{{ request.get_host }}{{ first_img.image.url }}"],{% endif %}
+  "description": "{% if product.seo_description %}{{ product.seo_description|escapejs }}{% elif product.ficha_tecnica %}{{ product.ficha_tecnica|striptags|truncatechars:155|escapejs }}{% else %}{{ product.name|escapejs }} - Repuesto de escape en Santiago. Retiro en Macul o despacho a todo Chile.{% endif %}",
+  "brand": {"@type": "Brand", "name": "MonteAzul"},
+  {% if review_stats.count > 0 %}
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ review_stats.avg }}",
+    "reviewCount": "{{ review_stats.count }}",
+    "bestRating": "5",
+    "worstRating": "1"
+  },
+  {% endif %}
+  "offers": {
+    "@type": "Offer",
+    "price": "{{ product.price|floatformat:0 }}",
+    "priceCurrency": "CLP",
+    "availability": "https://schema.org/{% if product.stock > 0 %}InStock{% else %}OutOfStock{% endif %}",
+    "url": "{% canonical_url %}"
+  }
+}
+</script>
+{% endwith %}
+<script>
+(function() {
+  var mainImg = document.getElementById('mainProductImage');
+  var thumbBtns = document.querySelectorAll('.thumbnail-btn');
+  if (mainImg && thumbBtns.length) {
+    thumbBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var src = btn.getAttribute('data-src');
+        if (src) mainImg.src = src;
+        thumbBtns.forEach(function(b) { b.classList.remove('border-[#00f0ff]'); b.classList.add('border-white/10'); });
+        btn.classList.add('border-[#00f0ff]'); btn.classList.remove('border-white/10');
+      });
+    });
+  }
+
+  var qi = document.getElementById('qty-input');
+  var qh = document.getElementById('qty-hidden');
+  var minus = document.getElementById('qty-minus');
+  var plus = document.getElementById('qty-plus');
+  if (qi && qh) {
+    function syncQty() { qh.value = Math.max(1, parseInt(qi.value || '1', 10)); qi.value = qh.value; }
+    if (minus) minus.addEventListener('click', function() { qi.value = Math.max(1, (parseInt(qi.value || '1', 10) - 1)); syncQty(); });
+    if (plus) plus.addEventListener('click', function() { var max = parseInt(qi.getAttribute('max'), 10) || 999; qi.value = Math.min(max, (parseInt(qi.value || '1', 10) + 1)); syncQty(); });
+    qi.addEventListener('input', function() { syncQty(); });
+  }
+
+  var btnEstimate = document.getElementById('btn-estimate');
+  var estimateResult = document.getElementById('estimate-result');
+  if (btnEstimate && estimateResult) {
+    btnEstimate.addEventListener('click', async function() {
+      estimateResult.textContent = 'Calculando...';
+      try {
+        var url = '{% url "core:shipping_estimate" %}?slug={{ product.slug|urlencode }}';
+        var res = await fetch(url);
+        var data = await res.json();
+        estimateResult.textContent = data.ok ? data.message : data.message;
+        estimateResult.classList.toggle('text-[#00e676]', data.ok);
+        estimateResult.classList.toggle('text-amber-400', !data.ok);
+      } catch (e) {
+        estimateResult.textContent = 'No se pudo calcular. Verifica tu ubicación.';
+        estimateResult.classList.add('text-amber-400');
+      }
+    });
+  }
+
+  var compatSearch = document.getElementById('compat-search');
+  var compatRows = document.querySelectorAll('#compat-body tr.compat-row');
+  if (compatSearch && compatRows.length) {
+    compatSearch.addEventListener('input', function() {
+      var q = (this.value || '').toLowerCase().trim();
+      compatRows.forEach(function(tr) {
+        var text = (tr.textContent || '').toLowerCase();
+        tr.style.display = (!q || text.indexOf(q) !== -1) ? '' : 'none';
+      });
+    });
+  }
+})();
+</script>
+{% endblock %}

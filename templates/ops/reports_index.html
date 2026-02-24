@@ -1,0 +1,626 @@
+{% extends "ops/base_ops.html" %}
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ci-bg-dark: #060b15;
+  --ci-bg-gradient: linear-gradient(145deg, #0b1220 0%, #060b15 100%);
+  --ci-glass-bg: rgba(15, 25, 45, 0.6);
+  --ci-glass-border: rgba(0, 180, 255, 0.2);
+  --ci-glass-glow: rgba(0, 180, 255, 0.08);
+  --ci-accent: #00b4ff;
+  --ci-accent-dim: rgba(0, 180, 255, 0.15);
+  --ci-text: #e8ecf4;
+  --ci-text-muted: rgba(255, 255, 255, 0.65);
+  --ci-success: #22c55e;
+  --ci-warning: #f59e0b;
+}
+
+.ci-wrapper {
+  font-family: 'Inter', 'Poppins', system-ui, sans-serif;
+  background: var(--ci-bg-gradient);
+  min-height: calc(100vh - 120px);
+  padding: 0;
+  margin: 0 -1rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.ci-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 400px;
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0, 180, 255, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.ci-main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.ci-header {
+  margin-bottom: 2rem;
+}
+
+.ci-header h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 1.75rem;
+  letter-spacing: 0.05em;
+  color: var(--ci-text);
+  margin-bottom: 0.25rem;
+}
+
+.ci-header .subtitle {
+  font-size: 0.95rem;
+  color: var(--ci-text-muted);
+}
+
+/* Navegación en cabecera – mismo estilo que ops-nav: bordes visibles, glow, contraste */
+.ci-header-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.25rem;
+  padding: 1rem 1.25rem;
+  border-top: 2px solid rgba(0, 212, 255, 0.45);
+  background: linear-gradient(180deg, #0a0e18 0%, #060910 100%);
+  border-radius: 12px;
+  border: 2px solid rgba(0, 212, 255, 0.45);
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.12), 0 4px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.ci-header-nav a {
+  color: #e2e8f0;
+  text-decoration: none;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: rgba(10, 18, 32, 0.95);
+  border: 2px solid rgba(0, 212, 255, 0.5);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.15), inset 0 1px 0 rgba(255,255,255,0.04);
+  transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  letter-spacing: 0.02em;
+}
+.ci-header-nav a:hover {
+  color: #fff;
+  background: rgba(0, 180, 255, 0.15);
+  border-color: #00d4ff;
+  box-shadow: 0 0 22px rgba(0, 212, 255, 0.45), 0 0 32px rgba(0, 212, 255, 0.15), inset 0 1px 0 rgba(255,255,255,0.08);
+  transform: translateY(-1px);
+}
+.ci-header-nav a.ci-nav-active {
+  color: #0c1929;
+  background: linear-gradient(180deg, #22d3ee 0%, #06b6d4 50%, #0891b2 100%);
+  border: 2px solid #67e8f9;
+  box-shadow: 0 0 24px rgba(34, 211, 238, 0.6), 0 0 36px rgba(6, 182, 212, 0.3), inset 0 1px 0 rgba(255,255,255,0.35);
+  font-weight: 600;
+}
+.ci-header-nav a.ci-nav-active:hover {
+  color: #0c1929;
+  background: linear-gradient(180deg, #67e8f9 0%, #22d3ee 50%, #06b6d4 100%);
+  border-color: #a5f3fc;
+  box-shadow: 0 0 28px rgba(34, 211, 238, 0.7), 0 0 44px rgba(6, 182, 212, 0.35), inset 0 1px 0 rgba(255,255,255,0.4);
+  transform: translateY(-1px);
+}
+.ci-header-nav .ci-nav-user {
+  margin-left: auto;
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(15, 25, 45, 0.9);
+  border: 2px solid rgba(0, 212, 255, 0.4);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.12), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.ci-header-nav a.ci-nav-logout {
+  color: #fecaca;
+  background: rgba(50, 15, 15, 0.9);
+  border: 2px solid rgba(248, 113, 113, 0.7);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.2), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.ci-header-nav a.ci-nav-logout:hover {
+  color: #fff;
+  background: rgba(185, 28, 28, 0.4);
+  border-color: #f87171;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.45), 0 0 30px rgba(239, 68, 68, 0.2), inset 0 1px 0 rgba(255,255,255,0.08);
+  transform: translateY(-1px);
+}
+
+/* KPI Cards - Bloomberg style */
+.ci-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+@media (max-width: 900px) {
+  .ci-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 500px) {
+  .ci-kpi-grid { grid-template-columns: 1fr; }
+}
+
+.ci-kpi-card {
+  background: var(--ci-glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--ci-glass-border);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 0 25px var(--ci-glass-glow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.ci-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 35px rgba(0, 180, 255, 0.12);
+}
+
+.ci-kpi-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ci-text-muted);
+  margin-bottom: 0.35rem;
+}
+
+.ci-kpi-value {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: var(--ci-accent);
+}
+
+.ci-kpi-value.positive { color: var(--ci-success); }
+.ci-kpi-value.negative { color: #ef4444; }
+
+.ci-kpi-sublabel {
+  font-size: 0.7rem;
+  color: var(--ci-text-muted);
+  margin-top: 0.2rem;
+}
+
+/* Section blocks */
+.ci-section {
+  margin-bottom: 2rem;
+}
+
+.ci-section-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  color: var(--ci-text);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--ci-glass-border);
+}
+
+.ci-section-title .icon { margin-right: 0.5rem; opacity: 0.9; }
+
+.ci-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.ci-report-card {
+  background: var(--ci-glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--ci-glass-border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.ci-report-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--ci-accent), transparent);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.ci-report-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0, 180, 255, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 20px var(--ci-glass-glow);
+}
+
+.ci-report-card:hover::before { opacity: 1; }
+
+.ci-report-card.disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.ci-report-card.disabled:hover {
+  transform: none;
+  border-color: var(--ci-glass-border);
+}
+
+.ci-report-card .card-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.ci-report-card .card-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ci-text);
+}
+
+.ci-report-card .card-desc {
+  font-size: 0.8rem;
+  color: var(--ci-text-muted);
+  margin-top: 0.25rem;
+}
+
+.ci-report-card .badge-soon {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--ci-accent-dim);
+  color: var(--ci-accent);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* Footer IFRS */
+.ci-footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  text-align: center;
+}
+
+.ci-footer-note {
+  font-size: 0.8rem;
+  color: var(--ci-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Date filter bar (for future use) */
+.ci-date-bar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.ci-date-bar .chip {
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  background: var(--ci-accent-dim);
+  color: var(--ci-accent);
+  border: 1px solid var(--ci-glass-border);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.ci-date-bar .chip:hover, .ci-date-bar .chip.active {
+  background: rgba(0, 180, 255, 0.25);
+}
+
+.ci-date-bar .chip.active { border-color: var(--ci-accent); }
+
+/* Alertas predictivas */
+.ci-alerts-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+.ci-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  border-left: 4px solid;
+  animation: ci-alert-fade 0.4s ease;
+}
+@keyframes ci-alert-fade {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ci-alert-icon { font-size: 1.1rem; }
+.ci-alert-danger {
+  background: rgba(239, 68, 68, 0.12);
+  border-left-color: #ef4444;
+  color: #fca5a5;
+}
+.ci-alert-warning {
+  background: rgba(245, 158, 11, 0.12);
+  border-left-color: #f59e0b;
+  color: #fcd34d;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="ops-main">
+    {% if messages %}
+    <ul class="messages" style="list-style:none; margin-bottom:1rem;">
+        {% for message in messages %}
+        <li style="padding:0.5rem 1rem; border-radius:6px; background:{% if message.tags == 'error' %}rgba(244,67,54,0.2){% else %}rgba(76,175,80,0.2){% endif %}; color:{% if message.tags == 'error' %}#f44336{% else %}#4caf50{% endif %};">
+            {{ message }}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+<div class="ci-wrapper">
+  <div class="ci-main">
+    <header class="ci-header">
+      <h1>🧠 Centro de Inteligencia – MonteAzul SPA</h1>
+      <p class="subtitle">Análisis financiero, tributario y operativo para toma de decisiones estratégicas</p>
+      <nav class="ci-header-nav" aria-label="Navegación operaciones">
+        <a href="{% url 'ops:dashboard' %}">Dashboard</a>
+        <a href="{% url 'ops:sales_list' %}">Ventas</a>
+        <a href="{% url 'ops:inventory_list' %}">Inventario</a>
+        <a href="{% url 'ops:customers_list' %}">Clientes</a>
+        <a href="{% url 'ops:warranties_list' %}">Garantías</a>
+        <a href="{% url 'ops:reports_index' %}" class="ci-nav-active">Reportes</a>
+        <a href="{% url 'ops:settings' %}">Centro Estratégico</a>
+        <span class="ci-nav-user">{{ user.get_username }}</span>
+        <a href="{% url 'core:home' %}">Ir al sitio</a>
+        <a href="/admin/">Admin</a>
+        {% url 'core:home' as home_url %}
+        <a href="/admin/logout/?next={{ home_url|urlencode }}" class="ci-nav-logout">Cerrar sesión</a>
+      </nav>
+    </header>
+
+    <!-- Resumen Ejecutivo - 4 KPIs -->
+    <section class="ci-kpi-grid">
+      <div class="ci-kpi-card">
+        <div class="ci-kpi-label">💰 Ventas del mes</div>
+        <div class="ci-kpi-value">$ {{ sales_month_display }}</div>
+        <div class="ci-kpi-sublabel">(cobradas)</div>
+      </div>
+      <div class="ci-kpi-card">
+        <div class="ci-kpi-label">📦 Inventario valorizado (costo)</div>
+        <div class="ci-kpi-value">$ {{ inventory_valorized_display }}</div>
+        <div class="ci-kpi-sublabel">stock &gt; 0</div>
+      </div>
+      <div class="ci-kpi-card">
+        <div class="ci-kpi-label">📈 Margen promedio</div>
+        <div class="ci-kpi-value {% if margin_pct >= 0 %}positive{% else %}negative{% endif %}">{{ margin_pct|floatformat:1 }}%</div>
+        <div class="ci-kpi-label" style="margin-top:0.25rem; font-size:0.75rem;">$ {{ margin_month_display }} utilidad</div>
+      </div>
+      <div class="ci-kpi-card">
+        <div class="ci-kpi-label">📊 Crecimiento MoM</div>
+        <div class="ci-kpi-value {% if growth_pct >= 0 %}positive{% else %}negative{% endif %}">{{ growth_pct|floatformat:1 }}%</div>
+        <div class="ci-kpi-sublabel">Mes anterior: $ {{ sales_prev_month_display }}</div>
+      </div>
+    </section>
+
+    <!-- Alertas predictivas (inteligencia estratégica) -->
+    {% if strategic_alerts %}
+    <section class="ci-alerts-wrap" aria-label="Alertas estratégicas">
+      {% for alert in strategic_alerts %}
+      <div class="ci-alert ci-alert-{{ alert.level }}">
+        <span class="ci-alert-icon">{% if alert.level == 'danger' %}🚨{% else %}⚠️{% endif %}</span>
+        <span class="ci-alert-text">{{ alert.message }}</span>
+      </div>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    <!-- Filtro de fechas (atajos a reporte de ventas); active según from/to del request -->
+    <div class="ci-date-bar">
+      <a href="{% url 'ops:reports_sales' %}?from={{ today|date:'Y-m-d' }}&to={{ today|date:'Y-m-d' }}" class="chip {% if active_date_chip == 'today' %}active{% endif %}">Hoy</a>
+      <a href="{% url 'ops:reports_sales' %}?from={{ date_7d_ago|date:'Y-m-d' }}&to={{ today|date:'Y-m-d' }}" class="chip {% if active_date_chip == '7d' %}active{% endif %}">Últimos 7 días</a>
+      <a href="{% url 'ops:reports_index' %}" class="chip {% if active_date_chip == 'month' %}active{% endif %}">Mes actual</a>
+      <a href="{% url 'ops:reports_sales' %}?from={{ today|date:'Y' }}-01-01&to={{ today|date:'Y-m-d' }}" class="chip {% if active_date_chip == 'year' %}active{% endif %}">Año actual</a>
+      <a href="{% url 'ops:reports_sales' %}?from={{ date_from|date:'Y-m-d' }}&to={{ date_to|date:'Y-m-d' }}&export=csv" class="chip">📥 Export CSV</a>
+    </div>
+
+    <!-- 1. Reportes Financieros -->
+    <section class="ci-section">
+      <h2 class="ci-section-title">🔷 1. Reportes Financieros (Contabilidad)</h2>
+      <div class="ci-cards-grid">
+        <a href="{% url 'ops:reports_sales' %}" class="ci-report-card">
+          <div class="card-icon">📊</div>
+          <div class="card-title">Ventas por período</div>
+          <div class="card-desc">Por rango de fechas, export CSV</div>
+        </a>
+        <a href="{% url 'ops:reports_sales' %}" class="ci-report-card">
+          <div class="card-icon">💰</div>
+          <div class="card-title">Estado de resultados</div>
+          <div class="card-desc">Ingresos, costo venta, margen, utilidad</div>
+        </a>
+        <a href="javascript:void(0)" class="ci-report-card disabled" title="En desarrollo — disponible en próxima actualización">
+          <span class="badge-soon">Próximamente</span>
+          <div class="card-icon">📈</div>
+          <div class="card-title">Evolución de ventas</div>
+          <div class="card-desc">Línea temporal de ingresos</div>
+        </a>
+        <a href="javascript:void(0)" class="ci-report-card disabled" title="En desarrollo — disponible en próxima actualización">
+          <span class="badge-soon">Próximamente</span>
+          <div class="card-icon">📉</div>
+          <div class="card-title">Rentabilidad por producto</div>
+          <div class="card-desc">Margen bruto por SKU</div>
+        </a>
+        <a href="javascript:void(0)" class="ci-report-card disabled" title="En desarrollo — disponible en próxima actualización">
+          <span class="badge-soon">Próximamente</span>
+          <div class="card-icon">📆</div>
+          <div class="card-title">Comparativo mensual (MoM)</div>
+          <div class="card-desc">Mes a mes</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- 2. Reportes Tributarios -->
+    <section class="ci-section">
+      <h2 class="ci-section-title">🔷 2. Reportes Tributarios (SII Ready)</h2>
+      <div class="ci-cards-grid">
+        <a href="{% url 'ops:reports_sales' %}?from={{ date_from|date:'Y-m-d' }}&to={{ date_to|date:'Y-m-d' }}&export=csv" class="ci-report-card">
+          <div class="card-icon">🧾</div>
+          <div class="card-title">Exportar libro de ventas</div>
+          <div class="card-desc">CSV compatible SII</div>
+        </a>
+        <a href="javascript:void(0)" class="ci-report-card disabled" title="En desarrollo — disponible en próxima actualización">
+          <span class="badge-soon">Próximamente</span>
+          <div class="card-icon">📋</div>
+          <div class="card-title">Resumen mensual declaración</div>
+          <div class="card-desc">IVA débito vs crédito</div>
+        </a>
+        <a href="javascript:void(0)" class="ci-report-card disabled" title="En desarrollo — disponible en próxima actualización">
+          <span class="badge-soon">Próximamente</span>
+          <div class="card-icon">🔐</div>
+          <div class="card-title">Modo Auditor</div>
+          <div class="card-desc">Exportación detallada</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- 3. Reportes Comerciales -->
+    <section class="ci-section">
+      <h2 class="ci-section-title">🔷 3. Reportes Comerciales</h2>
+      <div class="ci-cards-grid">
+        <a href="javascript:void(0)" class="ci-report-card disabled" title="En desarrollo — disponible en próxima actualización">
+          <span class="badge-soon">Próximamente</span>
+          <div class="card-icon">👤</div>
+          <div class="card-title">Ventas por cliente</div>
+          <div class="card-desc">Ranking de clientes</div>
+        </a>
+        <a href="javascript:void(0)" class="ci-report-card disabled" title="En desarrollo — disponible en próxima actualización">
+          <span class="badge-soon">Próximamente</span>
+          <div class="card-icon">🎫</div>
+          <div class="card-title">Ticket promedio</div>
+          <div class="card-desc">Valor medio por venta</div>
+        </a>
+        <a href="javascript:void(0)" class="ci-report-card disabled" title="En desarrollo — disponible en próxima actualización">
+          <span class="badge-soon">Próximamente</span>
+          <div class="card-icon">🔄</div>
+          <div class="card-title">Tasa de recompra</div>
+          <div class="card-desc">Clientes recurrentes</div>
+        </a>
+        <a href="javascript:void(0)" class="ci-report-card disabled" title="En desarrollo — disponible en próxima actualización">
+          <span class="badge-soon">Próximamente</span>
+          <div class="card-icon">⏸️</div>
+          <div class="card-title">Clientes inactivos</div>
+          <div class="card-desc">Sin compras recientes</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- 4. Reportes de Inventario -->
+    <section class="ci-section">
+      <h2 class="ci-section-title">🔷 4. Reportes de Inventario</h2>
+      <div class="ci-cards-grid">
+        <a href="{% url 'ops:inventory_list' %}" class="ci-report-card">
+          <div class="card-icon">📦</div>
+          <div class="card-title">Stock actual valorizado</div>
+          <div class="card-desc">Ver inventario</div>
+        </a>
+        <a href="javascript:void(0)" class="ci-report-card disabled" title="En desarrollo — disponible en próxima actualización">
+          <span class="badge-soon">Próximamente</span>
+          <div class="card-icon">🔄</div>
+          <div class="card-title">Rotación de inventario</div>
+          <div class="card-desc">Velocidad de venta</div>
+        </a>
+        <a href="{% url 'ops:inventory_list' %}?no_move=60" class="ci-report-card">
+          <div class="card-icon">⏸️</div>
+          <div class="card-title">Productos sin movimiento</div>
+          <div class="card-desc">Sin movimientos de stock (60/90 días)</div>
+        </a>
+        <a href="{% url 'ops:inventory_list' %}?low=1" class="ci-report-card">
+          <div class="card-icon">⚠️</div>
+          <div class="card-title">Stock bajo / alertas</div>
+          <div class="card-desc">Productos bajo mínimo</div>
+        </a>
+        <a href="javascript:void(0)" class="ci-report-card disabled" title="En desarrollo — disponible en próxima actualización">
+          <span class="badge-soon">Próximamente</span>
+          <div class="card-icon">💎</div>
+          <div class="card-title">Productos con mayor margen</div>
+          <div class="card-desc">Ranking por rentabilidad</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- 5. Reportes Estratégicos -->
+    <section class="ci-section">
+      <h2 class="ci-section-title">🔷 5. Reportes Estratégicos</h2>
+      <div class="ci-cards-grid">
+        <a href="javascript:void(0)" class="ci-report-card disabled" title="En desarrollo — disponible en próxima actualización">
+          <span class="badge-soon">Próximamente</span>
+          <div class="card-icon">🏆</div>
+          <div class="card-title">Top 10 más rentables</div>
+          <div class="card-desc">Productos con mayor margen</div>
+        </a>
+        <a href="javascript:void(0)" class="ci-report-card disabled" title="En desarrollo — disponible en próxima actualización">
+          <span class="badge-soon">Próximamente</span>
+          <div class="card-icon">📊</div>
+          <div class="card-title">Ranking mensual</div>
+          <div class="card-desc">Crecimiento porcentual</div>
+        </a>
+        <a href="javascript:void(0)" class="ci-report-card disabled" title="En desarrollo — disponible en próxima actualización">
+          <span class="badge-soon">Próximamente</span>
+          <div class="card-icon">📉</div>
+          <div class="card-title">EBITDA estimado</div>
+          <div class="card-desc">Margen operativo</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- 6. Centro Estadístico Avanzado -->
+    <section class="ci-section">
+      <h2 class="ci-section-title">🔷 6. Centro Estadístico Avanzado</h2>
+      <div class="ci-cards-grid">
+        <a href="javascript:void(0)" class="ci-report-card disabled" title="En desarrollo — disponible en próxima actualización">
+          <span class="badge-soon">Próximamente</span>
+          <div class="card-icon">📉</div>
+          <div class="card-title">Desviación estándar ventas</div>
+          <div class="card-desc">Análisis de variabilidad</div>
+        </a>
+        <a href="javascript:void(0)" class="ci-report-card disabled" title="En desarrollo — disponible en próxima actualización">
+          <span class="badge-soon">Próximamente</span>
+          <div class="card-icon">📈</div>
+          <div class="card-title">Tendencia lineal proyectada</div>
+          <div class="card-desc">Predicción 30 días</div>
+        </a>
+      </div>
+    </section>
+
+    <footer class="ci-footer">
+      <p class="ci-footer-note">
+        🔐 Reportes generados bajo estándares contables IFRS simplificados
+      </p>
+    </footer>
+  </div>
+</div>
+</main>
+{% endblock %}

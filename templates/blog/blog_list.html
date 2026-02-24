@@ -1,0 +1,30 @@
+{% extends "base_public.html" %}
+{% load static %}
+{% block meta_title %}Blog | MonteAzul SPA{% endblock %}
+{% block meta_description %}Consejos sobre catalíticos, sistemas de escape y mantenimiento. MonteAzul SPA - Repuestos de escape en Chile.{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-12">
+  <h1 class="text-3xl font-bold text-white mb-8">Blog</h1>
+  <div class="space-y-8">
+    {% for post in posts %}
+    <article class="rounded-2xl border border-white/10 bg-white/5 p-6 hover:bg-white/8 transition-colors">
+      <a href="{{ post.get_absolute_url }}" class="block">
+        {% if post.cover_image %}
+        <div class="aspect-video rounded-xl overflow-hidden mb-4">
+          <img src="{{ post.cover_image.url }}" alt="{{ post.title }}" class="w-full h-full object-cover" loading="lazy">
+        </div>
+        {% endif %}
+        <h2 class="text-xl font-semibold text-white hover:text-[#00f0ff]">{{ post.title }}</h2>
+        <p class="text-white/70 text-sm mt-2">{{ post.excerpt|default:post.content|truncatewords:30 }}</p>
+        <p class="text-white/50 text-xs mt-3">
+          {% if post.published_at %}{{ post.published_at|date:"d/m/Y" }}{% endif %}
+          {% if post.category %} · {{ post.category.name }}{% endif %}
+        </p>
+      </a>
+    </article>
+    {% empty %}
+    <p class="text-white/60">Próximamente publicaremos contenido aquí.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% comment %}
+  Barra de navegación fija: Inicio, Productos, Buscar por vehículo, categorías, Contacto.
+  Se mantiene visible al hacer scroll; el resto del contenido (topbar, header, main) se desplaza.
+{% endcomment %}
+<nav class="nav-bar-sticky" aria-label="Navegación principal">
+  <div class="nav-bar-inner">
+    <a href="{% url 'core:home' %}" class="nav-bar-link">Inicio</a>
+    <a href="{% url 'catalog:product_list' %}" class="nav-bar-link">Productos</a>
+    <a href="{% url 'core:vehicle_search' %}" class="nav-bar-link">Buscar por vehículo</a>
+    {% for cat in header_categories %}
+      <a href="{% url 'catalog:product_list' %}?cat={{ cat.slug }}" class="nav-bar-link">
+        {% if cat.slug == "cataliticos" %}Convertidores Catalíticos
+        {% elif cat.slug == "flexibles" %}Flexibles
+        {% elif cat.slug == "resonadores" %}Resonadores
+        {% elif cat.slug == "silenciadores" or cat.slug == "silenciadores-alto-flujo" %}Silenciadores de Alto Flujo
+        {% else %}{{ cat.name }}{% endif %}
+      </a>
+    {% endfor %}
+    <a href="{% url 'blog:list' %}" class="nav-bar-link">Blog</a>
+    <a href="{% url 'nosotros' %}" class="nav-bar-link">Nosotros</a>
+    <a href="{% url 'faq' %}" class="nav-bar-link">FAQ</a>
+    <a href="#contacto" class="nav-bar-link">Contacto</a>
+  </div>
+</nav>

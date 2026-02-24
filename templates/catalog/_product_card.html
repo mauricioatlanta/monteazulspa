@@ -1,0 +1,54 @@
+{% load catalog_filters %}{% load static %}
+{# Uso: {% include "catalog/_product_card.html" with product=product ops_mode=False is_cataliticos_subcat=is_cataliticos_subcat %} #}
+{% if ops_mode %}
+<div class="product-card-wrap {% if not product.is_active %}inactive{% endif %}">
+    <a href="{% url 'ops:catalog_admin_detail' product.slug %}" class="product-card-link">
+{% else %}
+<a href="{% url 'catalog:product_detail' product.slug %}" class="product-card{% if not product.is_active %} product-card-inactive{% endif %}">
+{% endif %}
+    <div class="product-card-img">
+        {% if product.images.first and product.images.first.image %}
+            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" loading="lazy" width="400" height="300">
+        {% else %}
+            <div class="no-img">Foto próximamente</div>
+        {% endif %}
+    </div>
+    <div class="product-card-body">
+        {% if product.euro_norm or product.install_type or product.category.slug == "resonadores" or product.category.slug == "silenciadores-alto-flujo" or product.category.slug == "silenciadores" or is_cataliticos_subcat %}
+        <div class="product-card-badges">
+            {% if product.category.slug == "resonadores" %}<span class="product-card-badge cat-resonador">Resonador</span>{% endif %}
+            {% if product.category.slug == "silenciadores-alto-flujo" or product.category.slug == "silenciadores" %}<span class="product-card-badge cat-alto-flujo">Silenciador Alto Flujo</span>{% endif %}
+            {% if product.euro_norm %}
+            <span class="product-card-badge euro {{ product.euro_norm|lower }}">{{ product.get_euro_norm_display }}</span>
+            {% endif %}
+            {% if product.category.slug|slice:":14" == "cataliticos-twc" %}<span class="product-card-badge marca-twg">TWG</span>{% endif %}
+            {% if product.category.slug == "cataliticos-clf" or product.category.slug == "cataliticos-ensamble-directo" %}<span class="product-card-badge marca-clf">Ensamble Directo · CLF</span>{% endif %}
+            {% if product.install_type == 'SOLDADURA' %}<span class="product-card-badge type-universal">Universal</span>{% endif %}
+            {% if product.install_type == 'PLUG_PLAY' %}<span class="product-card-badge type-plugplay">Plug & Play</span>{% endif %}
+        </div>
+        {% endif %}
+        <div class="product-card-cat">
+            {% if product.category.parent %}{{ product.category.parent.name }} › {% endif %}{{ product.category.name }}
+        </div>
+        <h3 class="product-card-name">{{ product.name }}</h3>
+        <div class="product-card-sku">{{ product.sku }}</div>
+        {% if is_cataliticos_subcat and product.compatibilities.all %}
+        <p class="product-card-compat">Apto para {% for c in product.compatibilities.all|slice:":2" %}{{ c.model.brand.name }} {{ c.model.name }}{% if c.year_from or c.year_to %} ({{ c.year_from }}-{{ c.year_to }}){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}{% if product.compatibilities.count > 2 %}…{% endif %}</p>
+        {% endif %}
+        <div class="product-card-footer">
+            <span class="product-card-price">{{ product.price|pesos_cl }} <span class="product-card-iva">IVA incluido</span></span>
+            {% if not ops_mode %}<span class="product-card-cta">Ver más</span>{% endif %}
+            {% if not product.is_active %}<span style="color: #f44336; font-size: 0.8rem;"> (inactivo)</span>{% endif %}
+        </div>
+    </div>
+{% if ops_mode %}
+</a>
+    <div class="product-card-actions">
+        <a href="{% url 'ops:catalog_admin_detail' product.slug %}" class="btn btn-view">Ver</a>
+        <a href="{% url 'ops:catalog_admin_edit' product.slug %}" class="btn btn-edit">Editar</a>
+        <a href="{% url 'ops:catalog_admin_delete' product.slug %}" class="btn btn-delete">Borrar</a>
+    </div>
+</div>
+{% else %}
+</a>
+{% endif %}

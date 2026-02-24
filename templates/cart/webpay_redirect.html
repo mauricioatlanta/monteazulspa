@@ -1,0 +1,27 @@
+{% extends "base_public.html" %}
+{% block meta_title %}Redirigiendo a Webpay | MonteAzul SPA{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-xl px-4 py-16">
+  <div class="rounded-2xl bg-[var(--surface)] border border-[var(--border)] p-6 text-center">
+    <div class="inline-flex items-center gap-2 rounded-full bg-[var(--accent-soft)] px-4 py-2 text-sm text-white ring-1 ring-[var(--accent)]/30">
+      <span class="h-2 w-2 rounded-full bg-[var(--accent)] animate-pulse"></span>
+      Conectando con Webpay…
+    </div>
+
+    <h1 class="mt-4 text-2xl font-semibold text-white">Un segundo</h1>
+    <p class="mt-2 text-white/70">Te estamos redirigiendo al pago seguro.</p>
+
+    <form id="tbkForm" action="{{ webpay_url }}" method="POST" class="mt-8">
+      <input type="hidden" name="token_ws" value="{{ token_ws }}">
+      <button type="submit" class="rounded-full bg-[var(--accent)] px-6 py-3 font-semibold text-black hover:opacity-90">
+        Continuar
+      </button>
+    </form>
+
+    <script>
+      setTimeout(() => document.getElementById("tbkForm").submit(), 250);
+    </script>
+  </div>
+</div>
+{% endblock %}

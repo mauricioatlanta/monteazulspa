@@ -1,0 +1,93 @@
+{% comment %}
+  Footer con acordeón (móvil) y sellos de confianza. Identidad futurista/luxury.
+{% endcomment %}
+<footer id="contacto" class="mt-auto border-t border-white/10 bg-[#0a0c10]">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    {# Acordeón en móvil; en desktop se puede mostrar todo #}
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="border-b border-white/10 md:border-0 pb-4 md:pb-0">
+        <button type="button" class="footer-accordion-trigger w-full flex items-center justify-between text-left font-bold text-white py-2 md:pointer-events-none" aria-expanded="true" data-panel="footer-about">
+          Nosotros
+          <svg class="w-5 h-5 md:hidden transition-transform" data-accordion-icon aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="footer-about" class="footer-accordion-panel pt-2">
+          <p class="text-sm text-white/60">Monteazul Spa — Especialistas en repuestos de escape y convertidores catalíticos.</p>
+          <p class="text-sm opacity-80 mt-2">Atención y retiros: Macul (Bodega y Centro de Venta).</p>
+          <div class="space-y-2 mt-2">
+            <p class="font-semibold text-white">Bodega y Centro de Venta</p>
+            <p class="text-sm text-white/60">
+              Exequiel Fernández 3663, Of. 6<br>
+              Macul, Santiago, Chile
+            </p>
+            <a class="text-sm underline text-white/90 hover:text-white" target="_blank" rel="noopener"
+               href="https://www.google.com/maps/search/?api=1&query=Exequiel%20Fern%C3%A1ndez%203663%20Of%206%2C%20Macul%2C%20Santiago%2C%20Chile">
+              Ver en Google Maps
+            </a>
+            <div class="pt-3 text-sm opacity-80">
+              <p class="font-semibold text-white/80">Oficina corporativa</p>
+              <p class="text-white/60">
+                Barros Borgoño 71<br>
+                Providencia, Santiago, Chile
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="border-b border-white/10 md:border-0 pb-4 md:pb-0">
+        <button type="button" class="footer-accordion-trigger w-full flex items-center justify-between text-left font-bold text-white py-2 md:pointer-events-none" aria-expanded="false" data-panel="footer-links">
+          Enlaces
+          <svg class="w-5 h-5 md:hidden transition-transform" data-accordion-icon aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="footer-links" class="footer-accordion-panel hidden md:block pt-2">
+          <ul class="space-y-1 text-sm">
+            <li><a href="{% url 'core:home' %}" class="text-white/60 hover:text-[#00f0ff] transition-colors">Inicio</a></li>
+            <li><a href="{% url 'catalog:product_list' %}" class="text-white/60 hover:text-[#00f0ff] transition-colors">Productos</a></li>
+            <li><a href="{% url 'core:vehicle_search' %}" class="text-white/60 hover:text-[#00f0ff] transition-colors">Buscar por vehículo</a></li>
+            <li><a href="{% url 'cart:view' %}" class="text-white/60 hover:text-[#00f0ff] transition-colors">Carrito</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-b border-white/10 md:border-0 pb-4 md:pb-0">
+        <button type="button" class="footer-accordion-trigger w-full flex items-center justify-between text-left font-bold text-white py-2 md:pointer-events-none" aria-expanded="false" data-panel="footer-legal">
+          Legal
+          <svg class="w-5 h-5 md:hidden transition-transform" data-accordion-icon aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="footer-legal" class="footer-accordion-panel hidden md:block pt-2">
+          <ul class="space-y-1 text-sm text-white/60">
+            <li>Términos de uso</li>
+            <li>Política de privacidad</li>
+            <li>Garantías</li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-b border-white/10 md:border-0 pb-4 md:pb-0">
+        <button type="button" class="footer-accordion-trigger w-full flex items-center justify-between text-left font-bold text-white py-2 md:pointer-events-none" aria-expanded="false" data-panel="footer-contact">
+          Contacto
+          <svg class="w-5 h-5 md:hidden transition-transform" data-accordion-icon aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="footer-contact" class="footer-accordion-panel hidden md:block pt-2 text-sm text-white/60">
+          <p>Fundada 07/06/2016</p>
+          <p class="mt-1">Sitio creado por Atlanta Global Solutions</p>
+        </div>
+      </div>
+    </div>
+
+    {# Sellos de confianza #}
+    <div class="flex flex-wrap items-center justify-center gap-6 py-6 border-t border-white/10">
+      <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/70 text-sm font-medium">
+        <span class="w-2 h-2 rounded-full bg-[#00e676]" aria-hidden="true"></span>
+        Envíos a todo Chile
+      </span>
+      <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/70 text-sm font-medium">
+        <span aria-hidden="true">🛡️</span>
+        Garantía en catalíticos
+      </span>
+      <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/70 text-sm font-medium">
+        <span aria-hidden="true">✓</span>
+        Productos certificados
+      </span>
+    </div>
+
+    <p class="text-center text-sm text-white/50 pt-4">© {% now "Y" %} Monteazul SPA • Retiro y pago en bodega: <a href="https://www.google.com/maps/search/?api=1&query=Exequiel%20Fern%C3%A1ndez%203663%20Of%206%2C%20Macul%2C%20Santiago%2C%20Chile" target="_blank" rel="noopener" class="underline text-white/90 hover:text-white">Exequiel Fernández 3663 Of. 6, Macul, Santiago</a> • Oficina Corporativa: Barros Borgoño 71, Providencia, Santiago • Fundada 07/06/2016</p>
+  </div>
+</footer>

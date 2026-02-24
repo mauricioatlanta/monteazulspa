@@ -1,0 +1,652 @@
+{% extends "ops/base_ops.html" %}
+{% block extra_head %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --sales-bg: #060b12;
+  --sales-glass: rgba(10, 25, 45, 0.75);
+  --sales-border: rgba(0, 212, 255, 0.25);
+  --sales-accent: #00d4ff;
+  --sales-accent-soft: rgba(0, 212, 255, 0.15);
+  --sales-text: #e8f4fc;
+  --sales-muted: rgba(255, 255, 255, 0.6);
+  --sales-success: #22c55e;
+  --sales-warning: #eab308;
+  --sales-danger: #ef4444;
+}
+
+.sales-center {
+  font-family: 'Rajdhani', 'Orbitron', sans-serif;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+  position: relative;
+}
+
+.sales-center::before {
+  content: "";
+  position: fixed;
+  width: 500px; height: 500px;
+  top: -150px; right: -150px;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.06), transparent 65%);
+  filter: blur(80px);
+  z-index: -1;
+}
+
+.sales-header {
+  margin-bottom: 1.75rem;
+}
+
+.sales-header h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 1.85rem;
+  letter-spacing: 0.04em;
+  background: linear-gradient(90deg, #00e5ff, #00ffaa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.25rem;
+}
+
+.sales-header .subtitle {
+  font-size: 0.95rem;
+  color: var(--sales-muted);
+  font-weight: 500;
+}
+
+/* KPI grid */
+.sales-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.sales-kpi {
+  background: var(--sales-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--sales-border);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.sales-kpi:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0, 212, 255, 0.12);
+}
+
+.sales-kpi-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--sales-muted);
+  margin-bottom: 0.35rem;
+}
+
+.sales-kpi-value {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 1.35rem;
+  color: var(--sales-accent);
+}
+
+.sales-kpi-value.success { color: var(--sales-success); }
+.sales-kpi-value.warning { color: var(--sales-warning); }
+.sales-kpi-value.danger { color: var(--sales-danger); }
+
+/* Charts row */
+.sales-charts {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1.5rem;
+  margin-bottom: 1.75rem;
+}
+
+@media (max-width: 900px) {
+  .sales-charts { grid-template-columns: 1fr; }
+}
+
+.sales-chart-card {
+  background: var(--sales-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--sales-border);
+  border-radius: 14px;
+  padding: 1.25rem;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.06);
+}
+
+.sales-chart-card h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--sales-text);
+  margin-bottom: 1rem;
+}
+
+.sales-chart-wrap {
+  position: relative;
+  height: 220px;
+}
+
+.sales-chart-doughnut-wrap {
+  position: relative;
+  height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Toolbar: search + filters */
+.sales-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.25rem;
+  background: var(--sales-glass);
+  border: 1px solid var(--sales-border);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+}
+
+.sales-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.sales-search-wrap input {
+  width: 100%;
+  padding: 0.6rem 1rem 0.6rem 2.5rem;
+  border-radius: 10px;
+  border: 1px solid var(--sales-border);
+  background: rgba(0, 20, 40, 0.6);
+  color: var(--sales-text);
+  font-size: 0.9rem;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.sales-search-wrap input::placeholder {
+  color: var(--sales-muted);
+}
+
+.sales-search-wrap input:focus {
+  outline: none;
+  border-color: var(--sales-accent);
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15);
+}
+
+.sales-search-wrap .search-icon {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--sales-muted);
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.sales-toolbar form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sales-toolbar select {
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--sales-border);
+  background: rgba(0, 20, 40, 0.6);
+  color: var(--sales-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sales-toolbar button[type="submit"] {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0099cc 0%, #00d4ff 100%);
+  color: #031018;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.sales-toolbar button[type="submit"]:hover {
+  box-shadow: 0 4px 16px rgba(0, 212, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Table panel */
+.sales-panel {
+  background: var(--sales-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--sales-border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 0 25px rgba(0, 212, 255, 0.06);
+}
+
+.sales-panel-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  color: var(--sales-text);
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--sales-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.sales-table-wrap {
+  overflow-x: auto;
+}
+
+.sales-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.sales-table th {
+  text-align: left;
+  padding: 0.7rem 1rem;
+  color: var(--sales-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.7rem;
+  border-bottom: 1px solid var(--sales-border);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.sales-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--sales-text);
+}
+
+.sales-table tbody tr {
+  transition: background 0.15s;
+}
+
+.sales-table tbody tr:hover {
+  background: rgba(0, 212, 255, 0.06);
+}
+
+.sales-table tbody tr.sales-row-hidden {
+  display: none;
+}
+
+.sales-table .order-id a {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  color: var(--sales-accent);
+  text-decoration: none;
+}
+
+.sales-table .order-id a:hover {
+  text-decoration: underline;
+}
+
+.sales-table .order-total {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 600;
+  color: var(--sales-accent);
+}
+
+.sales-table .badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.sales-table .badge-pending { background: rgba(234, 179, 8, 0.2); color: #facc15; }
+.sales-table .badge-paid { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+.sales-table .badge-preparation { background: rgba(6, 182, 212, 0.2); color: #22d3ee; }
+.sales-table .badge-shipped { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+.sales-table .badge-completed { background: rgba(34, 197, 94, 0.25); color: #86efac; }
+.sales-table .badge-cancelled { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+.sales-table .btn-ver {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: var(--sales-accent-soft);
+  color: var(--sales-accent);
+  border: 1px solid var(--sales-border);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.sales-table .btn-ver:hover {
+  background: rgba(0, 212, 255, 0.25);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.2);
+}
+
+/* Pagination */
+.sales-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-top: 1px solid var(--sales-border);
+}
+
+.sales-pagination a,
+.sales-pagination span {
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--sales-text);
+  background: rgba(0, 212, 255, 0.08);
+  border: 1px solid var(--sales-border);
+}
+
+.sales-pagination a:hover {
+  background: rgba(0, 212, 255, 0.2);
+  color: var(--sales-accent);
+}
+
+.sales-pagination .current {
+  background: linear-gradient(135deg, #0099cc 0%, #00d4ff 100%);
+  color: #031018;
+  border-color: var(--sales-accent);
+}
+
+.sales-pagination .disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.sales-empty {
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: var(--sales-muted);
+  font-size: 0.95rem;
+}
+
+.sales-no-results {
+  padding: 1rem;
+  text-align: center;
+  color: var(--sales-warning);
+  font-weight: 600;
+  display: none;
+}
+
+.sales-no-results.visible {
+  display: block;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+</style>
+{% endblock %}
+
+{% block ops_content %}
+<div class="sales-center">
+  <header class="sales-header">
+    <h1>Centro de Estadísticas de Ventas</h1>
+    <p class="subtitle">KPIs, tendencias y búsqueda en tiempo real · Vista premium</p>
+  </header>
+
+  <!-- KPIs -->
+  <section class="sales-kpi-grid">
+    <div class="sales-kpi">
+      <div class="sales-kpi-label">Ventas hoy</div>
+      <div class="sales-kpi-value">$ {{ sales_today|floatformat:0 }}</div>
+    </div>
+    <div class="sales-kpi">
+      <div class="sales-kpi-label">Ventas mes actual</div>
+      <div class="sales-kpi-value">$ {{ sales_month|floatformat:0 }}</div>
+    </div>
+    <div class="sales-kpi">
+      <div class="sales-kpi-label">Total cobrado (histórico)</div>
+      <div class="sales-kpi-value success">$ {{ total_real_sales|floatformat:0 }}</div>
+    </div>
+    <div class="sales-kpi">
+      <div class="sales-kpi-label">Órdenes cobradas</div>
+      <div class="sales-kpi-value">{{ orders_count_real }}</div>
+    </div>
+    <div class="sales-kpi">
+      <div class="sales-kpi-label">Pendientes</div>
+      <div class="sales-kpi-value {% if orders_pending > 0 %}warning{% endif %}">{{ orders_pending }}</div>
+    </div>
+    <div class="sales-kpi">
+      <div class="sales-kpi-label">Anuladas</div>
+      <div class="sales-kpi-value danger">{{ orders_cancelled }}</div>
+    </div>
+  </section>
+
+  <!-- Charts -->
+  <div class="sales-charts">
+    <div class="sales-chart-card">
+      <h3>Ventas últimos 30 días (cobradas)</h3>
+      <div class="sales-chart-wrap">
+        <canvas id="chartSales30d" width="400" height="220"></canvas>
+      </div>
+    </div>
+    <div class="sales-chart-card">
+      <h3>Órdenes por estado</h3>
+      <div class="sales-chart-doughnut-wrap">
+        <canvas id="chartStatus" width="280" height="240"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar: búsqueda en tiempo real + filtro estado -->
+  <div class="sales-toolbar">
+    <div class="sales-search-wrap">
+      <span class="search-icon" aria-hidden="true">🔍</span>
+      <input type="text" id="salesLiveSearch" value="{{ search_q }}" placeholder="Buscar por ID, cliente, email… (tiempo real)" autocomplete="off" aria-label="Búsqueda en tiempo real">
+    </div>
+    <form method="get" action="" id="salesFilterForm">
+      <input type="hidden" name="q" value="{{ search_q }}">
+      <label for="statusSelect" class="sr-only">Estado</label>
+      <select name="status" id="statusSelect">
+        <option value="">Todos los estados</option>
+        {% for v, l in order_status_choices %}
+        <option value="{{ v }}" {% if status_filter == v %}selected{% endif %}>{{ l }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit">Filtrar</button>
+    </form>
+  </div>
+
+  <!-- Tabla de órdenes -->
+  <div class="sales-panel">
+    <div class="sales-panel-title">
+      <span>Listado de ventas</span>
+      <span style="color: var(--sales-muted); font-size: 0.8rem;">{{ orders.paginator.count }} resultado(s)</span>
+    </div>
+    <div class="sales-no-results" id="salesNoResults">Ninguna orden coincide con la búsqueda.</div>
+    <div class="sales-table-wrap">
+      <table class="sales-table" id="salesTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Estado</th>
+            <th>Subtotal</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for o in orders %}
+          <tr class="sales-row" data-id="{{ o.pk }}" data-date="{{ o.created_at|date:'d/m/Y H:i' }}" data-client="{{ o.customer|escape }}" data-status="{{ o.get_status_display|escape }}" data-total="$ {{ o.total|floatformat:0 }}">
+            <td class="order-id"><a href="{% url 'ops:sales_detail' o.pk %}">#{{ o.pk }}</a></td>
+            <td>{{ o.created_at|date:"d/m/Y H:i" }}</td>
+            <td>{{ o.customer }}</td>
+            <td><span class="badge badge-{{ o.status|lower }}">{{ o.get_status_display }}</span></td>
+            <td>$ {{ o.subtotal|floatformat:0 }}</td>
+            <td class="order-total">$ {{ o.total|floatformat:0 }}</td>
+            <td><a href="{% url 'ops:sales_detail' o.pk %}" class="btn-ver">Ver</a></td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="sales-empty">No hay órdenes.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if orders.paginator.num_pages > 1 %}
+    <div class="sales-pagination">
+      {% if orders.has_previous %}
+      <a href="?page={{ orders.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search_q %}&q={{ search_q|urlencode }}{% endif %}">← Anterior</a>
+      {% else %}
+      <span class="disabled">← Anterior</span>
+      {% endif %}
+      <span class="current">Pág. {{ orders.number }} / {{ orders.paginator.num_pages }}</span>
+      {% if orders.has_next %}
+      <a href="?page={{ orders.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search_q %}&q={{ search_q|urlencode }}{% endif %}">Siguiente →</a>
+      {% else %}
+      <span class="disabled">Siguiente →</span>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+(function() {
+  // Gráfico: ventas últimos 30 días
+  var ctx30 = document.getElementById('chartSales30d');
+  if (ctx30) {
+    new Chart(ctx30, {
+      type: 'line',
+      data: {
+        labels: {{ chart_labels_30d|safe }},
+        datasets: [{
+          label: 'Ventas ($)',
+          data: {{ chart_data_30d|safe }},
+          borderColor: '#00d4ff',
+          backgroundColor: 'rgba(0, 212, 255, 0.12)',
+          fill: true,
+          tension: 0.35,
+          pointRadius: 2,
+          pointBackgroundColor: '#00d4ff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.06)' },
+            ticks: { color: 'rgba(255,255,255,0.6)', maxRotation: 45 }
+          },
+          y: {
+            grid: { color: 'rgba(255,255,255,0.06)' },
+            ticks: { color: 'rgba(255,255,255,0.6)' }
+          }
+        }
+      }
+    });
+  }
+
+  // Gráfico: órdenes por estado (doughnut)
+  var ctxStatus = document.getElementById('chartStatus');
+  if (ctxStatus) {
+    new Chart(ctxStatus, {
+      type: 'doughnut',
+      data: {
+        labels: {{ chart_status_labels|safe }},
+        datasets: [{
+          data: {{ chart_status_data|safe }},
+          backgroundColor: {{ chart_status_colors|safe }},
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: { color: '#e8f4fc', padding: 10 }
+          }
+        }
+      }
+    });
+  }
+
+  // Búsqueda en tiempo real (filtro client-side en la tabla)
+  var searchInput = document.getElementById('salesLiveSearch');
+  var table = document.getElementById('salesTable');
+  var noResults = document.getElementById('salesNoResults');
+  if (searchInput && table) {
+    var rows = table.querySelectorAll('tbody tr.sales-row');
+    if (rows.length === 0 && noResults) noResults.style.display = 'none';
+    var debounceTimer;
+    searchInput.addEventListener('input', function() {
+      clearTimeout(debounceTimer);
+      var q = (this.value || '').trim().toLowerCase();
+      debounceTimer = setTimeout(function() {
+        var visible = 0;
+        rows.forEach(function(tr) {
+          if (!q) {
+            tr.classList.remove('sales-row-hidden');
+            visible++;
+            return;
+          }
+          var id = (tr.getAttribute('data-id') || '').toLowerCase();
+          var date = (tr.getAttribute('data-date') || '').toLowerCase();
+          var client = (tr.getAttribute('data-client') || '').toLowerCase();
+          var status = (tr.getAttribute('data-status') || '').toLowerCase();
+          var total = (tr.getAttribute('data-total') || '').toLowerCase();
+          var match = id.indexOf(q) !== -1 || date.indexOf(q) !== -1 || client.indexOf(q) !== -1 || status.indexOf(q) !== -1 || total.indexOf(q) !== -1;
+          if (match) {
+            tr.classList.remove('sales-row-hidden');
+            visible++;
+          } else {
+            tr.classList.add('sales-row-hidden');
+          }
+        });
+        if (noResults) {
+          if (q && visible === 0) noResults.classList.add('visible');
+          else noResults.classList.remove('visible');
+        }
+      }, 150);
+    });
+  }
+})();
+</script>
+{% endblock %}

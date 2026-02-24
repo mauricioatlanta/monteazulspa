@@ -1,0 +1,50 @@
+{% extends "base_public.html" %}
+{% load humanize %}
+{% block meta_title %}Pago aprobado | MonteAzul SPA{% endblock %}
+{% block meta_description %}Tu pago fue aprobado. Gracias por tu compra en MonteAzul SPA.{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl px-4 py-12">
+  <div class="relative rounded-2xl bg-[var(--accent-soft)] border border-[var(--accent)] p-8 overflow-hidden">
+    <div class="absolute inset-0 blur-2xl opacity-20 bg-[var(--accent)]"></div>
+
+    <div class="relative">
+      <div class="inline-flex items-center gap-2 rounded-full bg-black/20 border border-white/10 px-4 py-2 text-sm text-white">
+        ✅ Pago aprobado
+      </div>
+
+      <h1 class="mt-4 text-3xl font-semibold text-white">¡Listo! Pedido confirmado</h1>
+      <p class="mt-2 text-white/80">
+        Orden {{ order.order_number|default:"MAZ-pendiente" }} • Total pagado: <span class="font-semibold">$ {{ order.total|intcomma }}</span>
+      </p>
+
+      <div class="mt-6 rounded-2xl bg-black/20 border border-white/10 p-5">
+        <h2 class="text-lg font-semibold text-white">Resumen rápido</h2>
+        <div class="mt-3 space-y-2">
+          {% for it in order.items.all %}
+            <div class="flex justify-between text-sm text-white/80">
+              <span>{{ it.name }} x{{ it.quantity }}</span>
+              <span class="text-white">$ {{ it.line_total|intcomma }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+        <a href="/"
+           class="inline-flex items-center justify-center rounded-full bg-white/10 px-6 py-3 font-semibold text-white border border-white/10 hover:bg-white/15">
+          Volver al inicio
+        </a>
+        <a href="{% url 'catalog:product_list' %}"
+           class="inline-flex items-center justify-center rounded-full bg-[var(--accent)] px-6 py-3 font-semibold text-black hover:opacity-90">
+          Seguir comprando →
+        </a>
+      </div>
+
+      <p class="mt-6 text-xs text-white/60">
+        Tu carrito fue vaciado automáticamente porque el pago fue aprobado.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

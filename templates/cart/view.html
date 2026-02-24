@@ -1,10 +1,11 @@
-{% load catalog_filters %}
+{% load catalog_filters %}{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrito de Compras - Monteazul Spa</title>
+    <title>Carrito de Compras | MonteAzul SPA</title>
+    <meta name="description" content="Tu carrito de repuestos de escape. Completa tu compra con envío a Chile.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -205,6 +206,10 @@
             font-size: 0.9rem;
             color: var(--text-muted);
         }
+        .item-price-iva {
+            font-size: 0.75rem;
+            opacity: 0.85;
+        }
         .item-quantity {
             display: flex;
             align-items: center;
@@ -401,7 +406,7 @@
 
         .wa-float {
             position: fixed;
-            left: 20px;
+            right: 20px;
             bottom: 20px;
             z-index: 60;
             display: flex;
@@ -474,16 +479,16 @@
                     {% for item in cart_items %}
                         <div class="cart-item">
                             <div class="item-image">
-                                {% if item.product.images.first %}
-                                    <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}">
+                                {% if item.product.images.first and item.product.images.first.image %}
+                                    <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" loading="lazy">
                                 {% else %}
-                                    <div class="no-img">Sin imagen</div>
+                                    <img src="{% static 'img/placeholder-product.svg' %}" alt="{{ item.product.name }}" loading="lazy">
                                 {% endif %}
                             </div>
                             <div class="item-info">
                                 <div class="item-name">{{ item.product.name }}</div>
                                 <div class="item-sku">SKU: {{ item.product.sku }}</div>
-                                <div class="item-price">{{ item.product.price|pesos_cl }} c/u</div>
+                                <div class="item-price">{{ item.product.price|pesos_cl }} c/u <span class="item-price-iva">IVA incluido</span></div>
                             </div>
                             <div class="item-quantity">
                                 <form method="post" action="{% url 'cart:update' item.product.slug %}" style="display: flex; gap: 10px; align-items: center;">
@@ -496,7 +501,7 @@
                                     <button type="submit" class="btn-remove">Eliminar</button>
                                 </form>
                             </div>
-                            <div class="item-total">{{ item.total|pesos_cl }}</div>
+                            <div class="item-total">{{ item.total|pesos_cl }} <span class="item-price-iva">IVA incluido</span></div>
                         </div>
                     {% endfor %}
                 </div>
@@ -509,9 +514,9 @@
                     </div>
                     <div class="summary-row">
                         <span class="summary-label">Total:</span>
-                        <span class="summary-value summary-total">{{ total|pesos_cl }}</span>
+                        <span class="summary-value summary-total">{{ total|pesos_cl }} <span class="item-price-iva">IVA incluido</span></span>
                     </div>
-                    <button class="btn-checkout" disabled>Proceder al Checkout (Fase 3)</button>
+                    <a href="{% url 'cart:checkout' %}" class="btn-checkout">Proceder al Checkout →</a>
                     <a href="{% url 'catalog:product_list' %}" class="btn-continue">Seguir Comprando</a>
                 </div>
             </div>
@@ -549,11 +554,11 @@
             </div>
         </div>
         <div class="footer-bottom">
-            © {% now "Y" %} Monteazul Spa • Barros Borgono 71, Providencia, Santiago, Región Metropolitana • Fundada 07/06/2016<br>
-            <span class="footer-credits">Sitio creado por <strong>Atlanta Holding</strong></span>
+            © {% now "Y" %} Monteazul SPA • Centro de Venta: <a href="https://www.google.com/maps/search/?api=1&query=Exequiel%20Fern%C3%A1ndez%203663%20Of%206%2C%20Macul%2C%20Santiago%2C%20Chile" target="_blank" rel="noopener" style="color: rgba(255,255,255,0.95); text-decoration: underline;">Exequiel Fernández 3663 Of. 6, Macul, Santiago</a> • Oficina Corporativa: Barros Borgoño 71, Providencia, Santiago • Fundada 07/06/2016<br>
+            <span class="footer-credits">Sitio creado por <strong>Atlanta Global Solutions</strong></span>
         </div>
     </footer>
 
-    <a class="wa-float" href="https://wa.me/{{ whatsapp_number|default:'56900000000' }}?text=Hola%20Monteazul%2C%20quiero%20contactar%20a%20un%20vendedor" target="_blank" rel="noopener" title="Contactar vendedor por WhatsApp">💬 Contactar vendedor</a>
+    <a class="wa-float" href="https://wa.me/{{ whatsapp_number|default:'56979503154' }}?text=Hola%20Monteazul%2C%20quiero%20contactar%20a%20un%20vendedor" target="_blank" rel="noopener" title="Contactar vendedor por WhatsApp">💬 Contactar vendedor</a>
 </body>
 </html>

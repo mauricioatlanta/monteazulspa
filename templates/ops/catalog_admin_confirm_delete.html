@@ -1,0 +1,56 @@
+{% extends "ops/base_ops.html" %}
+{% load static %}
+{% block extra_head %}
+{{ block.super }}
+<style>
+    :root { --navy-surface: rgba(255,255,255,0.04); --navy-border: rgba(255,255,255,0.08); --cyan: #00d4ff; --cyan-soft: rgba(0,212,255,0.15); --text: #e8ecf4; --text-muted: rgba(255,255,255,0.55); }
+    .delete-confirm-wrap { max-width: 480px; margin: 0 auto; }
+    .delete-confirm-wrap h1 { font-size: 1.35rem; margin-bottom: 8px; color: var(--text); }
+    .delete-confirm-wrap .breadcrumb { margin-bottom: 16px; font-size: 0.9rem; color: var(--text-muted); }
+    .delete-confirm-wrap .breadcrumb a { color: var(--text-muted); text-decoration: none; }
+    .delete-confirm-card {
+        background: var(--navy-surface);
+        border: 1px solid rgba(244,67,54,0.3);
+        border-radius: 12px;
+        padding: 24px;
+        margin: 20px 0;
+    }
+    .delete-confirm-card p { color: var(--text); margin-bottom: 12px; }
+    .delete-confirm-card .product-name { font-weight: 700; color: #f44336; }
+    .form-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+    .form-actions button, .form-actions a {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+    }
+    .form-actions .btn-danger { background: #dc2626; color: #fff; }
+    .form-actions .btn-cancel { background: var(--cyan-soft); color: var(--cyan); border: 1px solid rgba(0,212,255,0.3); }
+</style>
+{% endblock %}
+
+{% block ops_content %}
+<div class="delete-confirm-wrap">
+    <div class="breadcrumb">
+        <a href="{% url 'ops:dashboard' %}">Operaciones</a> ›
+        <a href="{% url 'ops:catalog_admin_list' %}">Catálogo</a> ›
+        <a href="{% url 'ops:catalog_admin_detail' product.slug %}">{{ product.sku }}</a> ›
+        Eliminar
+    </div>
+    <h1>Confirmar eliminación</h1>
+    <div class="delete-confirm-card">
+        <p>¿Estás seguro de que deseas eliminar el producto <span class="product-name">{{ product.name }}</span> ({{ product.sku }})?</p>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">El producto se desactivará y ya no aparecerá en el catálogo público. Esta acción se puede revertir desde el admin de Django si es necesario.</p>
+        <form method="post" action="{% url 'ops:catalog_admin_delete' product.slug %}">
+            {% csrf_token %}
+            <div class="form-actions">
+                <button type="submit" class="btn-danger">Sí, eliminar</button>
+                <a href="{% url 'ops:catalog_admin_detail' product.slug %}" class="btn-cancel">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

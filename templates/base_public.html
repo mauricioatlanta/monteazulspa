@@ -1,0 +1,277 @@
+{% load static %}{% load seo_tags %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0c10">
+  <!-- Favicon temporal (emoji). Cuando tengas logo: guarda favicon.ico en static/img/ y sustituye por: <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}"> -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚗</text></svg>">
+  <title>{% block meta_title %}MonteAzul SPA | Repuestos de Escape{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Catalíticos, flexibles reforzados y silenciadores con envío a todo Chile. Retiro en Macul, Santiago.{% endblock %}">
+  <link rel="canonical" href="{% block canonical_url %}{% canonical_url %}{% endblock %}">
+  {% block og_tags %}
+    <meta property="og:title" content="{% block og_title %}MonteAzul SPA | Repuestos de Escape{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Catalíticos, flexibles reforzados y silenciadores con envío a todo Chile.{% endblock %}">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:url" content="{% canonical_url %}">
+    <meta property="og:site_name" content="MonteAzul SPA">
+    <meta property="og:locale" content="es_CL">
+  {% endblock %}
+
+  {% block twitter_tags %}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}MonteAzul SPA | Repuestos de Escape{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Catalíticos, flexibles reforzados y silenciadores con envío a todo Chile.{% endblock %}">
+  {% endblock %}
+  {% block jsonld %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Monteazul Spa",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Barros Borgoño 71",
+      "addressLocality": "Providencia",
+      "addressRegion": "Región Metropolitana",
+      "addressCountry": "CL"
+    },
+    "url": "{% if SITE_URL %}{{ SITE_URL }}{% else %}https://monteazulspa.cl{% endif %}",
+    "telephone": "+56 9 7950 3154"
+  }
+  </script>
+  {% endblock %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tailwind: CSS estático (build con npm run build:css) para velocidad en móvil; sin CDN -->
+  <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
+  <style>
+    :root {
+      --bg: #0a0c10;
+      --surface: rgba(255,255,255,0.03);
+      --border: rgba(255,255,255,0.08);
+      --text: #f0f2f5;
+      --muted: rgba(255,255,255,0.5);
+      --accent: #00f0ff;
+      --accent-soft: rgba(0,240,255,0.12);
+      --yellow: #ffc800;
+    }
+    body { font-family: 'Outfit', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    .bg-mesh {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 120% 80% at 50% -20%, rgba(0,240,255,0.06), transparent 50%),
+                  radial-gradient(ellipse 80% 60% at 100% 50%, rgba(120,80,255,0.05), transparent 45%),
+                  linear-gradient(180deg, var(--bg) 0%, #0d1016 100%);
+      pointer-events: none;
+    }
+    .grid-bg {
+      position: fixed; inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+      background-size: 48px 48px; pointer-events: none; opacity: 0.5;
+    }
+    /* Barra de navegación fija: solo ella queda visible al hacer scroll */
+    .nav-bar-sticky {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(10,12,16,0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .nav-bar-inner {
+      max-width: 72rem;
+      margin: 0 auto;
+      padding: 0.5rem 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem 0.5rem;
+    }
+    .nav-bar-link {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      border-radius: 0.5rem;
+      transition: color 0.2s, background 0.2s;
+    }
+    .nav-bar-link:hover { color: var(--accent); background: rgba(0,240,255,0.1); }
+    @media (max-width: 768px) {
+      .nav-bar-inner { padding: 0.5rem; gap: 0.2rem; }
+      .nav-bar-link { padding: 0.4rem 0.6rem; font-size: 0.8rem; }
+    }
+    /* Selects del modal de ubicación: fondo oscuro y texto claro para contraste */
+    #location-modal select {
+      background-color: #161b22 !important;
+      color: #f0f2f5 !important;
+    }
+    #location-modal select option {
+      background-color: #161b22;
+      color: #f0f2f5;
+    }
+  </style>
+  {% if show_google_analytics %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ GOOGLE_ANALYTICS_ID }}"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '{{ GOOGLE_ANALYTICS_ID }}');
+  </script>
+  {% endif %}
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="antialiased">
+  <div class="bg-mesh" aria-hidden="true"></div>
+  <div class="grid-bg" aria-hidden="true"></div>
+
+  <div class="relative z-10 flex flex-col min-h-screen">
+    {% block topbar %}
+      {% include "partials/_topbar_promo.html" %}
+    {% endblock %}
+
+    {% block header %}
+      {% include "partials/_header_search.html" %}
+    {% endblock %}
+
+    {% include "partials/_nav_bar.html" %}
+
+    <main class="flex-1">
+      {% block content %}{% endblock %}
+    </main>
+
+    {% block footer %}
+      {% include "partials/_footer_accordion.html" %}
+    {% endblock %}
+  </div>
+
+  {% include "partials/_location_modal.html" %}
+  {% include "partials/_cookies_banner.html" %}
+
+  <a class="fixed right-5 bottom-5 z-50 flex items-center gap-2 px-4 py-3 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-white font-bold text-sm shadow-lg hover:bg-emerald-500/20 hover:shadow-emerald-500/20 transition-all" href="https://wa.me/{{ whatsapp_number|default:'56979503154' }}?text=Hola%20Monteazul%2C%20quiero%20contactar%20a%20un%20vendedor" target="_blank" rel="noopener" title="Contactar vendedor por WhatsApp">💬 Contactar vendedor</a>
+
+  <script>
+    (function() {
+      var locationModal = document.getElementById('location-modal');
+      var locationForm = document.getElementById('location-form');
+      var locationLabel = document.getElementById('shipping-label');
+      var regionSelect = document.getElementById('location-region');
+      var comunaSelect = document.getElementById('location-comuna');
+      var regionValueInput = document.getElementById('location-region-value');
+      var closeBtn = document.getElementById('location-close');
+      var backdrop = document.getElementById('location-modal-backdrop');
+      var openLoc = document.querySelectorAll('[data-open-location]');
+      var urlRegiones = locationModal ? locationModal.getAttribute('data-url-regiones') : '';
+      var urlComunas = locationModal ? locationModal.getAttribute('data-url-comunas') : '';
+      function openModal() { if (locationModal) { locationModal.classList.remove('hidden'); locationModal.setAttribute('aria-hidden', 'false'); loadRegiones(); } }
+      function closeModal() { if (locationModal) { locationModal.classList.add('hidden'); locationModal.setAttribute('aria-hidden', 'true'); } }
+      openLoc.forEach(function(btn) { btn.addEventListener('click', openModal); });
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
+      if (backdrop) backdrop.addEventListener('click', closeModal);
+      function loadRegiones() {
+        if (!urlRegiones || !regionSelect) return;
+        fetch(urlRegiones).then(function(r) { return r.json(); }).then(function(data) {
+          regionSelect.innerHTML = '<option value="">Selecciona una región</option>';
+          (data.regiones || []).forEach(function(r) {
+            var opt = document.createElement('option');
+            opt.value = r.codigo;
+            opt.setAttribute('data-nombre', r.nombre);
+            opt.textContent = r.nombre;
+            regionSelect.appendChild(opt);
+          });
+          var savedRegion = locationModal.getAttribute('data-saved-region') || '';
+          var savedComuna = locationModal.getAttribute('data-saved-comuna') || '';
+          if (savedRegion) {
+            for (var i = 0; i < regionSelect.options.length; i++) {
+              if (regionSelect.options[i].getAttribute('data-nombre') === savedRegion) {
+                regionSelect.selectedIndex = i;
+                syncRegionValue();
+                loadComunas(regionSelect.value, savedComuna);
+                break;
+              }
+            }
+          }
+        });
+      }
+      function syncRegionValue() {
+        if (!regionSelect || !regionValueInput) return;
+        var sel = regionSelect.options[regionSelect.selectedIndex];
+        regionValueInput.value = sel && sel.value ? (sel.getAttribute('data-nombre') || '') : '';
+      }
+      function loadComunas(codigoRegion, preselectComuna) {
+        if (!urlComunas || !comunaSelect || !codigoRegion) {
+          comunaSelect.innerHTML = '<option value="">Primero elige una región</option>';
+          comunaSelect.disabled = true;
+          return;
+        }
+        comunaSelect.disabled = true;
+        comunaSelect.innerHTML = '<option value="">Cargando...</option>';
+        fetch(urlComunas + '?region=' + encodeURIComponent(codigoRegion)).then(function(r) { return r.json(); }).then(function(data) {
+          comunaSelect.innerHTML = '<option value="">Selecciona una comuna</option>';
+          (data.comunas || []).forEach(function(c) {
+            var opt = document.createElement('option');
+            opt.value = c.nombre;
+            opt.textContent = c.nombre;
+            comunaSelect.appendChild(opt);
+          });
+          comunaSelect.disabled = false;
+          if (preselectComuna) {
+            for (var i = 0; i < comunaSelect.options.length; i++) {
+              if (comunaSelect.options[i].value === preselectComuna) { comunaSelect.selectedIndex = i; break; }
+            }
+          }
+        }).catch(function() {
+          comunaSelect.innerHTML = '<option value="">Error al cargar</option>';
+          comunaSelect.disabled = false;
+        });
+      }
+      if (regionSelect) {
+        regionSelect.addEventListener('change', function() {
+          syncRegionValue();
+          loadComunas(this.value);
+        });
+      }
+      if (locationForm) {
+        locationForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          syncRegionValue();
+          var formData = new FormData(locationForm);
+          var csrf = document.querySelector('[name=csrfmiddlewaretoken]');
+          if (csrf) formData.set('csrfmiddlewaretoken', csrf.value);
+          fetch(locationForm.action, { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+              if (data.saved && data.display && locationLabel) locationLabel.textContent = data.display;
+              if (locationModal) locationModal.classList.add('hidden');
+            })
+            .catch(function() { locationForm.submit(); });
+        });
+      }
+      var cookiesBanner = document.getElementById('cookies-banner');
+      var cookiesAccept = document.getElementById('cookies-accept');
+      var cookiesReject = document.getElementById('cookies-reject');
+      if (cookiesBanner && !localStorage.getItem('cookies_ack')) cookiesBanner.classList.remove('hidden');
+      if (cookiesAccept) cookiesAccept.addEventListener('click', function() { localStorage.setItem('cookies_ack', '1'); cookiesBanner.classList.add('hidden'); });
+      if (cookiesReject) cookiesReject.addEventListener('click', function() { localStorage.setItem('cookies_ack', '0'); cookiesBanner.classList.add('hidden'); });
+      var triggers = document.querySelectorAll('.footer-accordion-trigger');
+      triggers.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var panelId = btn.getAttribute('data-panel');
+          var panel = document.getElementById(panelId);
+          var expanded = btn.getAttribute('aria-expanded') === 'true';
+          btn.setAttribute('aria-expanded', !expanded);
+          if (panel) { panel.classList.toggle('hidden', expanded); panel.classList.toggle('block', !expanded); }
+          var icon = btn.querySelector('[data-accordion-icon]');
+          if (icon) icon.style.transform = expanded ? 'rotate(0deg)' : 'rotate(180deg)';
+        });
+      });
+    })();
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -142,3 +142,31 @@ def cart_count(request):
     cart = get_cart(request)
     total_items = sum(cart.values())
     return JsonResponse({'count': total_items})
+
+
+def _cart_items_and_total(request):
+    """Devuelve lista de dicts con product, quantity, total y el total general (para checkout)."""
+    cart = get_cart(request)
+    items = []
+    total = 0
+    for product_slug, quantity in cart.items():
+        try:
+            product = Product.objects.get(
+                slug=product_slug,
+                is_active=True,
+                deleted_at__isnull=True
+            )
+            unit_price = int(product.price)
+            line_total = unit_price * quantity
+            total += line_total
+            items.append({
+                "product": product,
+                "quantity": quantity,
+                "unit_price": unit_price,
+                "line_total": line_total,
+            })
+        except Product.DoesNotExist:
+            continue
+    return items, total
+
+

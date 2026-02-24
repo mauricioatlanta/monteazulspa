@@ -1,0 +1,22 @@
+{% extends "base_public.html" %}
+{% load static %}
+{% block meta_title %}{{ category.name }} | Blog MonteAzul SPA{% endblock %}
+{% block meta_description %}Artículos sobre {{ category.name }}. MonteAzul SPA - Repuestos de escape.{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-12">
+  <h1 class="text-3xl font-bold text-white mb-8">{{ category.name }}</h1>
+  <div class="space-y-8">
+    {% for post in posts %}
+    <article class="rounded-2xl border border-white/10 bg-white/5 p-6">
+      <a href="{{ post.get_absolute_url }}" class="block">
+        <h2 class="text-xl font-semibold text-white hover:text-[#00f0ff]">{{ post.title }}</h2>
+        <p class="text-white/70 text-sm mt-2">{{ post.excerpt|default:post.content|truncatewords:25 }}</p>
+        <p class="text-white/50 text-xs mt-3">{{ post.published_at|date:"d/m/Y" }}</p>
+      </a>
+    </article>
+    {% empty %}
+    <p class="text-white/60">No hay entradas en esta categoría.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

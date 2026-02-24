@@ -1,0 +1,16 @@
+{% extends "ops/base_ops.html" %}
+{% block ops_content %}
+<h1 style="margin-bottom:1rem;">Reclamo de garantía #{{ claim.pk }}</h1>
+<div class="ops-card">
+    <p><strong>Orden / ítem:</strong> #{{ claim.order_item.order_id }} – {{ claim.order_item.product.sku }} ({{ claim.order_item.product.name }})</p>
+    <p><strong>Cliente:</strong> {{ claim.customer }}</p>
+    <p><strong>Vigencia garantía:</strong> hasta {{ claim.order_item.warranty_expiration_date|date:"d/m/Y"|default:"—" }}</p>
+    <p><strong>Motivo:</strong> {{ claim.claim_reason }}</p>
+    <p><strong>Estado:</strong> <span class="badge badge-{{ claim.status|lower }}">{{ claim.get_status_display }}</span></p>
+    <p><strong>Resolución:</strong> {{ claim.get_resolution_display|default:"—" }}</p>
+    {% if claim.notes %}<p><strong>Notas:</strong> {{ claim.notes }}</p>{% endif %}
+    <p><strong>Creado:</strong> {{ claim.created_at|date:"d/m/Y H:i" }}</p>
+    {% if claim.resolved_at %}<p><strong>Resuelto:</strong> {{ claim.resolved_at|date:"d/m/Y H:i" }}</p>{% endif %}
+</div>
+<p><a href="{% url 'ops:warranties_list' %}" class="btn btn-secondary">Volver a garantías</a></p>
+{% endblock %}

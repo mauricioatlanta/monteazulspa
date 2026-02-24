@@ -1,0 +1,216 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Normativas Euro | Convertidores Catalíticos | Monteazul Spa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0c1322;
+            --navy-mid: #121c2e;
+            --navy-light: #1a2742;
+            --navy-border: rgba(255,255,255,0.08);
+            --cyan: #00d4ff;
+            --cyan-soft: rgba(0,212,255,0.15);
+            --text: #e8ecf4;
+            --text-muted: rgba(255,255,255,0.55);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', system-ui, sans-serif;
+            background: var(--navy);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse 100% 60% at 50% -10%, rgba(0,212,255,0.06), transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .header {
+            background: rgba(12,19,34,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--navy-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo-link {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+        .logo-link:hover { color: var(--cyan); }
+        .header-nav a {
+            padding: 10px 16px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            transition: color 0.2s, background 0.2s;
+        }
+        .header-nav a:hover { color: var(--cyan); background: var(--cyan-soft); }
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 48px 24px 64px;
+        }
+        .breadcrumb {
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .breadcrumb a { color: var(--cyan); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        h1 {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, #00e5ff, #00ffaa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 36px;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--cyan);
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--navy-border);
+        }
+        .section p {
+            margin-bottom: 14px;
+            color: var(--text);
+        }
+        .euro-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-top: 28px;
+        }
+        .euro-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--navy-border);
+            border-radius: 14px;
+            padding: 24px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .euro-card:hover {
+            border-color: rgba(0,212,255,0.3);
+            box-shadow: 0 8px 32px rgba(0,212,255,0.08);
+        }
+        .euro-card h3 {
+            font-size: 1.25rem;
+            color: var(--cyan);
+            margin-bottom: 10px;
+        }
+        .euro-card p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 0;
+        }
+        .cta-back {
+            display: inline-block;
+            margin-top: 32px;
+            padding: 14px 28px;
+            background: var(--cyan-soft);
+            color: var(--cyan);
+            text-decoration: none;
+            font-weight: 700;
+            border-radius: 10px;
+            border: 1px solid rgba(0,212,255,0.3);
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .cta-back:hover {
+            background: rgba(0,212,255,0.25);
+            box-shadow: 0 0 24px rgba(0,212,255,0.2);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a class="logo-link" href="/">MONTEAZUL SPA</a>
+            <nav class="header-nav">
+                <a href="/">Inicio</a>
+                <a href="{% url 'catalog:product_list' %}">Catálogo</a>
+                <a href="{% url 'catalog:product_list' %}?cat=cataliticos">Convertidores Catalíticos</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="breadcrumb">
+            <a href="{% url 'catalog:product_list' %}">Catálogo</a> ›
+            <a href="{% url 'catalog:product_list' %}?cat=cataliticos">Convertidores Catalíticos</a> ›
+            Normativas Euro
+        </div>
+
+        <h1>¿Por qué es importante elegir la norma correcta?</h1>
+        <p class="subtitle">Historia y diferencias técnicas de las normas Euro para convertidores catalíticos.</p>
+
+        <section class="section">
+            <h2>Historia</h2>
+            <p>Antes de los 90, los autos emitían gases tóxicos libremente. Con la llegada de las normas Euro, los fabricantes se vieron obligados a usar metales preciosos como el <strong>Platino</strong>, <strong>Paladio</strong> y <strong>Rodio</strong> para transformar esos gases en vapor de agua y CO<sub>2</sub>.</p>
+            <p>Los catalizadores pasaron de ser simples filtros a laboratorios químicos en miniatura: reducen la lluvia ácida y el smog y hoy son obligatorios en la gran mayoría de los vehículos.</p>
+        </section>
+
+        <section class="section">
+            <h2>La trampa del Euro 3</h2>
+            <p>Muchos clientes compran el Euro 3 por ser más barato, pero en autos modernos (Euro 5) el sensor de oxígeno detecta que el catalizador es «pobre» y enciende la luz de falla en el tablero (<em>Check Engine</em>), afectando el consumo de combustible.</p>
+            <p>Por eso en nuestro <strong>Asistente de Selección</strong> solo mostramos Euro 5 cuando el vehículo es año 2011 o más nuevo: así evitamos errores de compatibilidad y devoluciones.</p>
+        </section>
+
+        <section class="section">
+            <h2>Diferencias entre normas</h2>
+            <div class="euro-cards">
+                <div class="euro-card">
+                    <h3>Euro 3</h3>
+                    <p>Estándar de los años 2000 hasta 2005. Enfocado en reducir HC (Hidrocarburos). No apto para vehículos 2011 en adelante.</p>
+                </div>
+                <div class="euro-card">
+                    <h3>Euro 4</h3>
+                    <p>2006 a 2010. Introdujo el monitoreo avanzado de la eficiencia. Si el catalizador falla, la computadora lo detecta de inmediato.</p>
+                </div>
+                <div class="euro-card">
+                    <h3>Euro 5</h3>
+                    <p>Desde 2011. La frontera actual para autos modernos. Mayor densidad de celdas para atrapar partículas más finas.</p>
+                </div>
+            </div>
+        </section>
+
+        <a href="{% url 'catalog:product_list' %}?cat=cataliticos" class="cta-back">← Volver a Convertidores Catalíticos</a>
+        <span style="margin-left: 16px;"></span>
+        <a href="{% url 'catalog:asistente_cataliticos' %}" class="cta-back">Ir al Asistente de Selección</a>
+    </main>
+</body>
+</html>

@@ -2,6 +2,11 @@ import uuid
 from django.db import models
 from django.utils import timezone
 
+from django.urls import reverse
+
+from .utils.media_paths import product_image_upload_to
+from .utils.sku_normalize import normalize_sku_canonical
+
 
 class Category(models.Model):
     name = models.CharField(max_length=120, unique=True)
@@ -10,6 +15,15 @@ class Category(models.Model):
         "self", null=True, blank=True, on_delete=models.PROTECT, related_name="children"
     )
     is_active = models.BooleanField(default=True)
+    default_warranty_days = models.PositiveIntegerField(
+        null=True, blank=True,
+        verbose_name="Días de garantía por defecto",
+        help_text="Si está vacío, se usa la garantía global.",
+    )
+    default_warranty_terms = models.TextField(
+        blank=True, default="",
+        verbose_name="Términos de garantía por defecto",
+    )
 
     class Meta:
         verbose_name_plural = "Categorías"
@@ -55,6 +69,14 @@ class VehicleEngine(models.Model):
 
 class Product(models.Model):
     sku = models.CharField(max_length=50, unique=True)
+    sku_canonico = models.CharField(
+        max_length=60,
+        blank=True,
+        null=True,
+        db_index=True,
+        verbose_name="SKU canónico",
+        help_text="SKU normalizado para matching con zip, imágenes y reportes. No cambiar el SKU visible.",
+    )
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=280, unique=True)
 
@@ -62,11 +84,19 @@ class Product(models.Model):
 
     # Comercial
     price = models.DecimalField(max_digits=12, decimal_places=2)
+    compare_at_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="Precio anterior / comparar",
+        help_text="Precio normal para mostrar tachado y calcular descuento. Si está vacío no se muestra oferta.",
+    )
     cost_price = models.DecimalField(
         max_digits=12, decimal_places=2, default=0, verbose_name="Precio de compra"
     )
 
-    # Peso y volumen (envío / logística)
+    # Peso y dimensiones (envío / logística)
     weight = models.DecimalField(
         max_digits=10,
         decimal_places=3,
@@ -74,6 +104,30 @@ class Product(models.Model):
         blank=True,
         verbose_name="Peso (kg)",
         help_text="Peso en kilogramos",
+    )
+    length = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="Largo (cm)",
+        help_text="Largo en centímetros",
+    )
+    width = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="Ancho (cm)",
+        help_text="Ancho en centímetros",
+    )
+    height = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="Alto (cm)",
+        help_text="Alto en centímetros",
     )
     volume = models.DecimalField(
         max_digits=10,
@@ -90,7 +144,12 @@ class Product(models.Model):
     # Técnicos (clave para escapes/catalíticos)
     euro_norm = models.CharField(
         max_length=10,
-        choices=[("EURO3", "Euro 3"), ("EURO4", "Euro 4"), ("EURO5", "Euro 5")],
+        choices=[
+            ("EURO2", "Euro 2"),
+            ("EURO3", "Euro 3"),
+            ("EURO4", "Euro 4"),
+            ("EURO5", "Euro 5"),
+        ],
         null=True,
         blank=True,
     )
@@ -106,6 +165,68 @@ class Product(models.Model):
         null=True,
         blank=True,
     )
+    # Especificaciones técnicas para catalíticos (filtros y ficha industrial)
+    combustible = models.CharField(
+        max_length=20,
+        choices=[("BENCINA", "Bencina"), ("DIESEL", "Diesel")],
+        null=True,
+        blank=True,
+        verbose_name="Combustible",
+    )
+    diametro_entrada = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="Diámetro entrada (pulg.)",
+        help_text="Diámetro de entrada en pulgadas (ej. 2.5)",
+    )
+    diametro_salida = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="Diámetro salida (pulg.)",
+    )
+    largo_mm = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Largo (mm)",
+        help_text="Largo total en milímetros",
+    )
+    tiene_sensor = models.BooleanField(
+        default=False,
+        verbose_name="Con sensor O2",
+    )
+    celdas = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Celdas (CPSI)",
+        help_text="Densidad de celdas (ej. 200 CPSI)",
+    )
+
+    # Ficha técnica / descripción (texto largo para certificaciones, especificaciones detalladas)
+    ficha_tecnica = models.TextField(
+        blank=True,
+        default="",
+        verbose_name="Ficha técnica / Descripción",
+        help_text="Texto con ficha técnica, certificaciones y especificaciones. Si está vacío, se muestran solo los campos técnicos estándar.",
+    )
+
+    # Garantía (jerarquía: producto → categoría → global)
+    has_warranty = models.BooleanField(
+        default=True,
+        verbose_name="Tiene garantía",
+    )
+    warranty_days = models.PositiveIntegerField(
+        null=True, blank=True,
+        verbose_name="Días de garantía",
+        help_text="Si está vacío, se usa categoría o valor global.",
+    )
+    warranty_terms = models.TextField(
+        blank=True, default="",
+        verbose_name="Términos de garantía",
+    )
 
     # Publicación/Auditoría
     is_active = models.BooleanField(default=True)
@@ -117,6 +238,45 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        # Rellenar sku_canonico para matching/media si está vacío
+        if self.sku and not self.sku_canonico:
+            self.sku_canonico = normalize_sku_canonical(self.sku) or None
+            if kwargs.get("update_fields") is not None:
+                kwargs["update_fields"] = list(set(kwargs["update_fields"]) | {"sku_canonico"})
+        # Asegurar que la categoría esté cargada
+        category_slug = None
+        if self.category_id:
+            try:
+                category_slug = self.category.slug
+            except Exception:
+                pass
+
+        # Todas las categorías de flexibles son reforzados: flexibles, flexibles-reforzados, flexibles-normales, flexibles-con-extension
+        FLEXIBLES_SLUGS = ("flexibles", "flexibles-reforzados", "flexibles-normales", "flexibles-con-extension")
+        if category_slug in FLEXIBLES_SLUGS:
+            # --- CORREGIR NOMBRE (asegurar "reforzado") ---
+            if not self.name or "reforz" not in self.name.lower():
+                if self.name and "flexible" in self.name.lower():
+                    self.name = self.name.replace("Flexible", "Flexible Reforzado")
+                else:
+                    self.name = f"Flexible Reforzado {self.sku}"
+
+            # --- CORREGIR FICHA TECNICA ---
+            if self.ficha_tecnica:
+                if not self.ficha_tecnica.strip().lower().startswith("flexible reforz"):
+                    self.ficha_tecnica = f"Flexible reforzado. {self.ficha_tecnica}"
+
+            # Autoincluir name y ficha_tecnica en update_fields para que siempre se guarden
+            update_fields = kwargs.get("update_fields", None)
+            if update_fields is not None:
+                uf = set(update_fields)
+                uf.add("name")
+                uf.add("ficha_tecnica")
+                kwargs["update_fields"] = list(uf)
+
+        super().save(*args, **kwargs)
+
     def soft_delete(self):
         self.is_active = False
         self.deleted_at = timezone.now()
@@ -124,6 +284,9 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.sku} - {self.name}"
+
+    def get_absolute_url(self):
+        return reverse("catalog:product_detail", kwargs={"slug": self.slug})
 
     def compute_quality_score(self) -> int:
         score = 0
@@ -158,6 +321,64 @@ class Product(models.Model):
         if save:
             self.save(update_fields=["quality_score", "is_publishable"])
 
+    def get_effective_warranty_days(self):
+        """Jerarquía: producto → categoría → ConfiguracionEmpresa → settings."""
+        if not self.has_warranty:
+            return None
+        if self.warranty_days is not None:
+            return self.warranty_days
+        if self.category and self.category.default_warranty_days is not None:
+            return self.category.default_warranty_days
+        try:
+            from apps.ops.models import ConfiguracionEmpresa
+            c = ConfiguracionEmpresa.get_singleton()
+            if c:
+                return c.warranty_days
+        except Exception:
+            pass
+        from django.conf import settings
+        return getattr(settings, "DEFAULT_WARRANTY_DAYS", 15)
+
+    def get_effective_warranty_terms(self):
+        """Jerarquía: producto → categoría → ConfiguracionEmpresa → settings."""
+        if not self.has_warranty:
+            return ""
+        if self.warranty_terms:
+            return self.warranty_terms
+        if self.category and self.category.default_warranty_terms:
+            return self.category.default_warranty_terms
+        try:
+            from apps.ops.models import ConfiguracionEmpresa
+            c = ConfiguracionEmpresa.get_singleton()
+            if c and c.warranty_terms:
+                return c.warranty_terms
+        except Exception:
+            pass
+        from django.conf import settings
+        return getattr(settings, "DEFAULT_WARRANTY_TERMS", "Garantía limitada por falla de fabricación.")
+
+    def get_precio_neto(self):
+        """Precio sin IVA. Si PRICE_INCLUDES_IVA=True, despeja el neto del precio guardado."""
+        from django.conf import settings
+        iva = getattr(settings, "IVA_PERCENT", 19)
+        incluye = getattr(settings, "PRICE_INCLUDES_IVA", True)
+        if not self.price:
+            return None
+        if incluye:
+            return round(self.price / (1 + iva / 100), 2)
+        return self.price
+
+    def get_precio_con_iva(self):
+        """Precio con IVA incluido. Para punto de venta y catálogo público."""
+        from django.conf import settings
+        iva = getattr(settings, "IVA_PERCENT", 19)
+        incluye = getattr(settings, "PRICE_INCLUDES_IVA", True)
+        if not self.price:
+            return None
+        if incluye:
+            return self.price
+        return round(self.price * (1 + iva / 100), 2)
+
 
 class ProductImage(models.Model):
     """Hasta 4 imágenes por producto (posición 1-4)."""
@@ -165,7 +386,7 @@ class ProductImage(models.Model):
     MAX_IMAGES_PER_PRODUCT = 4
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
-    image = models.ImageField(upload_to="products/%Y/%m/%d/")
+    image = models.ImageField(upload_to=product_image_upload_to)
     alt_text = models.CharField(max_length=160, blank=True, default="")
     is_primary = models.BooleanField(default=False)
     position = models.PositiveSmallIntegerField(
@@ -224,3 +445,22 @@ class ProductCompatibility(models.Model):
     def __str__(self):
         eng = f" / {self.engine}" if self.engine_id else ""
         return f"{self.product.sku} -> {self.model} {self.year_from}-{self.year_to}{eng}"
+
+
+class ProductViewStat(models.Model):
+    """Estadísticas de vistas por producto para dashboard SEO interno (sin terceros)."""
+    product = models.OneToOneField(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="view_stat",
+    )
+    views = models.PositiveIntegerField(default=0)
+    last_viewed = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-views"]
+        verbose_name = "Estadística de vistas"
+        verbose_name_plural = "Estadísticas de vistas"
+
+    def __str__(self):
+        return f"{self.product.sku}: {self.views} vistas"

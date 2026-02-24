@@ -1,0 +1,19 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}
+  {% if original and original.pk %}
+    <li>
+      <a href="{% url 'admin:catalog_product_add' %}?category={{ original.pk }}" class="addlink">Agregar producto</a>
+    </li>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}
+
+{% block after_field_sets %}
+  {% if original and original.pk %}
+    <div class="module" style="margin: 1em 0; padding: 12px; background: var(--body-bg, #fff); border: 1px solid #e0e0e0; border-radius: 4px;">
+      <a href="{% url 'admin:catalog_product_add' %}?category={{ original.pk }}" class="addlink" style="font-size: 14px;">+ Agregar producto en esta categoría</a>
+    </div>
+  {% endif %}
+{% endblock %}

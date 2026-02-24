@@ -1,0 +1,27 @@
+{% extends "base_public.html" %}
+{% load humanize %}
+{% block meta_title %}Simulador de pago | MonteAzul SPA{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl px-4 py-12">
+  <div class="rounded-2xl bg-[var(--surface)] border border-[var(--border)] p-6">
+    <h1 class="text-2xl font-semibold text-white">Simulador de pago</h1>
+    <p class="mt-2 text-white/70">Orden {{ order.order_number|default:"MAZ-pendiente" }} • Total: <span class="text-white font-semibold">$ {{ order.total|intcomma }}</span></p>
+
+    <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <a href="{% url 'cart:payment_success' order.id %}"
+         class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-6 py-3 font-semibold text-black hover:bg-emerald-400">
+        Simular Éxito ✅
+      </a>
+      <a href="{% url 'cart:payment_fail' order.id %}"
+         class="inline-flex items-center justify-center rounded-full bg-white/5 px-6 py-3 font-semibold text-white border border-[var(--border)] hover:bg-white/10">
+        Simular Fallo ❌
+      </a>
+    </div>
+
+    <div class="mt-6 text-xs text-[var(--muted)]">
+      Esto es temporal. Aquí luego iniciaremos Webpay real.
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% load static %}
+{% comment %}
+  Header con logo, buscador central y iconos (carrito, ubicación, usuario).
+  Buscador: formulario GET a listado con ?q=; opcional autocompletado vía API.
+{% endcomment %}
+<header class="backdrop-blur-xl bg-[#0a0c10]/80 border-b border-white/10">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-wrap items-center justify-between gap-3 py-3 sm:py-4">
+    <a href="{% url 'core:home' %}" class="flex items-center gap-3 text-white font-extrabold tracking-wide hover:text-[#00f0ff] transition-colors group" aria-label="Monteazul SPA - Inicio">
+      <img src="/media/logomonteazul.png" alt="MonteAzul SPA" class="h-12 sm:h-14 w-auto object-contain block" width="auto" height="56">
+      <span class="flex flex-col items-start">
+        <span class="text-lg sm:text-xl">Monteazul SPA</span>
+        <span class="text-xs font-semibold text-white/60 group-hover:text-[#00f0ff]/80">Ingeniería en escapes</span>
+      </span>
+    </a>
+
+    <form action="{% url 'catalog:product_list' %}" method="get" class="flex-1 max-w-xl mx-4 order-last sm:order-none w-full sm:w-auto" role="search" id="header-search-form">
+      {% if cat_slug %}<input type="hidden" name="cat" value="{{ cat_slug }}">{% endif %}
+      <label for="header-search" class="sr-only">Buscar productos</label>
+      <div class="relative">
+        <input
+          type="search"
+          id="header-search"
+          name="q"
+          placeholder="Buscar por nombre o SKU..."
+          value="{{ request.GET.q|default:'' }}"
+          class="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-4 pr-10 text-white placeholder-white/40 focus:border-[#00f0ff]/50 focus:ring-1 focus:ring-[#00f0ff]/30 focus:outline-none transition-all"
+          autocomplete="off"
+          aria-label="Buscar productos"
+        />
+        <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-white/50 hover:text-[#00f0ff] rounded-lg transition-colors" aria-label="Buscar">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </button>
+      </div>
+    </form>
+
+    <nav class="flex items-center gap-1 sm:gap-2" aria-label="Acciones principales">
+      <button type="button" id="btn-location-header" data-open-location class="flex items-center gap-2 px-3 py-2 rounded-lg text-white/70 hover:text-[#00f0ff] hover:bg-white/5 transition-colors text-sm font-medium" aria-expanded="false" aria-controls="location-modal">
+        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span class="opacity-70">Ubicación:</span>
+        <span id="shipping-label" class="font-semibold">{{ shipping_display|default:"Agregar ubicación" }}</span>
+      </button>
+      <a href="{% url 'core:vehicle_search' %}" class="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-lg text-white/70 hover:text-[#00f0ff] hover:bg-white/5 transition-colors text-sm font-medium">Buscar por vehículo</a>
+      <a href="{% url 'catalog:product_list' %}" class="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-lg text-white/70 hover:text-[#00f0ff] hover:bg-white/5 transition-colors text-sm font-medium">Productos</a>
+      <a href="{% url 'cart:view' %}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-white/70 hover:text-[#00f0ff] hover:bg-white/5 transition-colors text-sm font-medium relative">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        <span>Carrito</span>
+        <span id="cart-count-badge" class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-[#00f0ff] text-[#0a0c10] text-xs font-bold px-1 hidden">0</span>
+      </a>
+    </nav>
+  </div>
+</header>

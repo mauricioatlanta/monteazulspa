@@ -1,0 +1,101 @@
+product_id,sku,product_name,image_id,db_path,exists,found_candidates,notes
+3,LT040,"LT040 2""-2"" C-C 4""x9"" Oval-13""-19"" 4""x9"" oval",27,products/2026/02/04/lt040.png,False,products/silenciadores/lt040.png,candidates:products/silenciadores/lt040.png
+4,LT043,"LT043 2""-2"" Offset-Offset 4""x9"" Oval-13""-19"" 4""x9"" oval",6,products/2026/02/02/lt043.png,False,products/silenciadores/lt043.png|product_import/LT043.png,"candidates:products/silenciadores/lt043.png,product_import/LT043.png"
+9,DW002,"DW002 2""-2"" Center-Offset 4""x9"" Oval-15""-21"" 4""x9"" oval",18,products/2026/02/04/dw002.png,False,,missing
+19,LTM1234,"LTM1234 2""-2"" Offset-Offset 4""x9"" Oval-14""-20"" 4""x9"" oval",25,products/2026/02/04/ltm1234.png,False,,missing
+46,TWCAT003,TWCAT003 redondo 2,13,products/2026/02/02/TWCAT003_1.png,False,,missing
+46,TWCAT003,TWCAT003 redondo 2,14,products/2026/02/02/TWCAT003_2.png,False,,missing
+51,TWCAT091-250-SUPER,TWCAT091-250 SUPER ovalado 2.5,19,products/2026/02/04/twcat091-250-super.png,False,,missing
+52,TWCAT237-SENSOR,TWCAT237 SENSOR ovalado 2.5,21,products/2026/02/04/twcat237-sensor.png,False,,missing
+54,"TWCAT052-10,7","TWCAT052-10,7 redondo 2",22,"products/2026/02/04/twcat052-10,7.png",False,,missing
+55,TWCAT052-12,TWCAT052-12 redondo 2,28,products/2026/02/04/twcat052-12.png,False,,missing
+58,TWCAT016-DIESEL,TWCAT016  DIESEL redondo 2,23,products/2026/02/04/twcat016-diesel.png,False,,missing
+60,CLFO36-AUDI,CLFO36  AUDI,20,products/2026/02/04/clfo36-audi.png,False,products/cataliticos/ensamble_directo/clfo36-audi.png,candidates:products/cataliticos/ensamble_directo/clfo36-audi.png
+63,CHEVROLET-CRUZE,CHEVROLET CRUZE,26,products/2026/02/04/chevrolet-cruze.png,False,products/cataliticos/ensamble_directo/chevrolet-cruze.png,candidates:products/cataliticos/ensamble_directo/chevrolet-cruze.png
+66,PEUGEOT-307,PEUGEOT 307,24,products/2026/02/04/peugeot-307.png,False,,missing
+78,2X6EXT,"Tubo flexible de escape 2"" x 6""",2,products/2026/02/02/2x6ext.png,False,products/flexibles/2x6ext.png,candidates:products/flexibles/2x6ext.png
+79,2X8EXT,"Tubo flexible de escape 2"" x 8""",3,products/2026/02/02/2x8ext.png,False,,missing
+80,2X6EXT-REF,"Flexible reforzado con nipple 2"" x 6"" (con extensión)",7,products/2026/02/02/2x6extension.png,False,products/flexibles/2x6extension.png|product_import/2x6extension.png,"candidates:products/flexibles/2x6extension.png,product_import/2x6extension.png"
+81,2X8EXT-REF,"Flexible reforzado con nipple 2"" x 8"" (con extensión)",8,products/2026/02/02/2x8extension.png,False,products/flexibles/2x8extension.png|product_import/2x8extension.png,"candidates:products/flexibles/2x8extension.png,product_import/2x8extension.png"
+82,3X6,3 X 6,9,products/2026/02/02/3x6.png,False,products/flexibles/3x6.png|product_import/3x6.png,"candidates:products/flexibles/3x6.png,product_import/3x6.png"
+83,CAT-001,Catalítico TWG CAT-001,10,products/2026/02/02/CAT001_1.png,False,,missing
+83,CAT-001,Catalítico TWG CAT-001,11,products/2026/02/02/CAT001_2.png,False,,missing
+83,CAT-001,Catalítico TWG CAT-001,12,products/2026/02/02/CAT001_3.png,False,,missing
+1,LT041,"LT041 2""-2"" Offset-Center 4""x9"" Oval-13""-19"" 4""x9"" oval",,,False,,product_without_image
+2,LT042,"LT042 2""-2"" Center-Offset 4""x9"" Oval-13""-19"" 4""x9"" oval",,,False,,product_without_image
+5,LT2552,"LT2552 2.5""-2.5"" Dual-Dual 4""x9"" Oval-13""-19"" 4""x9"" oval",,,False,,product_without_image
+6,LT5400,"LT5400 2.5""-2.5"" Center-Dual 4""x9"" Oval-13""-19"" 4""x9"" oval",,,False,,product_without_image
+7,LT541,"LT541 2.5""-2.5"" Center-Offset 4""x9"" Oval-13""-19"" 4""x9"" oval",,,False,,product_without_image
+8,LT542,"LT542 2.5""-2.5"" Center-Offset 4""x9"" Oval-13""-19"" 4""x9"" oval",,,False,,product_without_image
+10,DW004,"DW004 2.5""-2.5"" Center-Offset 4""x9"" Oval-15""-21"" 4""x9"" oval",,,False,,product_without_image
+11,DW008,"DW008 2.5""-2.5"" Center-Offset 4""x9"" Oval-18""-24"" 4""x9"" oval",,,False,,product_without_image
+12,DW016,"DW016 2.5""-2.5"" Offset-Offset 4""x9"" Oval-18""-24"" 4""x9"" oval",,,False,,product_without_image
+13,DWR002,"DWR002 2""-2"" Offset-Offset 6"" Round-15""-21"" 6"" round",,,False,,product_without_image
+14,DWR006,"DWR006 2""-2"" Offset-Offset 6"" Round-18""-24"" 6"" round",,,False,,product_without_image
+15,DWR008,"DWR008 2.5""-2.5"" Offset-Offset 6"" Round-18""-24"" 6"" round",,,False,,product_without_image
+16,DWR012,"DWR012 2.5""-2.5"" Offset-Offset 6"" Round-24""-30"" 6"" round",,,False,,product_without_image
+17,LTM1224,"LTM1224 2""-2"" Offset-Center 4""x9"" Oval-14""-20"" 4""x9"" oval",,,False,,product_without_image
+18,LTM1259,"LTM1259 3""-3"" Offset-Center 4""x9"" Oval-18""-24"" 4""x9"" oval",,,False,,product_without_image
+20,LTM1236,"LTM1236 2.5""-2.5"" Offset-Offset 4""x9"" Oval-14""-20"" 4""x9"" oval",,,False,,product_without_image
+21,LTM1266,"LTM1266 2.5""-2.5"" Offset-Offset 4""x9"" Oval-18""-24"" 4""x9"" oval",,,False,,product_without_image
+22,LTM1239,"LTM1239 3""-3"" Offset-Offset 4""x9"" Oval-14""-20"" 4""x9"" oval",,,False,,product_without_image
+23,LTM1256,"LTM1256 2.5""-2.5"" Center-Offset 4""x9"" Oval-18""-24"" 4""x9"" oval",,,False,,product_without_image
+24,"1,75-X-4","1,75 x 4",,,False,,product_without_image
+25,1.75-X-6,1.75 X 6,,,False,,product_without_image
+26,1.75-X-8,1.75 X 8,,,False,,product_without_image
+27,"1,75-X-10","1,75 x 10",,,False,,product_without_image
+28,"1,75-X12","1,75 x12",,,False,,product_without_image
+29,2-X-4,2 X 4,,,False,,product_without_image
+30,2-X-6,2 X 6,,,False,,product_without_image
+31,2-X-8,2 X 8,,,False,,product_without_image
+32,2-X10,2 x10,,,False,,product_without_image
+33,"2,5-X-6","2,5 X 6",,,False,,product_without_image
+34,"2,5-X-8","2,5 X 8",,,False,,product_without_image
+35,3-X-6,3 X 6,,,False,,product_without_image
+36,3X4,3X4,,,False,,product_without_image
+37,3X8,3x8,,,False,,product_without_image
+38,4-X-6,4 X 6,,,False,,product_without_image
+39,4-X-8,4 X 8,,,False,,product_without_image
+40,CLF-002-200,CLF 002-200 2,,,False,,product_without_image
+41,CLF001-200,CLF001-200 2,,,False,,product_without_image
+42,CLFOO2-225,CLFOO2-225 2.25,,,False,,product_without_image
+43,TWCAT0002--200,TWCAT0002 -200 ovalado 2,,,False,,product_without_image
+44,TWCAT0002--225,TWCAT0002 -225 ovalado 2.25,,,False,,product_without_image
+45,TWCAT002-250,TWCAT002-250 ovalado 2.5,,,False,,product_without_image
+47,TWCAT052--18,TWCAT052- 18 redondo 2,,,False,,product_without_image
+48,TWCAT052--16,TWCAT052 -16 redondo 2,,,False,,product_without_image
+49,TWCAT052-11,TWCAT052-11 redondo 2,,,False,,product_without_image
+50,TWCAT052-22,TWCAT052-22 redondo 2,,,False,,product_without_image
+53,TWCAT042,TWCAT042 ovalado 2,,,False,,product_without_image
+56,TWCAT052-16,TWCAT052-16 redondo 2,,,False,,product_without_image
+57,TW3221D-DIESEL,TW3221D   DIESEL redondo 2,,,False,,product_without_image
+59,TWCAT002-DIESEL,TWCAT002 DIESEL ovalado 2,,,False,,product_without_image
+61,CLF037,CLF037,,,False,,product_without_image
+62,CLF038,CLF038,,,False,,product_without_image
+64,HONDA-ACCORD,HONDA ACCORD,,,False,,product_without_image
+65,HYNDAI-ACCENT,HYNDAI ACCENT,,,False,,product_without_image
+67,RENAULT-CLIO,RENAULT CLIO,,,False,,product_without_image
+68,GW-M-ET001,GW-M-ET001,,,False,,product_without_image
+69,GW-M-ET002,GW-M-ET002,,,False,,product_without_image
+70,GW-BT-ET003,GW-BT-ET003,,,False,,product_without_image
+71,GW-M-ET006,GW-M-ET006,,,False,,product_without_image
+72,GW-M-TT008,GW-M-TT008,,,False,,product_without_image
+73,GW-M-TT009,GW-M-TT009,,,False,,product_without_image
+74,GW-TT-ET015,GW-TT-ET015,,,False,,product_without_image
+75,GW-MT-ET016,GW-MT-ET016,,,False,,product_without_image
+76,GW-MT-ET022,GW-MT-ET022,,,False,,product_without_image
+77,GW-MT-ET025,GW-MT-ET025,,,False,,product_without_image
+84,1.75X4,1.75 x 4,,,False,,product_without_image
+85,1.75X6,1.75 X 6,,,False,,product_without_image
+86,1.75X8,1.75 X 8,,,False,,product_without_image
+87,1.75X10,1.75 x 10,,,False,,product_without_image
+88,1.75X12,1.75 x12,,,False,,product_without_image
+89,2X4,2 X 4,,,False,,product_without_image
+90,2X6,2 X 6,,,False,,product_without_image
+91,2X8,2 X 8,,,False,,product_without_image
+92,2X10,2 x10,,,False,,product_without_image
+93,2.5X6,2.5 X 6,,,False,,product_without_image
+94,2.5X8,2.5 X 8,,,False,,product_without_image
+95,4X6,4 X 6,,,False,,product_without_image
+96,4X8,4 X 8,,,False,,product_without_image
+97,TWCAT052-10.7,"TWCAT052-10,7 redondo 2",,,False,,product_without_image

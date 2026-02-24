@@ -1,0 +1,37 @@
+{% extends "base_public.html" %}
+{% block meta_title %}Preguntas Frecuentes | MonteAzul SPA{% endblock %}
+{% block meta_description %}Respuestas a preguntas frecuentes sobre catalíticos, flexibles de escape, envíos y compras en MonteAzul SPA.{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-12">
+  <h1 class="text-3xl font-bold text-white mb-8">Preguntas Frecuentes</h1>
+  <div class="space-y-6">
+    <section class="rounded-xl border border-white/10 bg-white/5 p-4">
+      <h2 class="font-semibold text-white">¿Hacen envíos a regiones?</h2>
+      <p class="text-white/80 text-sm mt-1">Sí. Enviamos a todo Chile. El tiempo de llegada varía según la zona (RM: 2-3 días hábiles, resto: 4-6 días hábiles aproximadamente).</p>
+    </section>
+    <section class="rounded-xl border border-white/10 bg-white/5 p-4">
+      <h2 class="font-semibold text-white">¿Cómo sé qué catalítico necesito para mi auto?</h2>
+      <p class="text-white/80 text-sm mt-1">Usa nuestra herramienta de búsqueda por vehículo (marca, modelo, año) o el asistente de catalíticos. La norma Euro depende del año del vehículo.</p>
+    </section>
+    <section class="rounded-xl border border-white/10 bg-white/5 p-4">
+      <h2 class="font-semibold text-white">¿Los precios incluyen IVA?</h2>
+      <p class="text-white/80 text-sm mt-1">Sí. Todos los precios mostrados incluyen IVA.</p>
+    </section>
+    <section class="rounded-xl border border-white/10 bg-white/5 p-4">
+      <h2 class="font-semibold text-white">¿Puedo retirar en bodega?</h2>
+      <p class="text-white/80 text-sm mt-1">Sí. Tenemos centro de venta en Macul, Santiago. Coordina tu retiro por WhatsApp.</p>
+    </section>
+  </div>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {"@type": "Question", "name": "¿Hacen envíos a regiones?", "acceptedAnswer": {"@type": "Answer", "text": "Sí. Enviamos a todo Chile. El tiempo de llegada varía según la zona (RM: 2-3 días hábiles, resto: 4-6 días hábiles aproximadamente)."}},
+      {"@type": "Question", "name": "¿Cómo sé qué catalítico necesito?", "acceptedAnswer": {"@type": "Answer", "text": "Usa nuestra herramienta de búsqueda por vehículo o el asistente de catalíticos. La norma Euro depende del año del vehículo."}},
+      {"@type": "Question", "name": "¿Los precios incluyen IVA?", "acceptedAnswer": {"@type": "Answer", "text": "Sí. Todos los precios mostrados incluyen IVA."}}
+    ]
+  }
+  </script>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "ops/base_ops.html" %}
+{% block ops_content %}
+<h1 style="margin-bottom:1rem;">Reclamos de garantía</h1>
+<form method="get" style="margin-bottom:1rem;">
+    <label>Estado:</label>
+    <select name="status">
+        <option value="">Todos</option>
+        {% for v, l in warranty_status_choices %}
+        <option value="{{ v }}" {% if request.GET.status == v %}selected{% endif %}>{{ l }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-secondary">Filtrar</button>
+</form>
+<div class="ops-card">
+    <table class="ops-table">
+        <thead>
+            <tr><th>ID</th><th>Fecha</th><th>Orden / Producto</th><th>Cliente</th><th>Estado</th><th>Resolución</th><th></th></tr>
+        </thead>
+        <tbody>
+        {% for c in claims %}
+        <tr>
+            <td><a href="{% url 'ops:warranties_detail' c.pk %}">{{ c.pk }}</a></td>
+            <td>{{ c.created_at|date:"d/m/Y H:i" }}</td>
+            <td>#{{ c.order_item.order_id }} – {{ c.order_item.product.sku }}</td>
+            <td>{{ c.customer }}</td>
+            <td><span class="badge badge-{{ c.status|lower }}">{{ c.get_status_display }}</span></td>
+            <td>{{ c.get_resolution_display|default:"—" }}</td>
+            <td><a href="{% url 'ops:warranties_detail' c.pk %}" class="btn btn-secondary">Ver</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7">No hay reclamos.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

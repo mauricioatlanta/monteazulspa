@@ -1,0 +1,67 @@
+{
+  "productos": [
+    {
+      "categoria": "Silenciador",
+      "part_number": "LT041",
+      "descripcion": "2\" (5.08cm) Offset-Center",
+      "material_tipo": "Acero Aluminizado",
+      "largo_m": 0.48,
+      "peso_kg": 4.5,
+      "precio": 34000
+    },
+    {
+      "categoria": "Silenciador",
+      "part_number": "LTM1259",
+      "descripcion": "3\" (7.62cm) Offset-Center",
+      "material_tipo": "Inoxidable SS409",
+      "largo_m": 0.61,
+      "peso_kg": 6.2,
+      "precio": 70000
+    },
+    {
+      "categoria": "Flexible",
+      "part_number": "FLM204",
+      "descripcion": "2\" x 4\" (5.08 x 10.16cm)",
+      "material_tipo": "Malla Inox c/Interlock",
+      "largo_m": 0.10,
+      "peso_kg": 0.8,
+      "precio": 15000
+    },
+    {
+      "categoria": "Catalítico CLF",
+      "part_number": "CLF01",
+      "descripcion": "Universal 2\" (5.08cm)",
+      "material_tipo": "Cerámico Euro 3",
+      "largo_m": 0.30,
+      "peso_kg": 3.2,
+      "precio": 85000
+    },
+    {
+      "categoria": "Catalítico TWC",
+      "part_number": "TWC-V1",
+      "descripcion": "Alto Flujo 2.5\" (6.35cm)",
+      "material_tipo": "Metálico Euro 4",
+      "largo_m": 0.28,
+      "peso_kg": 3.5,
+      "precio": 120000
+    },
+    {
+      "categoria": "Tipo Original",
+      "part_number": "CAT-HY01",
+      "descripcion": "Hyundai Accent / Kia Rio",
+      "material_tipo": "Ajuste Directo",
+      "largo_m": 0.55,
+      "peso_kg": 5.8,
+      "precio": 185000
+    },
+    {
+      "categoria": "Cola Escape",
+      "part_number": "CE-R30",
+      "descripcion": "3\" (7.62cm) Salida Inox",
+      "material_tipo": "Acero Inox Pulido",
+      "largo_m": 0.15,
+      "peso_kg": 1.2,
+      "precio": 25000
+    }
+  ]
+}

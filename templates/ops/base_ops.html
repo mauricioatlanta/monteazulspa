@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+<style>
+    /* Navegación Ops – bordes visibles, glow cyan, alto contraste (v3) */
+    nav.ops-nav {
+        font-family: 'DM Sans', system-ui, sans-serif;
+        background: linear-gradient(180deg, #0a0e18 0%, #060910 100%);
+        border-bottom: 2px solid rgba(0, 212, 255, 0.45);
+        padding: 0.65rem 1.25rem;
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.12), 0 4px 24px rgba(0,0,0,0.4);
+    }
+    nav.ops-nav .ops-nav-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+    }
+    nav.ops-nav a.brand {
+        font-weight: 700;
+        font-size: 0.95rem;
+        letter-spacing: 0.02em;
+        color: #fff !important;
+        text-decoration: none !important;
+        padding: 0.55rem 1rem;
+        margin-right: 0.5rem;
+        border-radius: 999px;
+        background: rgba(0, 20, 40, 0.9) !important;
+        border: 2px solid #00d4ff !important;
+        box-shadow: 0 0 16px rgba(0, 212, 255, 0.35), inset 0 1px 0 rgba(255,255,255,0.08);
+        transition: all 0.25s ease;
+        -webkit-appearance: none;
+        appearance: none;
+        cursor: pointer;
+    }
+    nav.ops-nav a.brand:hover {
+        background: rgba(0, 180, 255, 0.18) !important;
+        border-color: #22d3ee !important;
+        box-shadow: 0 0 28px rgba(0, 212, 255, 0.55), 0 0 40px rgba(0, 212, 255, 0.2), inset 0 1px 0 rgba(255,255,255,0.12);
+        color: #fff !important;
+        transform: translateY(-1px);
+    }
+    nav.ops-nav a.nav-link {
+        color: #e2e8f0 !important;
+        text-decoration: none !important;
+        padding: 0.5rem 1rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        border-radius: 999px !important;
+        background: rgba(10, 18, 32, 0.95) !important;
+        border: 2px solid rgba(0, 212, 255, 0.5) !important;
+        box-shadow: 0 0 12px rgba(0, 212, 255, 0.15), inset 0 1px 0 rgba(255,255,255,0.04);
+        transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+        -webkit-appearance: none;
+        appearance: none;
+        cursor: pointer;
+    }
+    nav.ops-nav a.nav-link:hover {
+        color: #fff !important;
+        background: rgba(0, 180, 255, 0.15) !important;
+        border-color: #00d4ff !important;
+        box-shadow: 0 0 22px rgba(0, 212, 255, 0.45), 0 0 32px rgba(0, 212, 255, 0.15), inset 0 1px 0 rgba(255,255,255,0.08);
+        transform: translateY(-1px);
+    }
+    nav.ops-nav a.nav-link.active {
+        color: #0c1929 !important;
+        background: linear-gradient(180deg, #22d3ee 0%, #06b6d4 50%, #0891b2 100%) !important;
+        border: 2px solid #67e8f9 !important;
+        box-shadow: 0 0 24px rgba(34, 211, 238, 0.6), 0 0 36px rgba(6, 182, 212, 0.3), inset 0 1px 0 rgba(255,255,255,0.35);
+    }
+    nav.ops-nav a.nav-link.active:hover {
+        color: #0c1929 !important;
+        background: linear-gradient(180deg, #67e8f9 0%, #22d3ee 50%, #06b6d4 100%) !important;
+        border-color: #a5f3fc !important;
+        box-shadow: 0 0 28px rgba(34, 211, 238, 0.7), 0 0 44px rgba(6, 182, 212, 0.35), inset 0 1px 0 rgba(255,255,255,0.4);
+        transform: translateY(-1px);
+    }
+    nav.ops-nav .nav-spacer { margin-left: auto; }
+    nav.ops-nav .user {
+        color: #cbd5e1 !important;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        padding: 0.45rem 0.8rem;
+        margin-right: 0.35rem;
+        border-radius: 999px;
+        background: rgba(15, 25, 45, 0.9) !important;
+        border: 2px solid rgba(0, 212, 255, 0.4) !important;
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.12), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    nav.ops-nav a.nav-link-util {
+        color: #e2e8f0 !important;
+        text-decoration: none !important;
+        padding: 0.45rem 0.9rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        border-radius: 999px !important;
+        background: rgba(10, 18, 32, 0.95) !important;
+        border: 2px solid rgba(0, 212, 255, 0.45) !important;
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.12), inset 0 1px 0 rgba(255,255,255,0.04);
+        transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+        cursor: pointer;
+    }
+    nav.ops-nav a.nav-link-util:hover {
+        color: #fff !important;
+        background: rgba(0, 180, 255, 0.12) !important;
+        border-color: #00d4ff !important;
+        box-shadow: 0 0 18px rgba(0, 212, 255, 0.4), 0 0 24px rgba(0, 212, 255, 0.12), inset 0 1px 0 rgba(255,255,255,0.06);
+        transform: translateY(-1px);
+    }
+    nav.ops-nav a.nav-link-logout {
+        color: #fecaca !important;
+        text-decoration: none !important;
+        padding: 0.45rem 0.9rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        border-radius: 999px !important;
+        background: rgba(50, 15, 15, 0.9) !important;
+        border: 2px solid rgba(248, 113, 113, 0.7) !important;
+        box-shadow: 0 0 12px rgba(239, 68, 68, 0.2), inset 0 1px 0 rgba(255,255,255,0.04);
+        transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+        cursor: pointer;
+    }
+    nav.ops-nav a.nav-link-logout:hover {
+        color: #fff !important;
+        background: rgba(185, 28, 28, 0.4) !important;
+        border-color: #f87171 !important;
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.45), 0 0 30px rgba(239, 68, 68, 0.2), inset 0 1px 0 rgba(255,255,255,0.08);
+        transform: translateY(-1px);
+    }
+    .ops-main { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1rem; }
+    .ops-card { background: #151922; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem; }
+    .ops-card h2 { font-size: 1.1rem; margin-bottom: 0.75rem; color: #e8ecf4; }
+    .ops-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .ops-table th, .ops-table td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .ops-table th { color: rgba(255,255,255,0.6); font-weight: 500; }
+    .ops-table tr:hover { background: rgba(255,255,255,0.03); }
+    .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
+    .badge-pending { background: rgba(255,193,7,0.2); color: #ffc107; }
+    .badge-paid { background: rgba(76,175,80,0.2); color: #4caf50; }
+    .badge-cancelled { background: rgba(244,67,54,0.2); color: #f44336; }
+    .badge-open { background: rgba(33,150,243,0.2); color: #2196f3; }
+    .alert-low { color: #ff9800; }
+    .btn { display: inline-block; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.9rem; border: none; cursor: pointer; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-danger { background: #dc2626; color: #fff; }
+    .btn-secondary { background: rgba(255,255,255,0.1); color: #e8ecf4; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+    .stat { background: #151922; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 1rem; }
+    .stat-value { font-size: 1.5rem; font-weight: 700; color: #4a9eff; }
+    .stat-label { font-size: 0.85rem; color: rgba(255,255,255,0.6); }
+</style>
+{% endblock %}
+{% block content %}
+<nav class="ops-nav" aria-label="Navegación principal">
+    <div class="ops-nav-inner">
+        <a href="{% url 'ops:dashboard' %}" class="brand">Centro de Operaciones</a>
+        <a href="{% url 'ops:dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a>
+        <a href="{% url 'ops:sales_list' %}" class="nav-link {% if request.resolver_match.url_name == 'sales_list' or request.resolver_match.url_name == 'sales_detail' %}active{% endif %}">Ventas</a>
+        <a href="{% url 'ops:inventory_list' %}" class="nav-link {% if request.resolver_match.url_name == 'inventory_list' or request.resolver_match.url_name == 'inventory_movements' %}active{% endif %}">Inventario</a>
+        <a href="{% url 'ops:customers_list' %}" class="nav-link {% if request.resolver_match.url_name == 'customers_list' or request.resolver_match.url_name == 'customers_detail' %}active{% endif %}">Clientes</a>
+        <a href="{% url 'ops:warranties_list' %}" class="nav-link {% if request.resolver_match.url_name == 'warranties_list' or request.resolver_match.url_name == 'warranties_detail' %}active{% endif %}">Garantías</a>
+        <a href="{% url 'ops:reports_index' %}" class="nav-link {% if request.resolver_match.url_name == 'reports_index' or request.resolver_match.url_name == 'reports_sales' %}active{% endif %}">Reportes</a>
+        <a href="{% url 'ops:seo_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'seo_dashboard' %}active{% endif %}">SEO</a>
+        {% if user.is_staff or perms.catalog.change_product %}
+        <a href="{% url 'ops:catalog_admin_list' %}" class="nav-link {% if request.resolver_match.url_name == 'catalog_admin_list' or request.resolver_match.url_name == 'catalog_admin_cataliticos_choice' or request.resolver_match.url_name == 'catalog_admin_detail' or request.resolver_match.url_name == 'catalog_admin_edit' or request.resolver_match.url_name == 'catalog_admin_delete' or request.resolver_match.url_name == 'catalog_admin_add' %}active{% endif %}">Catálogo</a>
+        {% endif %}
+        <a href="{% url 'ops:settings' %}" class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">Centro Estratégico</a>
+        <span class="nav-spacer"></span>
+        <span class="user">{{ user.get_username }}</span>
+        <a href="{% url 'core:home' %}" class="nav-link-util">Ir al sitio</a>
+        <a href="/admin/" class="nav-link-util">Admin</a>
+        {% url 'core:home' as home_url %}
+        <a href="/admin/logout/?next={{ home_url|urlencode }}" class="nav-link-logout">Cerrar sesión</a>
+    </div>
+</nav>
+<main class="ops-main">
+    {% if messages %}
+    <ul class="messages" style="list-style:none; margin-bottom:1rem;">
+        {% for message in messages %}
+        <li style="padding:0.5rem 1rem; border-radius:6px; background:{% if message.tags == 'error' %}rgba(244,67,54,0.2){% else %}rgba(76,175,80,0.2){% endif %}; color:{% if message.tags == 'error' %}#f44336{% else %}#4caf50{% endif %};">
+            {{ message }}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% block ops_content %}{% endblock %}
+</main>
+{% endblock %}

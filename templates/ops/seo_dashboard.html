@@ -1,0 +1,73 @@
+{% extends "ops/base_ops.html" %}
+{% block ops_content %}
+<h1 style="margin-bottom:0.5rem;">Dashboard SEO</h1>
+<p style="color:rgba(255,255,255,0.65); font-size:0.9rem; margin-bottom:1.5rem;">
+    Productos más vistos (una vista por sesión por producto). Sin scripts de terceros — datos propios en tiempo real.
+</p>
+
+<div class="grid-2" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); margin-bottom:1.5rem;">
+    <div class="stat">
+        <div class="stat-value">{{ top_productos|length }}</div>
+        <div class="stat-label">Productos con vistas</div>
+    </div>
+    <div class="stat">
+        <div class="stat-value">{{ max_views }}</div>
+        <div class="stat-label">Máx. vistas (1º)</div>
+    </div>
+</div>
+
+<div class="ops-card">
+    <h2>Ganadores SEO — más vistos</h2>
+    <p style="color:rgba(255,255,255,0.6); font-size:0.85rem; margin-bottom:1rem;">
+        Usa estos datos para inventario, fotos o precios: muchas vistas y pocas ventas = oportunidad de mejora.
+    </p>
+    {% if top_productos %}
+    <table class="ops-table">
+        <thead>
+            <tr>
+                <th style="width:3rem;">#</th>
+                <th>SKU</th>
+                <th>Producto</th>
+                <th style="width:6rem;">Vistas</th>
+                <th style="width:8rem;">Última vista</th>
+                <th style="width:12rem;">Barra</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stat in top_productos %}
+            <tr>
+                <td style="font-weight:600; color:rgba(255,255,255,0.5);">{{ forloop.counter }}</td>
+                <td><code style="background:rgba(0,212,255,0.12); padding:0.2rem 0.4rem; border-radius:4px;">{{ stat.product.sku }}</code></td>
+                <td>
+                    <a href="{% url 'catalog:product_detail' stat.product.slug %}" style="color:#4a9eff;" target="_blank" rel="noopener">{{ stat.product.name|truncatewords:8 }}</a>
+                    <a href="{% url 'ops:catalog_admin_detail' stat.product.slug %}" style="margin-left:0.35rem; color:rgba(255,255,255,0.5); font-size:0.8rem;" title="Editar en ops">✎</a>
+                </td>
+                <td style="font-weight:600; color:#22d3ee;">{{ stat.views }}</td>
+                <td style="color:rgba(255,255,255,0.7);">{{ stat.last_viewed|date:"d/m/Y H:i" }}</td>
+                <td>
+                    {% if max_views %}
+                    <div style="background:rgba(255,255,255,0.08); border-radius:6px; height:1.25rem; overflow:hidden;">
+                        <div style="height:100%; background:linear-gradient(90deg, #0891b2, #22d3ee); border-radius:6px; width:{% widthratio stat.views max_views 100 %}%; min-width:{% if stat.views %}4px{% else %}0{% endif %};"></div>
+                    </div>
+                    {% else %}
+                    <span style="color:rgba(255,255,255,0.4);">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color:rgba(255,255,255,0.6);">Aún no hay estadísticas. Las vistas se registran al entrar a la ficha de cada producto (una por sesión).</p>
+    {% endif %}
+</div>
+
+<div class="ops-card" style="margin-top:1rem;">
+    <h2>Uso de los datos</h2>
+    <ul style="color:rgba(255,255,255,0.75); font-size:0.9rem; line-height:1.6; margin:0; padding-left:1.25rem;">
+        <li><strong>Inventario:</strong> Si un producto tiene muchas vistas y 0 ventas, revisa precio o foto.</li>
+        <li><strong>Lo más buscado:</strong> Puedes mostrar en la Home los top N con enlaces internos (Google valora el enlazado dinámico).</li>
+        <li><strong>Core Web Vitals:</strong> Sin scripts de terceros, la página sigue ligera.</li>
+    </ul>
+</div>
+{% endblock %}

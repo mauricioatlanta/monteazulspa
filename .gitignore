@@ -21,6 +21,9 @@ staticfiles/
 .DS_Store
 Thumbs.db
 
+# Node (solo para build de Tailwind; el resultado static/css/tailwind.css se commitea)
+node_modules/
+
 # Entorno
 .env
 .env.local

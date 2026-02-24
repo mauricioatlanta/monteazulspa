@@ -1,10 +1,31 @@
-{% load catalog_filters %}
+{% load catalog_filters %}{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Repuestos Compatibles | Monteazul Spa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>{{ page_title|default:"Catalíticos compatibles con tu vehículo | Monteazul SPA" }}</title>
+    {% if meta_description %}<meta name="description" content="{{ meta_description }}">{% endif %}
+    {% if canonical_url %}<link rel="canonical" href="{{ canonical_url }}">{% endif %}
+    {% if products %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "Catalíticos y repuestos compatibles con {{ fitment.brand }} {{ fitment.model }} {{ fitment.year }}",
+      "numberOfItems": {{ products|length }},
+      "itemListElement": [
+        {% for product in products %}
+        {
+          "@type": "ListItem",
+          "position": {{ forloop.counter }},
+          "url": "{{ SITE_URL|default:'https://monteazulspa.cl' }}{{ product.get_absolute_url }}"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ]
+    }
+    </script>
+    {% endif %}
     <style>
         * {
             margin: 0;
@@ -167,6 +188,11 @@
             font-weight: 800;
             color: var(--color-success);
         }
+        .product-price-iva {
+            font-size: 0.75rem;
+            font-weight: 500;
+            opacity: 0.85;
+        }
         
         .compatibility-badge {
             display: inline-block;
@@ -221,7 +247,7 @@
         }
         .wa-float {
             position: fixed;
-            left: 20px;
+            right: 20px;
             bottom: 20px;
             z-index: 60;
             display: flex;
@@ -239,6 +265,46 @@
             transition: box-shadow 0.2s, transform 0.2s;
         }
         .wa-float:hover { box-shadow: 0 12px 40px rgba(46, 204, 113, 0.3); transform: translateY(-2px); }
+
+        @media (max-width: 768px) {
+            .header { padding: 24px 16px; }
+            .header-content { padding: 0; }
+            .back-link {
+                min-height: 48px;
+                padding: 12px 0;
+                display: inline-flex;
+                align-items: center;
+                font-size: 1rem;
+            }
+            .results-title { font-size: clamp(1.35rem, 5vw, 1.85rem); }
+            .results-count { font-size: 1rem; }
+            .container { padding: 24px 16px; }
+            .products-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                margin-top: 24px;
+            }
+            .product-card { min-height: 120px; }
+            .product-info { padding: 16px; }
+            .product-name { font-size: 1rem; }
+            .btn-primary {
+                min-height: 52px;
+                padding: 16px 24px;
+                width: 100%;
+                text-align: center;
+                font-size: 1rem;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .no-results { padding: 48px 20px; }
+            .wa-float {
+                right: 16px;
+                bottom: max(16px, env(safe-area-inset-bottom));
+                min-height: 48px;
+                padding: 14px 18px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -255,7 +321,7 @@
             </div>
             
             <div class="results-header">
-                <h1 class="results-title">Repuestos Compatibles</h1>
+                <h1 class="results-title">Catalíticos para {{ fitment.brand }} {{ fitment.model }} {{ fitment.year }}{% if fitment.engine %} ({{ fitment.engine }}){% endif %}</h1>
                 <p class="results-count">
                     Encontramos <strong>{{ count }}</strong> producto{{ count|pluralize }} compatible{{ count|pluralize }} con tu vehículo
                 </p>
@@ -269,10 +335,10 @@
                 {% for product in products %}
                     <a href="{% url 'catalog:product_detail' product.slug %}" class="product-card">
                         <div class="product-image">
-                            {% if product.images.first %}
-                                <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                            {% if product.images.first and product.images.first.image %}
+                                <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" loading="lazy">
                             {% else %}
-                                <span>Sin imagen</span>
+                                <img src="{% static 'img/placeholder-product.svg' %}" alt="{{ product.name }}" loading="lazy">
                             {% endif %}
                         </div>
                         <div class="product-info">
@@ -284,7 +350,7 @@
                                 </div>
                             {% endif %}
                             <div class="product-footer">
-                                <div class="product-price">{{ product.price|pesos_cl }}</div>
+                                <div class="product-price">{{ product.price|pesos_cl }} <span class="product-price-iva">IVA incluido</span></div>
                             </div>
                         </div>
                     </a>
@@ -303,8 +369,8 @@
         {% endif %}
     </div>
     <footer class="site-footer" style="margin-top:2rem;padding:24px 20px;text-align:center;color:var(--color-text-muted);font-size:0.875rem;border-top:1px solid var(--color-border);">
-        <p>© 2026 Monteazul Spa • Barros Borgono 71, Providencia, Santiago, Región Metropolitana • Fundada 07/06/2016</p>
-        <p style="margin-top:6px;opacity:0.85;">Sitio creado por Atlanta Holding</p>
+        <p>© {% now "Y" %} Monteazul SPA • Centro de Venta: <a href="https://www.google.com/maps/search/?api=1&query=Exequiel%20Fern%C3%A1ndez%203663%20Of%206%2C%20Macul%2C%20Santiago%2C%20Chile" target="_blank" rel="noopener" style="color: rgba(255,255,255,0.95); text-decoration: underline;">Exequiel Fernández 3663 Of. 6, Macul, Santiago</a> • Oficina Corporativa: Barros Borgoño 71, Providencia, Santiago • Fundada 07/06/2016</p>
+        <p style="margin-top:6px;opacity:0.85;">Sitio creado por Atlanta Global Solutions</p>
     </footer>
     <a class="wa-float" href="https://wa.me/{{ whatsapp_number }}?text=Hola%20Monteazul%2C%20quiero%20contactar%20a%20un%20vendedor" target="_blank" rel="noopener" title="Contactar vendedor por WhatsApp">💬 Contactar vendedor</a>
 </body>

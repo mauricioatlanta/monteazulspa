@@ -1,0 +1,82 @@
+{% extends "ops/base_ops.html" %}
+{% block ops_content %}
+<h1 style="margin-bottom:1rem;">Dashboard</h1>
+<div class="grid-2" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); margin-bottom:1.5rem;">
+    <div class="stat">
+        <div class="stat-value">$ {{ sales_today|floatformat:0 }}</div>
+        <div class="stat-label">Ventas hoy</div>
+    </div>
+    <div class="stat">
+        <div class="stat-value">$ {{ sales_month|floatformat:0 }}</div>
+        <div class="stat-label">Ventas del mes</div>
+    </div>
+    <div class="stat">
+        <div class="stat-value">$ {{ margin|floatformat:0 }}</div>
+        <div class="stat-label">Margen real (mes)</div>
+    </div>
+    <div class="stat">
+        <div class="stat-value">{{ warranty_open }}</div>
+        <div class="stat-label">Reclamos garantía abiertos</div>
+    </div>
+</div>
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+    <div class="ops-card">
+        <h2>Bajo stock</h2>
+        {% if low_stock %}
+        <table class="ops-table">
+            <thead><tr><th>Producto</th><th>Stock</th><th>Mínimo</th></tr></thead>
+            <tbody>
+            {% for p in low_stock %}
+            <tr>
+                <td><a href="{% url 'ops:inventory_movements_product' p.pk %}" style="color:#4a9eff;">{{ p.sku }}</a> {{ p.name|truncatewords:5 }}</td>
+                <td class="alert-low">{{ p.stock }}</td>
+                <td>{{ p.stock_minimum_alert }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color:rgba(255,255,255,0.6);">Sin alertas de stock.</p>
+        {% endif %}
+    </div>
+    <div class="ops-card">
+        <h2>Ventas recientes</h2>
+        {% if recent_orders %}
+        <table class="ops-table">
+            <thead><tr><th>#</th><th>Cliente</th><th>Estado</th><th>Total</th></tr></thead>
+            <tbody>
+            {% for o in recent_orders %}
+            <tr>
+                <td><a href="{% url 'ops:sales_detail' o.pk %}">{{ o.pk }}</a></td>
+                <td>{{ o.customer }}</td>
+                <td><span class="badge badge-{{ o.status|lower }}">{{ o.get_status_display }}</span></td>
+                <td>$ {{ o.total|floatformat:0 }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color:rgba(255,255,255,0.6);">No hay ventas recientes.</p>
+        {% endif %}
+    </div>
+</div>
+<div class="ops-card">
+    <h2>Auditoría reciente</h2>
+    {% if recent_audit %}
+    <table class="ops-table">
+        <thead><tr><th>Fecha</th><th>Acción</th><th>Descripción</th></tr></thead>
+        <tbody>
+        {% for a in recent_audit %}
+        <tr>
+            <td>{{ a.timestamp|date:"d/m/Y H:i" }}</td>
+            <td>{{ a.action }}</td>
+            <td>{{ a.description|truncatewords:15 }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color:rgba(255,255,255,0.6);">Sin registros recientes.</p>
+    {% endif %}
+</div>
+{% endblock %}

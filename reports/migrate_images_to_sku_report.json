@@ -1,0 +1,165 @@
+{
+  "migrated": [
+    {
+      "product_id": 78,
+      "sku": "2X6EXT",
+      "image_id": 2,
+      "from": "E:\\projecto\\monteazulspa\\media\\products\\flexibles\\2x6ext.png",
+      "to": "products/2X6EXT/main.png",
+      "applied": false
+    },
+    {
+      "product_id": 63,
+      "sku": "CHEVROLET-CRUZE",
+      "image_id": 26,
+      "from": "E:\\projecto\\monteazulspa\\media\\products\\cataliticos\\ensamble_directo\\chevrolet-cruze.png",
+      "to": "products/CHEVROLET-CRUZE/main.png",
+      "applied": false
+    },
+    {
+      "product_id": 60,
+      "sku": "CLFO36-AUDI",
+      "image_id": 20,
+      "from": "E:\\projecto\\monteazulspa\\media\\products\\cataliticos\\ensamble_directo\\clfo36-audi.png",
+      "to": "products/CLFO36-AUDI/main.png",
+      "applied": false
+    },
+    {
+      "product_id": 3,
+      "sku": "LT040",
+      "image_id": 27,
+      "from": "E:\\projecto\\monteazulspa\\media\\products\\silenciadores\\lt040.png",
+      "to": "products/LT040/main.png",
+      "applied": false
+    }
+  ],
+  "missing": [
+    {
+      "product_id": 79,
+      "sku": "2X8EXT",
+      "image_id": 3,
+      "db_path": "products/2026/02/02/2x8ext.png"
+    },
+    {
+      "product_id": 83,
+      "sku": "CAT-001",
+      "image_id": 10,
+      "db_path": "products/2026/02/02/CAT001_1.png"
+    },
+    {
+      "product_id": 83,
+      "sku": "CAT-001",
+      "image_id": 11,
+      "db_path": "products/2026/02/02/CAT001_2.png"
+    },
+    {
+      "product_id": 83,
+      "sku": "CAT-001",
+      "image_id": 12,
+      "db_path": "products/2026/02/02/CAT001_3.png"
+    },
+    {
+      "product_id": 9,
+      "sku": "DW002",
+      "image_id": 18,
+      "db_path": "products/2026/02/04/dw002.png"
+    },
+    {
+      "product_id": 19,
+      "sku": "LTM1234",
+      "image_id": 25,
+      "db_path": "products/2026/02/04/ltm1234.png"
+    },
+    {
+      "product_id": 66,
+      "sku": "PEUGEOT-307",
+      "image_id": 24,
+      "db_path": "products/2026/02/04/peugeot-307.png"
+    },
+    {
+      "product_id": 46,
+      "sku": "TWCAT003",
+      "image_id": 13,
+      "db_path": "products/2026/02/02/TWCAT003_1.png"
+    },
+    {
+      "product_id": 46,
+      "sku": "TWCAT003",
+      "image_id": 14,
+      "db_path": "products/2026/02/02/TWCAT003_2.png"
+    },
+    {
+      "product_id": 58,
+      "sku": "TWCAT016-DIESEL",
+      "image_id": 23,
+      "db_path": "products/2026/02/04/twcat016-diesel.png"
+    },
+    {
+      "product_id": 54,
+      "sku": "TWCAT052-10,7",
+      "image_id": 22,
+      "db_path": "products/2026/02/04/twcat052-10,7.png"
+    },
+    {
+      "product_id": 55,
+      "sku": "TWCAT052-12",
+      "image_id": 28,
+      "db_path": "products/2026/02/04/twcat052-12.png"
+    },
+    {
+      "product_id": 51,
+      "sku": "TWCAT091-250-SUPER",
+      "image_id": 19,
+      "db_path": "products/2026/02/04/twcat091-250-super.png"
+    },
+    {
+      "product_id": 52,
+      "sku": "TWCAT237-SENSOR",
+      "image_id": 21,
+      "db_path": "products/2026/02/04/twcat237-sensor.png"
+    }
+  ],
+  "multiple_candidates": [
+    {
+      "product_id": 80,
+      "sku": "2X6EXT-REF",
+      "image_id": 7,
+      "db_path": "products/2026/02/02/2x6extension.png",
+      "candidates": [
+        "products/flexibles/2x6extension.png",
+        "product_import/2x6extension.png"
+      ]
+    },
+    {
+      "product_id": 81,
+      "sku": "2X8EXT-REF",
+      "image_id": 8,
+      "db_path": "products/2026/02/02/2x8extension.png",
+      "candidates": [
+        "products/flexibles/2x8extension.png",
+        "product_import/2x8extension.png"
+      ]
+    },
+    {
+      "product_id": 82,
+      "sku": "3X6",
+      "image_id": 9,
+      "db_path": "products/2026/02/02/3x6.png",
+      "candidates": [
+        "products/flexibles/3x6.png",
+        "product_import/3x6.png"
+      ]
+    },
+    {
+      "product_id": 4,
+      "sku": "LT043",
+      "image_id": 6,
+      "db_path": "products/2026/02/02/lt043.png",
+      "candidates": [
+        "products/silenciadores/lt043.png",
+        "product_import/LT043.png"
+      ]
+    }
+  ],
+  "errors": []
+}

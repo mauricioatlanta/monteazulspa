@@ -1,0 +1,19 @@
+cd /home/atlantareciclajes/monteazulspa
+source /home/atlantareciclajes/venv_monteazul/bin/activate
+
+# 1. Crear la migración para el campo ficha_tecnica (y cualquier otro cambio en catalog)
+python manage.py makemigrations catalog
+
+# 2. Aplicar las migraciones
+python manage.py migrate
+
+
+cd /home/atlantareciclajes/monteazulspa
+source /home/atlantareciclajes/venv_monteazul/bin/activate
+python manage.py makemigrations catalog --merge
+python manage.py migrate
+
+python manage.py changepassword admin
+
+Usuario	admin
+Contraseña Azulazul

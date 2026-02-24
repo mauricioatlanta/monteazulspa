@@ -1,0 +1,9 @@
+{% comment %}
+  Topbar promocional estilo e-commerce. Oculto en móvil por defecto; opcional mostrar.
+{% endcomment %}
+<div id="topbar-promo" class="bg-[#0d1117] border-b border-white/10 text-center py-2 px-4 text-sm text-white/80" role="banner">
+  <p class="font-medium">
+    Envíos a todo Chile • Garantía extendida en catalíticos • 
+    <a href="{% url 'catalog:product_list' %}?cat=cataliticos" class="text-[#00f0ff] hover:underline">Ver catálogo</a>
+  </p>
+</div>

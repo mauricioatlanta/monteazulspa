@@ -1,0 +1,337 @@
+{% extends "ops/base_ops.html" %}
+{% load static %}
+{% block extra_head %}
+{{ block.super }}
+<style>
+    :root { --navy: #0c1322; --navy-surface: rgba(255,255,255,0.04); --navy-border: rgba(255,255,255,0.08); --cyan: #00d4ff; --cyan-soft: rgba(0,212,255,0.15); --text: #e8ecf4; --text-muted: rgba(255,255,255,0.55); }
+    .edit-product-wrap { max-width: 720px; margin: 0 auto; }
+    .edit-product-wrap h1 { font-size: 1.35rem; margin-bottom: 8px; color: var(--text); }
+    .edit-product-wrap .breadcrumb { margin-bottom: 16px; font-size: 0.9rem; color: var(--text-muted); }
+    .edit-product-wrap .breadcrumb a { color: var(--text-muted); text-decoration: none; }
+    .form-card {
+        background: var(--navy-surface);
+        border: 1px solid var(--navy-border);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+    .form-card h2 { font-size: 1rem; color: var(--cyan); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+    .form-group .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--navy-border);
+        border-radius: 8px;
+        background: rgba(0,0,0,0.2);
+        color: var(--text);
+        font-size: 0.95rem;
+    }
+    .form-group .form-control:focus { outline: none; border-color: var(--cyan); }
+    .form-group .form-check-input { margin-right: 8px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+    .errorlist { list-style: none; color: #f44336; font-size: 0.85rem; margin-top: 4px; }
+    .formset-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 12px; padding: 12px; background: rgba(0,0,0,0.15); border-radius: 8px; }
+    .formset-row .form-group { margin-bottom: 0; flex: 1; min-width: 140px; }
+    .formset-row .delete-checkbox { flex: 0 0 auto; }
+    .form-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--navy-border); }
+    .form-actions .btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+    }
+    .form-actions .btn-primary { background: var(--cyan-soft); color: var(--cyan); border: 1px solid rgba(0,212,255,0.3); }
+    .form-actions .btn-secondary { background: rgba(255,255,255,0.08); color: var(--text); border: 1px solid var(--navy-border); }
+</style>
+{% endblock %}
+
+{% block ops_content %}
+<div class="edit-product-wrap">
+    <div class="breadcrumb">
+        <a href="{% url 'ops:dashboard' %}">Operaciones</a> ›
+        <a href="{% url 'ops:catalog_admin_list' %}">Catálogo</a> ›
+        <a href="{% url 'ops:catalog_admin_detail' product.slug %}">{{ product.sku }}</a> ›
+        Editar
+    </div>
+    <h1>Editar producto: {{ product.sku }}</h1>
+
+    <form method="post" action="{% url 'ops:catalog_admin_edit' product.slug %}" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-card">
+            <h2>Datos principales</h2>
+            <div class="form-group">
+                <label for="id_name">Nombre *</label>
+                {{ form.name }}
+                {{ form.name.errors }}
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_sku">SKU</label>
+                    {{ form.sku }}
+                    {{ form.sku.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="id_slug">Slug (URL)</label>
+                    {{ form.slug }}
+                    {{ form.slug.errors }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="id_category">Categoría</label>
+                {{ form.category }}
+                {{ form.category.errors }}
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_price">Precio *</label>
+                    {{ form.price }}
+                    {{ form.price.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="id_cost_price">Costo</label>
+                    {{ form.cost_price }}
+                    {{ form.cost_price.errors }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_stock">Stock</label>
+                    {{ form.stock }}
+                    {{ form.stock.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="id_stock_minimum_alert">Alerta mínimo</label>
+                    {{ form.stock_minimum_alert }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="id_ficha_tecnica">Ficha técnica / Descripción</label>
+                {{ form.ficha_tecnica }}
+                {{ form.ficha_tecnica.errors }}
+            </div>
+            <div class="form-group">
+                <label>{{ form.is_active }} Activo (visible en catálogo)</label>
+                {{ form.is_active.errors }}
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2>Detalles técnicos (opcional)</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_euro_norm">Norma Euro</label>
+                    {{ form.euro_norm }}
+                </div>
+                <div class="form-group">
+                    <label for="id_material">Material</label>
+                    {{ form.material }}
+                </div>
+                <div class="form-group">
+                    <label for="id_install_type">Tipo instalación</label>
+                    {{ form.install_type }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_weight">Peso (kg)</label>
+                    {{ form.weight }}
+                </div>
+                <div class="form-group">
+                    <label for="id_length">Largo (cm)</label>
+                    {{ form.length }}
+                </div>
+                <div class="form-group">
+                    <label for="id_width">Ancho (cm)</label>
+                    {{ form.width }}
+                </div>
+                <div class="form-group">
+                    <label for="id_height">Alto (cm)</label>
+                    {{ form.height }}
+                </div>
+                <div class="form-group">
+                    <label for="id_volume">Volumen</label>
+                    {{ form.volume }}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2>Garantía</h2>
+            <div class="form-group">
+                <label>{{ form.has_warranty }} Tiene garantía</label>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_warranty_days">Días de garantía</label>
+                    {{ form.warranty_days }}
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="id_warranty_terms">Términos</label>
+                    {{ form.warranty_terms }}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <h2>Imágenes del producto</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">Máximo 4 imágenes. Marca "Principal" en la que debe mostrarse primero. Posición 1-4.</p>
+            {% if formset.non_form_errors %}
+            <ul class="errorlist">{{ formset.non_form_errors }}</ul>
+            {% endif %}
+            {{ formset.management_form }}
+            {% for f in formset %}
+            <div class="formset-row">
+                {% for hidden in f.hidden_fields %}{{ hidden }}{% endfor %}
+                <div class="form-group">
+                    <label>Imagen</label>
+                    {{ f.image }}
+                    {{ f.image.errors }}
+                    {% if f.instance.pk and f.instance.image %}
+                    <div style="margin-top:8px">
+                        <img class="img-preview"
+                             src="{{ f.instance.image.url }}"
+                             alt=""
+                             style="max-width:110px;max-height:110px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,0.12);" />
+                        <br>
+                        <small style="color: var(--text-muted);">Actual: {{ f.instance.image.name }}</small>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="form-group" style="min-width: 120px;">
+                    <label>Alt text</label>
+                    {{ f.alt_text }}
+                </div>
+                <div class="form-group" style="min-width: 80px;">
+                    <label>Posición</label>
+                    {{ f.position }}
+                    {{ f.position.errors }}
+                </div>
+                <div class="form-group delete-checkbox">
+                    <label>{{ f.DELETE }} Eliminar</label>
+                </div>
+                <div class="form-group" style="min-width: 100px;">
+                    <label>{{ f.is_primary }} Principal</label>
+                </div>
+            </div>
+            {% if f.errors %}<ul class="errorlist">{% for e in f.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+            <a href="{% url 'ops:catalog_admin_detail' product.slug %}" class="btn btn-secondary">Cancelar</a>
+            <a href="{% url 'ops:catalog_admin_list' %}" class="btn btn-secondary">Volver al listado</a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const rows = Array.from(document.querySelectorAll(".formset-row"));
+
+  // 1) Solo un "Principal": al marcar uno, desmarcar el resto
+  const primaryChecks = Array.from(document.querySelectorAll('input[type="checkbox"][name$="-is_primary"]'));
+  primaryChecks.forEach(chk => {
+    chk.addEventListener("change", () => {
+      if (!chk.checked) return;
+      primaryChecks.forEach(other => { if (other !== chk) other.checked = false; });
+    });
+  });
+
+  // 2) Primera posición libre (1-4) no usada por otras filas
+  function nextFreePosition() {
+    const used = new Set(
+      rows.map(r => r.querySelector('input[name$="-position"]'))
+          .filter(i => i && i.value)
+          .map(i => parseInt(i.value, 10))
+          .filter(n => !Number.isNaN(n))
+    );
+    for (let i = 1; i <= 4; i++) if (!used.has(i)) return i;
+    return "";
+  }
+
+  // 3) Preview por cada file input (solo crear si no existe .img-preview)
+  rows.forEach(row => {
+    const file = row.querySelector('input[type="file"][name$="-image"]');
+    const pos = row.querySelector('input[name$="-position"]');
+    if (!file) return;
+
+    let preview = row.querySelector(".img-preview");
+    if (!preview) {
+      preview = document.createElement("img");
+      preview.className = "img-preview";
+      preview.style.maxWidth = "110px";
+      preview.style.maxHeight = "110px";
+      preview.style.objectFit = "cover";
+      preview.style.borderRadius = "10px";
+      preview.style.border = "1px solid rgba(255,255,255,0.12)";
+      preview.style.marginTop = "8px";
+      file.parentElement.appendChild(preview);
+    }
+
+    file.addEventListener("change", () => {
+      const f = file.files && file.files[0];
+      if (f) {
+        preview.src = URL.createObjectURL(f);
+        // Auto-asignar posición si está vacía
+        if (pos && !pos.value) {
+          const free = nextFreePosition();
+          if (free) pos.value = free;
+        }
+      }
+    });
+  });
+
+  // 4) Aviso en vivo si posición duplicada
+  function checkDuplicatePositions() {
+    const byPos = {};
+    rows.forEach(row => {
+      const posInput = row.querySelector('input[name$="-position"]');
+      const deleteCb = row.querySelector('input[name$="-DELETE"]');
+      if (!posInput || (deleteCb && deleteCb.checked)) return;
+      const v = posInput.value.trim();
+      if (!v) return;
+      const n = parseInt(v, 10);
+      if (Number.isNaN(n) || n < 1 || n > 4) return;
+      if (!byPos[n]) byPos[n] = [];
+      byPos[n].push(posInput);
+    });
+    // Quitar mensaje anterior
+    rows.forEach(r => {
+      const msg = r.querySelector(".position-duplicate-msg");
+      if (msg) msg.remove();
+    });
+    Object.keys(byPos).forEach(n => {
+      const inputs = byPos[n];
+      if (inputs.length <= 1) return;
+      inputs.forEach(input => {
+        const wrap = input.closest(".form-group");
+        if (!wrap) return;
+        const msg = document.createElement("small");
+        msg.className = "position-duplicate-msg";
+        msg.style.color = "#f44336";
+        msg.textContent = "Posición repetida. Usa 1–4 sin repetir.";
+        wrap.appendChild(msg);
+      });
+    });
+  }
+
+  rows.forEach(row => {
+    const pos = row.querySelector('input[name$="-position"]');
+    const delCb = row.querySelector('input[name$="-DELETE"]');
+    if (pos) {
+      pos.addEventListener("input", checkDuplicatePositions);
+      pos.addEventListener("change", checkDuplicatePositions);
+    }
+    if (delCb) delCb.addEventListener("change", checkDuplicatePositions);
+  });
+  checkDuplicatePositions();
+});
+</script>
+{% endblock %}

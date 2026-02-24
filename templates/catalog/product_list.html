@@ -1,13 +1,10 @@
-{% load catalog_filters %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo | Monteazul Spa</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+{% extends "base_public.html" %}
+{% load catalog_filters %}{% load static %}
+{% block meta_title %}{% if q %}Buscar "{{ q }}" | MonteAzul SPA{% elif current_category %}{{ current_category.name }} | MonteAzul SPA{% else %}Catálogo de Productos | MonteAzul SPA{% endif %}{% endblock %}
+{% block meta_description %}{% if q %}Resultados para {{ q }}. Catalíticos, flexibles y repuestos de escape con envío a Chile.{% elif current_category %}Compra {{ current_category.name }} con envío en Chile. MonteAzul SPA - Repuestos de escape.{% else %}Catalíticos, flexibles reforzados y silenciadores. Envío a todo Chile. Retiro en Macul.{% endif %}{% endblock %}
+{% block extra_head %}
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@400;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --navy: #0c1322;
@@ -22,96 +19,7 @@
             --text-muted: rgba(255,255,255,0.55);
             --white: #ffffff;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Outfit', system-ui, sans-serif;
-            background: var(--navy);
-            color: var(--text);
-            min-height: 100vh;
-            line-height: 1.5;
-        }
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background:
-                radial-gradient(ellipse 100% 60% at 50% -10%, rgba(0,212,255,0.06), transparent 50%),
-                linear-gradient(180deg, var(--navy) 0%, #0f1828 100%);
-            pointer-events: none;
-            z-index: 0;
-        }
-        body > * { position: relative; z-index: 1; }
-
-        /* Header azul marino, glass */
-        .header {
-            background: rgba(12,19,34,0.85);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--navy-border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .header-inner {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 16px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 24px;
-            flex-wrap: wrap;
-        }
-        .logo-link {
-            text-decoration: none;
-            color: var(--text);
-            font-weight: 800;
-            font-size: 1.25rem;
-            letter-spacing: 0.06em;
-        }
-        .logo-link:hover { color: var(--cyan); }
-        .header-nav {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .header-nav a {
-            padding: 10px 16px;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            letter-spacing: 0.03em;
-            border-radius: 8px;
-            transition: color 0.2s, background 0.2s;
-        }
-        .header-nav a:hover { color: var(--cyan); background: var(--cyan-soft); }
-        .header-nav a.active { color: var(--cyan); background: var(--cyan-soft); }
-        .header-actions { display: flex; align-items: center; gap: 12px; }
-        .search-form {
-            display: flex;
-            border: 1px solid var(--navy-border);
-            border-radius: 10px;
-            overflow: hidden;
-            background: var(--navy-surface);
-        }
-        .search-form input {
-            width: 200px;
-            padding: 10px 14px;
-            border: none;
-            background: transparent;
-            color: var(--text);
-            font-size: 0.9rem;
-            outline: none;
-        }
-        .search-form input::placeholder { color: var(--text-muted); }
-        .search-form button {
-            padding: 10px 14px;
-            border: none;
-            background: transparent;
-            color: var(--text-muted);
-            cursor: pointer;
-        }
-        .search-form button:hover { color: var(--cyan); }
+        .catalog-page-wrap { font-family: 'Outfit', system-ui, sans-serif; color: var(--text); line-height: 1.5; }
 
         /* Bloque buscar por vehículo – glass */
         .vehicle-search-block {
@@ -153,7 +61,7 @@
             margin: 0 auto;
             padding: 48px 24px 64px;
             display: grid;
-            grid-template-columns: 260px 1fr;
+            grid-template-columns: 320px 1fr;
             gap: 32px;
             align-items: start;
         }
@@ -163,11 +71,26 @@
         .catalog-sidebar {
             position: sticky;
             top: 100px;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            overflow-x: hidden;
             background: var(--navy-surface);
             border: 1px solid var(--navy-border);
             border-radius: 14px;
             padding: 22px;
             backdrop-filter: blur(12px);
+            -webkit-overflow-scrolling: touch;
+        }
+        .catalog-sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .catalog-sidebar::-webkit-scrollbar-track {
+            background: var(--navy-light);
+            border-radius: 3px;
+        }
+        .catalog-sidebar::-webkit-scrollbar-thumb {
+            background: var(--cyan);
+            border-radius: 3px;
         }
         .catalog-sidebar h3 {
             font-weight: 700;
@@ -178,6 +101,10 @@
             margin-bottom: 16px;
             padding-bottom: 12px;
             border-bottom: 1px solid var(--navy-border);
+        }
+        .catalog-sidebar .filter-list-wrap {
+            overflow-x: hidden;
+            padding-right: 6px;
         }
         .filter-list { list-style: none; }
         .filter-list li { margin-bottom: 4px; }
@@ -201,9 +128,43 @@
             font-weight: 700;
             border: 1px solid rgba(0,212,255,0.3);
         }
+        .filter-list .cat-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+        .filter-list .cat-row a { flex: 1; min-width: 0; }
+        .filter-list .toggle-children {
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            transition: transform 0.2s, color 0.2s, background 0.2s;
+        }
+        .filter-list .toggle-children:hover {
+            color: var(--cyan);
+            background: var(--cyan-soft);
+        }
+        .filter-list li.has-children.expanded .toggle-children { transform: rotate(180deg); }
         .filter-list .subcategory {
             padding-left: 24px;
             font-size: 0.85rem;
+        }
+        .filter-list li.has-children > .subcategory {
+            display: none;
+        }
+        .filter-list li.has-children.expanded > .subcategory {
+            display: block;
         }
         .filter-list .subcategory a { padding: 8px 12px; color: var(--text-muted); }
         .filter-list .subcategory a:hover,
@@ -276,7 +237,8 @@
         .product-card-img img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
+            object-position: center;
         }
         .product-card-img .no-img {
             position: absolute;
@@ -325,6 +287,12 @@
             font-size: 1.4rem;
             color: var(--cyan);
         }
+        .product-card-iva {
+            font-weight: 500;
+            font-size: 0.75rem;
+            color: var(--cyan);
+            opacity: 0.85;
+        }
         .product-card-cta {
             padding: 10px 18px;
             background: var(--cyan-soft);
@@ -340,6 +308,7 @@
             background: rgba(0,212,255,0.25);
             box-shadow: 0 0 16px var(--cyan-glow);
         }
+        .product-card.product-card-inactive { opacity: 0.75; }
 
         /* Estado vacío */
         .empty {
@@ -355,56 +324,6 @@
             color: var(--text);
         }
         .empty p { color: var(--text-muted); }
-
-        /* Footer azul marino */
-        .footer {
-            background: var(--navy-mid);
-            border-top: 1px solid var(--navy-border);
-            color: var(--text-muted);
-            margin-top: 48px;
-        }
-        .footer-inner {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 48px 24px 32px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 32px;
-        }
-        .footer-col h4 {
-            font-weight: 700;
-            font-size: 0.9rem;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            color: var(--text);
-            margin-bottom: 16px;
-        }
-        .footer-col ul { list-style: none; }
-        .footer-col a {
-            display: block;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.9rem;
-            padding: 4px 0;
-            transition: color 0.2s;
-        }
-        .footer-col a:hover { color: var(--cyan); }
-        .footer-bottom {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px 24px;
-            border-top: 1px solid var(--navy-border);
-            text-align: center;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-        .footer-credits {
-            display: block;
-            margin-top: 10px;
-            font-size: 0.8rem;
-            opacity: 0.85;
-        }
 
         .search-loading {
             display: flex;
@@ -425,79 +344,573 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Botón flotante WhatsApp - contactar vendedor */
-        .wa-float {
-            position: fixed;
-            left: 20px;
-            bottom: 20px;
-            z-index: 60;
+        /* —— Vista Catalíticos: estilo ops (convertidores-cataliticos) —— */
+        .cataliticos-choice-section {
+            font-family: 'Orbitron', 'Rajdhani', sans-serif;
+            color: #e8faff;
+        }
+        .cataliticos-choice-section .choice-wrap {
+            position: relative;
+            z-index: 1;
+        }
+        .cataliticos-choice-section h1 {
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 700;
+            background: linear-gradient(90deg, #00e5ff, #00ffaa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0;
+            letter-spacing: 0.02em;
+        }
+        .cataliticos-choice-section .section-divider {
+            width: 120px;
+            height: 4px;
+            background: linear-gradient(90deg, #00e5ff, transparent);
+            border-radius: 10px;
+            margin-top: 10px;
+            margin-bottom: 24px;
+        }
+        .cataliticos-choice-section .intro-text {
+            color: rgba(232, 250, 255, 0.7);
+            margin-bottom: 32px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.05rem;
+        }
+        .cataliticos-choice-section .euro-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 24px;
+        }
+        .cataliticos-choice-section .catalog-card {
+            background: rgba(10, 20, 30, 0.75);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(0, 255, 200, 0.2);
+            border-radius: 18px;
+            padding: 40px 28px;
+            transition: all 0.35s ease;
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp 0.6s ease forwards;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+        }
+        .cataliticos-choice-section .catalog-card:nth-child(1) { animation-delay: 0.05s; }
+        .cataliticos-choice-section .catalog-card:nth-child(2) { animation-delay: 0.12s; }
+        .cataliticos-choice-section .catalog-card:nth-child(3) { animation-delay: 0.19s; }
+        .cataliticos-choice-section .catalog-card:nth-child(4) { animation-delay: 0.26s; }
+        .cataliticos-choice-section .catalog-card:nth-child(5) { animation-delay: 0.33s; }
+        .cataliticos-choice-section .catalog-card:nth-child(n+6) { animation-delay: 0.4s; }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .cataliticos-choice-section .catalog-card::after {
+            content: "";
+            position: absolute;
+            width: 120px;
+            height: 120%;
+            top: -10%;
+            left: -60px;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 200, 0.2), transparent);
+            transform: rotate(25deg);
+            transition: 0.5s;
+            pointer-events: none;
+        }
+        .cataliticos-choice-section .catalog-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(0, 255, 200, 0.6);
+            box-shadow: 0 10px 40px rgba(0, 255, 200, 0.15), 0 0 20px rgba(0, 255, 200, 0.2);
+        }
+        .cataliticos-choice-section .catalog-card:hover::after {
+            left: 110%;
+        }
+        .cataliticos-choice-section .card-reel-wrap {
+            width: 100%;
+            height: 140px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            background: rgba(0, 20, 35, 0.8);
+            border: 1px solid rgba(0, 255, 200, 0.15);
+            position: relative;
+        }
+        .cataliticos-choice-section .card-reel-wrap::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(5,12,18,0.95) 0%, transparent 15%, transparent 85%, rgba(5,12,18,0.95) 100%);
+            pointer-events: none;
+            z-index: 2;
+        }
+        .cataliticos-choice-section .card-reel {
+            height: 100%;
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 14px 18px;
-            border-radius: 999px;
-            background: rgba(0,230,118,0.12);
-            border: 1px solid rgba(0,230,118,0.3);
-            color: var(--text);
+            width: max-content;
+            animation: reelScroll 28s linear infinite;
+        }
+        .cataliticos-choice-section .catalog-card:hover .card-reel {
+            animation-duration: 18s;
+        }
+        @keyframes reelScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .cataliticos-choice-section .card-reel img {
+            height: 100%;
+            width: auto;
+            max-width: 160px;
+            min-width: 100px;
+            object-fit: cover;
+            flex-shrink: 0;
+            display: block;
+        }
+        .cataliticos-choice-section .card-reel-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(0, 255, 200, 0.35);
+            font-size: 2.5rem;
+        }
+        .cataliticos-choice-section .catalog-card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #e8faff;
+            margin-bottom: 6px;
+            letter-spacing: 0.03em;
+        }
+        .cataliticos-choice-section .catalog-card .card-sub {
+            opacity: 0.75;
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+            color: rgba(232, 250, 255, 0.85);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 500;
+        }
+        .cataliticos-choice-section .catalog-card .euro-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: rgba(0, 255, 200, 0.1);
+            border: 1px solid rgba(0, 255, 200, 0.3);
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(0, 229, 255, 0.95);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .cataliticos-choice-section .catalog-card .btn-ver-productos {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 12px 26px;
+            border-radius: 30px;
+            background: linear-gradient(90deg, #00e5ff, #00ffaa);
+            color: #031018;
             text-decoration: none;
             font-weight: 700;
-            font-size: 0.9rem;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            font-size: 0.95rem;
+            box-shadow: 0 0 20px rgba(0, 255, 200, 0.3);
+            letter-spacing: 0.02em;
             transition: box-shadow 0.2s, transform 0.2s;
         }
-        .wa-float:hover { box-shadow: 0 12px 40px rgba(0,230,118,0.25); transform: translateY(-2px); }
-
-        @media (max-width: 768px) {
-            .header-nav { display: none; }
-            .search-form input { width: 140px; }
+        .cataliticos-choice-section .catalog-card .btn-ver-productos:hover {
+            box-shadow: 0 0 35px rgba(0, 255, 200, 0.6);
+            transform: scale(1.05);
         }
+        .cataliticos-choice-section .breadcrumb-bar a,
+        .cataliticos-choice-section .breadcrumb-bar span { color: rgba(232, 250, 255, 0.7); }
+        .cataliticos-choice-section .breadcrumb-bar a:hover { color: #00e5ff; }
+        .cataliticos-choice-section .link-normativas { color: #00e5ff; text-decoration: none; font-weight: 600; }
+        .cataliticos-choice-section .link-normativas:hover { text-decoration: underline; }
+        .cataliticos-assistant {
+            background: rgba(0, 30, 50, 0.6);
+            border: 1px solid rgba(0, 255, 200, 0.25);
+            border-radius: 14px;
+            padding: 22px 28px;
+            margin-bottom: 28px;
+        }
+        .cataliticos-assistant .assistant-label { color: rgba(232, 250, 255, 0.95); margin-bottom: 12px; font-size: 1rem; }
+        .cataliticos-assistant .assistant-form { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .cataliticos-assistant .assistant-input {
+            width: 120px;
+            padding: 12px 16px;
+            border: 1px solid rgba(0, 255, 200, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 20, 35, 0.8);
+            color: #e8faff;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        .cataliticos-assistant .assistant-input::placeholder { color: rgba(232, 250, 255, 0.5); }
+        .cataliticos-assistant .assistant-btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #00e5ff, #00ffaa);
+            color: #031018;
+            border: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .cataliticos-assistant .assistant-btn:hover { box-shadow: 0 0 24px rgba(0, 255, 200, 0.5); transform: scale(1.02); }
+        .cataliticos-assistant .assistant-hint { color: rgba(232, 250, 255, 0.6); font-size: 0.85rem; margin-top: 10px; }
+        .cataliticos-nivel1-group { margin-bottom: 40px; }
+        .cataliticos-nivel1-group .nivel1-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #e8faff;
+            margin-bottom: 4px;
+        }
+        .cataliticos-nivel1-group .nivel1-subtitle {
+            color: rgba(232, 250, 255, 0.65);
+            font-size: 0.95rem;
+            margin-bottom: 18px;
+        }
+        /* Grid mosaico catalíticos: imagen protagonista */
+        .products-grid.cataliticos-mosaic {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 26px;
+        }
+        .products-grid.cataliticos-mosaic .product-card-img {
+            aspect-ratio: 1.1;
+        }
+        .product-card-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .product-card-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .product-card-badge.euro { border: 1px solid currentColor; }
+        .product-card-badge.euro.euro3 { background: rgba(255, 140, 0, 0.2); color: #ff8c00; }
+        .product-card-badge.euro.euro4 { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+        .product-card-badge.euro.euro5 { background: rgba(0, 200, 83, 0.2); color: #00c853; }
+        .product-card-badge.euro:not(.euro3):not(.euro4):not(.euro5) { background: rgba(0, 255, 200, 0.15); border-color: rgba(0, 255, 200, 0.35); color: #00e5ff; }
+        .product-card-badge.marca-twg { background: rgba(255, 180, 0, 0.15); border: 1px solid rgba(255, 180, 0, 0.4); color: #ffb400; }
+        .product-card-badge.marca-clf { background: rgba(0, 230, 118, 0.15); border: 1px solid rgba(0, 230, 118, 0.35); color: #00e676; }
+        .product-card-badge.cat-resonador { background: rgba(0, 212, 255, 0.12); border: 1px solid rgba(0, 212, 255, 0.35); color: var(--cyan); }
+        .product-card-badge.cat-alto-flujo { background: rgba(0, 230, 118, 0.12); border: 1px solid rgba(0, 230, 118, 0.35); color: #00e676; }
+        .product-card-badge.type-universal { background: rgba(255, 180, 0, 0.15); border: 1px solid rgba(255, 180, 0, 0.4); color: #ffb400; }
+        .product-card-badge.type-plugplay { background: rgba(0, 230, 118, 0.15); border: 1px solid rgba(0, 230, 118, 0.35); color: #00e676; }
+        .product-card-compat {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            line-height: 1.35;
+        }
+        .wizard-result-banner {
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.25);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            font-size: 0.95rem;
+        }
+        .wizard-result-banner strong { color: var(--cyan); }
+        .filter-technical-wrap h3 { font-size: 0.85rem; }
+        .filter-tech-checkbox, .filter-tech-radio { accent-color: var(--cyan); }
     </style>
-</head>
-<body>
-    <header class="header">
-        <div class="header-inner">
-            <a class="logo-link" href="/">MONTEAZUL SPA</a>
-            <nav class="header-nav">
-                <a href="/">Inicio</a>
-                <a href="{% url 'catalog:product_list' %}" class="active">Catálogo</a>
-                <a href="{% url 'core:vehicle_search' %}">Buscar por vehículo</a>
-                <a href="{% url 'cart:view' %}">Carrito</a>
-            </nav>
-            <div class="header-actions">
-                <form class="search-form" method="get" action="{% url 'catalog:product_list' %}" id="searchForm" data-cat="{{ cat_slug|default:'' }}">
-                    {% if cat_slug %}<input type="hidden" name="cat" value="{{ cat_slug }}">{% endif %}
-                    <input type="text" name="q" value="{{ q }}" placeholder="Buscar SKU, nombre o categoría…" id="searchInput" autocomplete="off">
-                    <button type="submit">🔍</button>
-                </form>
-            </div>
-        </div>
-    </header>
-
-    <main class="main">
+{% endblock %}
+{% block content %}
+<div class="catalog-page-wrap">
+    <div class="main">
         <aside class="catalog-sidebar">
             <h3>Filtrar por categoría</h3>
-            <ul class="filter-list">
-                <li>
-                    <a href="{% url 'catalog:product_list' %}{% if q %}?q={{ q|urlencode }}{% endif %}" {% if not current_category %}class="active"{% endif %}>Todos los productos</a>
-                </li>
-                {% for root in root_categories %}
+            {% if cataliticos_filter_options %}
+            <div class="filter-technical-wrap mt-6 pt-4 border-t border-white/10">
+                <h3 class="mb-3">Filtros técnicos</h3>
+                <form id="cataliticosFiltersForm" method="get" action="{% url 'catalog:product_list' %}" class="space-y-4 text-sm">
+                    <input type="hidden" name="cat" value="{{ cat_slug }}">
+                    {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+                    {% if cataliticos_filter_options.euro_norm_options %}
+                    <div>
+                        <span class="block text-white/60 font-semibold uppercase tracking-wider mb-2">Norma</span>
+                        <div class="space-y-1">
+                            {% for norm_val, norm_label in cataliticos_filter_options.euro_norm_options %}
+                            <label class="flex items-center gap-2 cursor-pointer text-white/80 hover:text-[#00d4ff]">
+                                <input type="checkbox" name="enorm" value="{{ norm_val }}" class="filter-tech-checkbox rounded border-white/30"
+                                    {% if norm_val in filter_enorm_list %}checked{% endif %}>
+                                <span>{{ norm_label }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if cataliticos_filter_options.combustibles %}
+                    <div>
+                        <span class="block text-white/60 font-semibold uppercase tracking-wider mb-2">Combustible</span>
+                        <div class="space-y-1">
+                            <label class="flex items-center gap-2 cursor-pointer text-white/80 hover:text-[#00d4ff]">
+                                <input type="radio" name="combustible" value="" class="filter-tech-radio"
+                                    {% if not filter_combustible %}checked{% endif %}> Todos
+                            </label>
+                            {% for c in cataliticos_filter_options.combustibles %}
+                            <label class="flex items-center gap-2 cursor-pointer text-white/80 hover:text-[#00d4ff]">
+                                <input type="radio" name="combustible" value="{{ c }}" class="filter-tech-radio"
+                                    {% if filter_combustible == c %}checked{% endif %}>
+                                <span>{% if c == 'BENCINA' %}Bencina{% else %}Diesel{% endif %}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if cataliticos_filter_options.diametros %}
+                    <div>
+                        <span class="block text-white/60 font-semibold uppercase tracking-wider mb-2">Diámetro</span>
+                        <div class="space-y-1">
+                            <label class="flex items-center gap-2 cursor-pointer text-white/80 hover:text-[#00d4ff]">
+                                <input type="radio" name="diametro" value="" class="filter-tech-radio"
+                                    {% if not filter_diametro %}checked{% endif %}> Todos
+                            </label>
+                            {% for d in cataliticos_filter_options.diametros %}
+                            <label class="flex items-center gap-2 cursor-pointer text-white/80 hover:text-[#00d4ff]">
+                                <input type="radio" name="diametro" value="{{ d }}" class="filter-tech-radio"
+                                    {% if filter_diametro == d|stringformat:"s" or filter_diametro == d %}checked{% endif %}>
+                                <span>{{ d }}"</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if cataliticos_filter_options.largos_mm %}
+                    <div>
+                        <span class="block text-white/60 font-semibold uppercase tracking-wider mb-2">Largo</span>
+                        <div class="space-y-1">
+                            <label class="flex items-center gap-2 cursor-pointer text-white/80 hover:text-[#00d4ff]">
+                                <input type="radio" name="largo" value="" class="filter-tech-radio"
+                                    {% if not filter_largo %}checked{% endif %}> Todos
+                            </label>
+                            {% for L in cataliticos_filter_options.largos_mm %}
+                            <label class="flex items-center gap-2 cursor-pointer text-white/80 hover:text-[#00d4ff]">
+                                <input type="radio" name="largo" value="{{ L }}" class="filter-tech-radio"
+                                    {% if filter_largo == L|stringformat:"s" or filter_largo == L %}checked{% endif %}>
+                                <span>{{ L }} mm</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <span class="block text-white/60 font-semibold uppercase tracking-wider mb-2">Sensor</span>
+                        <div class="space-y-1">
+                            <label class="flex items-center gap-2 cursor-pointer text-white/80 hover:text-[#00d4ff]">
+                                <input type="radio" name="sensor" value="" class="filter-tech-radio"
+                                    {% if not filter_sensor %}checked{% endif %}> Todos
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-white/80 hover:text-[#00d4ff]">
+                                <input type="radio" name="sensor" value="1" class="filter-tech-radio"
+                                    {% if filter_sensor == '1' %}checked{% endif %}> Con sensor
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-white/80 hover:text-[#00d4ff]">
+                                <input type="radio" name="sensor" value="0" class="filter-tech-radio"
+                                    {% if filter_sensor == '0' %}checked{% endif %}> Sin sensor
+                            </label>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full py-2 rounded-lg bg-[#00d4ff]/20 border border-[#00d4ff]/40 text-[#00d4ff] font-semibold text-sm hover:bg-[#00d4ff]/30">Aplicar filtros</button>
+                </form>
+            </div>
+            {% endif %}
+            {% if cataliticos_filter_options %}
+            <p class="mt-2 text-xs text-white/50" id="cataliticosFiltersHint">Al cambiar un filtro se actualiza la lista sin recargar.</p>
+            {% endif %}
+            <div class="filter-list-wrap">
+                <ul class="filter-list">
                     <li>
-                        <a href="{% url 'catalog:product_list' %}?cat={{ root.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category.id == root.id %}class="active"{% endif %}>{{ root.name }}</a>
-                        {% if root.children_list %}
-                            <ul class="filter-list subcategory">
-                                {% for sub in root.children_list %}
-                                    <li>
-                                        <a href="{% url 'catalog:product_list' %}?cat={{ sub.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category.id == sub.id %}class="active"{% endif %}>{{ sub.name }}</a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
+                        <a href="{% url 'catalog:product_list' %}{% if q %}?q={{ q|urlencode }}{% endif %}" {% if not current_category %}class="active"{% endif %}>Todos los productos</a>
                     </li>
-                {% endfor %}
-            </ul>
+                    {% for root in root_categories %}
+                        <li class="{% if root.children_list or root.slug == 'cataliticos' %}has-children{% endif %}{% if root.id in expanded_root_ids %} expanded{% endif %}">
+                            {% if root.slug == "cataliticos" %}
+                                {# Convertidores Catalíticos: solo 2 subcategorías — Convertidores Cataliticos TWG (página de opciones) y Ensamble Directo CLF #}
+                                <div class="cat-row">
+                                    <a href="{% url 'catalog:product_list' %}?cat={{ root.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == root.id %}class="active"{% endif %}>Convertidores Cataliticos</a>
+                                    <button type="button" class="toggle-children" aria-expanded="{% if root.id in expanded_root_ids %}true{% else %}false{% endif %}" aria-label="Mostrar u ocultar subcategorías">▼</button>
+                                </div>
+                                <ul class="filter-list subcategory">
+                                    <li>
+                                        <a href="{% url 'catalog:twg_opciones' %}{% if q %}?q={{ q|urlencode }}{% endif %}" {% if request.resolver_match.url_name == 'twg_opciones' %}class="active"{% endif %}>Convertidores Cataliticos TWG</a>
+                                    </li>
+                                    <li>
+                                        <a href="{% url 'catalog:product_list' %}?cat=cataliticos-twc-diesel{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.slug == 'cataliticos-twc-diesel' %}class="active"{% endif %}>Diesel</a>
+                                    </li>
+                                    <li>
+                                        <a href="{% url 'catalog:product_list' %}?cat=cataliticos-ensamble-directo{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.slug == 'cataliticos-ensamble-directo' %}class="active"{% endif %}>Ensamble Directo CLF</a>
+                                    </li>
+                                </ul>
+                            {% elif root.children_list %}
+                                <div class="cat-row">
+                                    <a href="{% url 'catalog:product_list' %}?cat={{ root.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == root.id %}class="active"{% endif %}>{% if root.name == "Cataliticos" %}Convertidores Cataliticos{% elif root.slug == "flexibles" %}Flexibles Reforzados{% elif root.slug == "silenciadores" or root.slug == "silenciadores-alto-flujo" %}Silenciadores Alto Flujo{% elif root.slug == "resonadores" %}Resonadores{% else %}{{ root.name }}{% endif %}</a>
+                                    <button type="button" class="toggle-children" aria-expanded="{% if root.id in expanded_root_ids %}true{% else %}false{% endif %}" aria-label="Mostrar u ocultar subcategorías">▼</button>
+                                </div>
+                                <ul class="filter-list subcategory">
+                                    {% for sub in root.children_list %}
+                                        {% if sub.slug != "cataliticos-clf" and sub.slug != "cataliticos-twc" %}
+                                        <li class="{% if sub.children_list %}has-children{% endif %}{% if current_category and current_category.parent_id == sub.id %} expanded{% endif %}">
+                                            {% if sub.children_list %}
+                                                <div class="cat-row">
+                                                    <a href="{% url 'catalog:product_list' %}?cat={{ sub.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == sub.id %}class="active"{% endif %}>{% if sub.name == "Cataliticos" %}Convertidores Cataliticos{% elif sub.slug == "flexibles-normales" %}Flexibles Reforzados{% elif sub.slug == "flexibles-con-extension" %}Flexibles Reforzados con extensión{% elif sub.slug == "cataliticos-ensamble-directo" %}Ensamble Directo CLF{% elif sub.slug == "silenciadores" or sub.slug == "silenciadores-alto-flujo" %}Silenciadores Alto Flujo{% elif sub.slug == "resonadores" %}Resonadores{% else %}{{ sub.name }}{% endif %}</a>
+                                                    <button type="button" class="toggle-children" aria-expanded="{% if current_category and current_category.parent_id == sub.id %}true{% else %}false{% endif %}" aria-label="Mostrar u ocultar subcategorías">▼</button>
+                                                </div>
+                                                <ul class="filter-list subcategory">
+                                                    {% for sub2 in sub.children_list %}
+                                                        {% if sub2.slug != "cataliticos-clf" %}
+                                                        <li>
+                                                            <a href="{% url 'catalog:product_list' %}?cat={{ sub2.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == sub2.id %}class="active"{% endif %}>{% if sub2.name == "Cataliticos" %}Convertidores Cataliticos{% elif sub2.slug == "cataliticos-ensamble-directo" %}Ensamble Directo CLF{% elif sub2.slug == "silenciadores" or sub2.slug == "silenciadores-alto-flujo" %}Silenciadores Alto Flujo{% elif sub2.slug == "resonadores" %}Resonadores{% else %}{{ sub2.name }}{% endif %}</a>
+                                                        </li>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </ul>
+                                            {% else %}
+                                                <a href="{% url 'catalog:product_list' %}?cat={{ sub.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == sub.id %}class="active"{% endif %}>{% if sub.name == "Cataliticos" %}Convertidores Cataliticos{% elif sub.slug == "flexibles-normales" %}Flexibles Reforzados{% elif sub.slug == "flexibles-con-extension" %}Flexibles Reforzados con extensión{% elif sub.slug == "cataliticos-ensamble-directo" %}Ensamble Directo CLF{% elif sub.slug == "silenciadores" or sub.slug == "silenciadores-alto-flujo" %}Silenciadores Alto Flujo{% elif sub.slug == "resonadores" %}Resonadores{% else %}{{ sub.name }}{% endif %}</a>
+                                            {% endif %}
+                                        </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <a href="{% url 'catalog:product_list' %}?cat={{ root.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == root.id %}class="active"{% endif %}>{% if root.name == "Cataliticos" %}Convertidores Cataliticos{% elif root.slug == "flexibles" %}Flexibles Reforzados{% elif root.slug == "silenciadores" or root.slug == "silenciadores-alto-flujo" %}Silenciadores Alto Flujo{% elif root.slug == "resonadores" %}Resonadores{% else %}{{ root.name }}{% endif %}</a>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </aside>
 
         <div class="catalog-content">
+            {% if show_cataliticos_choice %}
+            {# Vista Convertidores Catalíticos: Nivel 1 (TWG / Ensamble Directo marca CLF), Nivel 2 (Euro), Nivel 3 (Bencina/Diesel) #}
+            <section class="cataliticos-choice-section">
+                <div class="choice-wrap">
+                    <h1>Convertidores catalíticos</h1>
+                    <div class="section-divider" aria-hidden="true"></div>
+                    <div class="breadcrumb-bar">
+                        <a href="{% url 'catalog:product_list' %}">Catálogo</a>
+                        <span class="sep">›</span>
+                        <span>Convertidores Catalíticos</span>
+                    </div>
+                    <p class="intro-text">Elige por tipo de tecnología y normativa:</p>
+
+                    {# Asistente de selección inteligente (3 pasos) #}
+                    <div class="cataliticos-assistant">
+                        <p class="assistant-label">¿No sabes cuál elegir? Usa el <strong>Asistente de Selección</strong></p>
+                        <p class="assistant-hint" style="margin-bottom: 12px;">Combustible → Año → Tipo (Universal TWG o Ensamble Directo CLF). Te mostramos solo los compatibles.</p>
+                        <a href="{% url 'catalog:asistente_cataliticos' %}" class="assistant-btn" style="display: inline-block; text-decoration: none;">Ir al asistente</a>
+                    </div>
+                    <p class="intro-text" style="margin-top: 28px;">Más información: <a href="{% url 'normativas' %}" class="link-normativas">¿Por qué es importante elegir la norma correcta? Historia y normas Euro →</a></p>
+
+                    {% for grupo in cataliticos_nivel1 %}
+                    <div class="cataliticos-nivel1-group">
+                        <h3 class="nivel1-title">{{ grupo.label }}</h3>
+                        <p class="nivel1-subtitle">{{ grupo.subtitle }}</p>
+                        <div class="euro-options">
+                            {% for item in grupo.items %}
+                            <a href="{% url 'catalog:product_list' %}?cat={{ item.category.slug }}" class="catalog-card">
+                                <div class="card-reel-wrap">
+                                    {% if item.preview_urls %}
+                                        <div class="card-reel" aria-hidden="true">
+                                            {% for url in item.preview_urls %}
+                                            <img src="{{ url }}" alt="{{ item.display_label|default:item.category.name }}" loading="lazy" />
+                                            {% endfor %}
+                                            {% for url in item.preview_urls %}
+                                            <img src="{{ url }}" alt="{{ item.display_label|default:item.category.name }}" loading="lazy" />
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <div class="card-reel-placeholder" aria-hidden="true">⚙️</div>
+                                    {% endif %}
+                                </div>
+                                <h2>{{ item.display_label|default:item.category.name }}</h2>
+                                <p class="card-sub">Convertidores {{ item.display_label|default:item.category.name }}</p>
+                                {% if item.badge_euro %}<span class="euro-badge">{{ item.badge_euro }}</span>{% endif %}
+                                <span class="btn-ver-productos">Ver productos</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="euro-options">
+                        {% for item in euro_categories_with_previews %}
+                        <a href="{% url 'catalog:product_list' %}?cat={{ item.category.slug }}" class="catalog-card">
+                            <div class="card-reel-wrap">
+                                {% if item.preview_urls %}
+                                    <div class="card-reel" aria-hidden="true">
+                                        {% for url in item.preview_urls %}<img src="{{ url }}" alt="{{ item.display_label|default:item.category.name }}" loading="lazy" />{% endfor %}
+                                        {% for url in item.preview_urls %}<img src="{{ url }}" alt="{{ item.display_label|default:item.category.name }}" loading="lazy" />{% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="card-reel-placeholder" aria-hidden="true">⚙️</div>
+                                {% endif %}
+                            </div>
+                            <h2>{{ item.display_label|default:item.category.name }}</h2>
+                            <p class="card-sub">Convertidores {{ item.category.name }}</p>
+                            {% if item.badge_euro %}<span class="euro-badge">{{ item.badge_euro }}</span>{% endif %}
+                            <span class="btn-ver-productos">Ver productos</span>
+                        </a>
+                        {% empty %}
+                        <p style="color: rgba(232,250,255,0.7); grid-column: 1 / -1;">No hay subcategorías disponibles.</p>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% elif show_flexibles_choice %}
+            {# Vista Flexibles Reforzados: Flexibles Reforzados | Flexibles Reforzados con extensión #}
+            <section class="cataliticos-choice-section">
+                <div class="choice-wrap">
+                    <h1>Flexibles Reforzados</h1>
+                    <div class="section-divider" aria-hidden="true"></div>
+                    <div class="breadcrumb-bar">
+                        <a href="{% url 'catalog:product_list' %}">Catálogo</a>
+                        <span class="sep">›</span>
+                        <span>Flexibles Reforzados</span>
+                    </div>
+                    <p class="intro-text">Elige una opción para ver los productos:</p>
+                    <div class="euro-options">
+                        {% for item in flexibles_categories_with_previews %}
+                        <a href="{% url 'catalog:product_list' %}?cat={{ item.category.slug }}" class="catalog-card">
+                            <div class="card-reel-wrap">
+                                {% if item.preview_urls %}
+                                    <div class="card-reel" aria-hidden="true">
+                                        {% for url in item.preview_urls %}
+                                        <img src="{{ url }}" alt="{{ item.display_label|default:item.category.name }}" loading="lazy" />
+                                        {% endfor %}
+                                        {% for url in item.preview_urls %}
+                                        <img src="{{ url }}" alt="{{ item.display_label|default:item.category.name }}" loading="lazy" />
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="card-reel-placeholder" aria-hidden="true">🔧</div>
+                                {% endif %}
+                            </div>
+                            <h2>{{ item.display_label|default:item.category.name }}</h2>
+                            <p class="card-sub">{{ item.product_count|default:0 }} productos</p>
+                            <span class="btn-ver-productos">Ver productos</span>
+                        </a>
+                        {% empty %}
+                        <p style="color: rgba(232,250,255,0.7); grid-column: 1 / -1; font-family: 'Rajdhani', sans-serif;">No hay opciones disponibles.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+            {% else %}
             <div class="vehicle-search-block">
                 <p class="vehicle-search-label">¿Sabes el año, marca y modelo de tu vehículo?</p>
                 <a href="{% url 'core:vehicle_search' %}" class="btn-vehicle-search">Buscar repuestos por vehículo</a>
@@ -506,12 +919,16 @@
             <div class="breadcrumb-bar">
                 <a href="{% url 'catalog:product_list' %}">Catálogo</a>
                 {% if current_category %}
-                    <span class="sep">›</span>
-                    {% if current_category.parent %}
-                        <a href="{% url 'catalog:product_list' %}?cat={{ current_category.parent.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}">{{ current_category.parent.name }}</a>
+                    {% if current_category.parent and current_category.parent.parent %}
                         <span class="sep">›</span>
+                        <a href="{% url 'catalog:product_list' %}?cat={{ current_category.parent.parent.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}">{% if current_category.parent.parent.slug == "flexibles" %}Flexibles Reforzados{% else %}{{ current_category.parent.parent.name }}{% endif %}</a>
                     {% endif %}
-                    <span>{{ current_category.name }}</span>
+                    {% if current_category.parent %}
+                        <span class="sep">›</span>
+                        <a href="{% url 'catalog:product_list' %}?cat={{ current_category.parent.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}">{% if current_category.parent.slug == "flexibles" %}Flexibles Reforzados{% else %}{{ current_category.parent.name }}{% endif %}</a>
+                    {% endif %}
+                    <span class="sep">›</span>
+                    <span>{% if current_category.slug == "flexibles-normales" %}Flexibles Reforzados{% elif current_category.slug == "flexibles-con-extension" %}Flexibles Reforzados con extensión{% elif current_category.slug == "flexibles" %}Flexibles Reforzados{% else %}{{ current_category.name }}{% endif %}</span>
                 {% else %}
                     <span class="sep">›</span>
                     <span>Todos</span>
@@ -519,36 +936,47 @@
             </div>
 
             <h2 class="section-title">
-                <span id="sectionTitle">{% if current_category %}{{ current_category.name }}{% else %}Productos{% endif %}</span>
+                <span id="sectionTitle">{% if current_category %}{% if current_category.slug == "flexibles-normales" %}Flexibles Reforzados{% elif current_category.slug == "flexibles-con-extension" %}Flexibles Reforzados con extensión{% elif current_category.slug == "flexibles" %}Flexibles Reforzados{% else %}{{ current_category.name }}{% endif %}{% else %}Productos{% endif %}</span>
                 <span class="product-count" id="productCount">({{ products|length }})</span>
             </h2>
 
-            <p class="results-info" id="resultsInfo">{% if q %}Buscando: <strong>{{ q }}</strong>{% endif %}</p>
+            {% if wizard_fuel and wizard_tipo %}
+            <div class="wizard-result-banner" role="status">
+                Resultados del asistente: <strong>{% if wizard_fuel == 'diesel' %}Diesel{% else %}Bencina{% endif %}</strong>
+                {% if wizard_anno %} · Año <strong>{{ wizard_anno }}</strong>{% endif %}
+                {% if wizard_euro_display %} · <strong>{{ wizard_euro_display }}</strong>{% endif %}
+                · <strong>{% if wizard_tipo == 'twg' %}Universal (TWG){% else %}Ensamble Directo CLF{% endif %}</strong>
+            </div>
+            {% endif %}
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+                <p class="results-info" id="resultsInfo">
+                    {% if q %}Buscando: <strong>{{ q }}</strong>{% endif %}
+                    {% if is_cataliticos_subcat and anno_sugerido and not wizard_fuel %}Para vehículos año <strong>{{ anno_sugerido }}</strong> (normativa según año).{% endif %}
+                </p>
+                <form method="get" action="{% url 'catalog:product_list' %}" class="sort-form flex items-center gap-2">
+                    {% if cat_slug %}<input type="hidden" name="cat" value="{{ cat_slug }}">{% endif %}
+                    {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+                    {% for v in filter_enorm_list %}<input type="hidden" name="enorm" value="{{ v }}">{% endfor %}
+                    {% if filter_combustible %}<input type="hidden" name="combustible" value="{{ filter_combustible }}">{% endif %}
+                    {% if filter_diametro %}<input type="hidden" name="diametro" value="{{ filter_diametro }}">{% endif %}
+                    {% if filter_largo %}<input type="hidden" name="largo" value="{{ filter_largo }}">{% endif %}
+                    {% if filter_sensor %}<input type="hidden" name="sensor" value="{{ filter_sensor }}">{% endif %}
+                    <label for="sort-select" class="text-sm text-white/60">Ordenar:</label>
+                    <select name="sort" id="sort-select" class="px-3 py-2 rounded-lg bg-[#121c2e] border border-white/10 text-white text-sm focus:border-[#00d4ff] focus:outline-none">
+                        <option value="" {% if not sort_param %}selected{% endif %}>Por defecto</option>
+                        <option value="name" {% if sort_param == 'name' %}selected{% endif %}>Por nombre</option>
+                        <option value="price" {% if sort_param == 'price' %}selected{% endif %}>Precio: menor a mayor</option>
+                        <option value="price_desc" {% if sort_param == 'price_desc' %}selected{% endif %}>Precio: mayor a menor</option>
+                    </select>
+                    <button type="submit" class="px-3 py-2 rounded-lg bg-[#00d4ff]/20 border border-[#00d4ff]/40 text-[#00d4ff] text-sm font-semibold hover:bg-[#00d4ff]/30">Aplicar</button>
+                </form>
+            </div>
 
-            <div id="productsContainer">
+            <div id="productsContainer" data-cataliticos-subcat="{{ is_cataliticos_subcat|yesno:'true,false' }}">
                 {% if products %}
-                <div class="products-grid" id="productsGrid">
+                <div class="products-grid {% if is_cataliticos_subcat %}cataliticos-mosaic{% endif %}" id="productsGrid">
                     {% for product in products %}
-                        <a href="{% url 'catalog:product_detail' product.slug %}" class="product-card">
-                            <div class="product-card-img">
-                                {% if product.images.first %}
-                                    <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
-                                {% else %}
-                                    <span class="no-img">Sin imagen</span>
-                                {% endif %}
-                            </div>
-                            <div class="product-card-body">
-                                <div class="product-card-cat">
-                                    {% if product.category.parent %}{{ product.category.parent.name }} › {% endif %}{{ product.category.name }}
-                                </div>
-                                <h3 class="product-card-name">{{ product.name }}</h3>
-                                <div class="product-card-sku">{{ product.sku }}</div>
-                                <div class="product-card-footer">
-                                    <span class="product-card-price">{{ product.price|pesos_cl }}</span>
-                                    <span class="product-card-cta">Ver más</span>
-                                </div>
-                            </div>
-                        </a>
+                        {% include "catalog/_product_card.html" with product=product ops_mode=False is_cataliticos_subcat=is_cataliticos_subcat %}
                     {% endfor %}
                 </div>
                 {% else %}
@@ -562,47 +990,21 @@
                 <span class="search-loading-spinner"></span>
                 <span>Buscando…</span>
             </div>
+            {% endif %}
         </div>
-    </main>
-
-    <footer class="footer">
-        <div class="footer-inner">
-            <div class="footer-col">
-                <h4>Productos</h4>
-                <ul>
-                    <li><a href="{% url 'catalog:product_list' %}">Catálogo</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Ayuda</h4>
-                <ul>
-                    <li><a href="{% url 'core:vehicle_search' %}">Buscar por vehículo</a></li>
-                    <li><a href="/">Inicio</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Monteazul Spa</h4>
-                <ul>
-                    <li><a href="/">Inicio</a></li>
-                    <li><a href="{% url 'cart:view' %}">Carrito</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            © {% now "Y" %} Monteazul Spa • Barros Borgono 71, Providencia, Santiago, Región Metropolitana • Fundada 07/06/2016<br>
-            <span class="footer-credits">Sitio creado por <strong>Atlanta Holding</strong></span>
-        </div>
-    </footer>
-
-    <script>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
     (function() {
-        var searchInput = document.getElementById('searchInput');
-        var searchForm = document.getElementById('searchForm');
+        var searchInput = document.getElementById('searchInput') || document.getElementById('header-search');
+        var searchForm = document.getElementById('searchForm') || document.querySelector('form[action*="product_list"]');
         var productsContainer = document.getElementById('productsContainer');
         var productCount = document.getElementById('productCount');
         var resultsInfo = document.getElementById('resultsInfo');
         var searchLoading = document.getElementById('searchLoading');
-        var catSlug = (searchForm && searchForm.getAttribute('data-cat')) || '';
+        var catSlug = (searchForm && searchForm.querySelector('input[name="cat"]') && searchForm.querySelector('input[name="cat"]').value) || (new URLSearchParams(window.location.search)).get('cat') || '';
         var debounceTimer = null;
         var DEBOUNCE_MS = 280;
 
@@ -623,23 +1025,50 @@
                 productsContainer.innerHTML = '<div class="empty" id="emptyState"><h3>No hay productos</h3><p>Prueba con otros términos o quita el filtro de categoría.</p></div>';
                 return;
             }
-            var html = '<div class="products-grid" id="productsGrid">';
+            var container = document.getElementById('productsContainer');
+            var isCataliticos = container && container.getAttribute('data-cataliticos-subcat') === 'true';
+            var gridClass = 'products-grid' + (isCataliticos ? ' cataliticos-mosaic' : '');
+            var html = '<div class="' + gridClass + '" id="productsGrid">';
             for (var i = 0; i < products.length; i++) {
                 var p = products[i];
                 var catDisplay = p.category_parent ? escapeHtml(p.category_parent) + ' › ' : '';
                 catDisplay += escapeHtml(p.category_name);
+                var placeholderUrl = '{% static "img/placeholder-product.svg" %}';
                 var imgHtml = p.image_url
-                    ? '<img src="' + escapeHtml(p.image_url) + '" alt="' + escapeHtml(p.name) + '">'
-                    : '<span class="no-img">Sin imagen</span>';
-                html += '<a href="' + escapeHtml(p.url) + '" class="product-card">' +
+                    ? '<img src="' + escapeHtml(p.image_url) + '" alt="' + escapeHtml(p.name) + '" loading="lazy">'
+                    : '<img src="' + escapeHtml(placeholderUrl) + '" alt="' + escapeHtml(p.name) + '">';
+                var badges = '';
+                var hasCatBadges = (p.category_slug === 'resonadores' || p.category_slug === 'silenciadores-alto-flujo' || p.category_slug === 'silenciadores');
+                var hasOtherBadges = (p.euro_norm_display || p.install_type);
+
+                if (hasCatBadges || hasOtherBadges) {
+                    badges = '<div class="product-card-badges">';
+
+                    // Categoría (resonador / alto flujo)
+                    if (p.category_slug === 'resonadores') {
+                        badges += '<span class="product-card-badge cat-resonador">Resonador</span>';
+                    }
+                    if (p.category_slug === 'silenciadores-alto-flujo' || p.category_slug === 'silenciadores') {
+                        badges += '<span class="product-card-badge cat-alto-flujo">Silenciador Alto Flujo</span>';
+                    }
+
+                    // Euro / tipo instalación
+                    if (p.euro_norm_display) badges += '<span class="product-card-badge euro ' + (p.euro_norm_slug || '') + '">' + escapeHtml(p.euro_norm_display) + '</span>';
+                    if (p.install_type === 'SOLDADURA') badges += '<span class="product-card-badge type-universal">Universal</span>';
+                    if (p.install_type === 'PLUG_PLAY') badges += '<span class="product-card-badge type-plugplay">Plug & Play</span>';
+
+                    badges += '</div>';
+                }
+                var cardClass = 'product-card' + (p.is_active === false ? ' product-card-inactive' : '');
+                html += '<a href="' + escapeHtml(p.url) + '" class="' + cardClass + '">' +
                     '<div class="product-card-img">' + imgHtml + '</div>' +
-                    '<div class="product-card-body">' +
+                    '<div class="product-card-body">' + badges +
                     '<div class="product-card-cat">' + catDisplay + '</div>' +
                     '<h3 class="product-card-name">' + escapeHtml(p.name) + '</h3>' +
                     '<div class="product-card-sku">' + escapeHtml(p.sku) + '</div>' +
                     '<div class="product-card-footer">' +
-                    '<span class="product-card-price">' + escapeHtml(p.price_display) + '</span>' +
-                    '<span class="product-card-cta">Ver más</span></div></div></a>';
+                    '<span class="product-card-price">' + escapeHtml(p.price_display) + ' <span class="product-card-iva">IVA incluido</span></span>' +
+                    '<span class="product-card-cta">Ver más</span>' + (p.is_active === false ? ' <span style="color: #f44336; font-size: 0.8rem;"> (inactivo)</span>' : '') + '</div></div></a>';
             }
             html += '</div>';
             productsContainer.innerHTML = html;
@@ -650,6 +1079,8 @@
             var params = new URLSearchParams();
             if (q) params.set('q', q);
             if (catSlug) params.set('cat', catSlug);
+            var urlSort = (new URLSearchParams(window.location.search)).get('sort');
+            if (urlSort) params.set('sort', urlSort);
             searchLoading.style.display = 'flex';
             productsContainer.style.opacity = '0.5';
 
@@ -683,12 +1114,72 @@
                 }
             });
         }
+
+        // Toggle subcategorías al hacer clic en el botón
+        document.querySelectorAll('.catalog-sidebar .toggle-children').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                var li = this.closest('li.has-children');
+                if (!li) return;
+                var open = li.classList.toggle('expanded');
+                this.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+        });
+
+        // Filtros técnicos catalíticos: actualización AJAX sin recargar
+        var cataliticosForm = document.getElementById('cataliticosFiltersForm');
+        if (cataliticosForm && productsContainer) {
+            function buildFilterParams() {
+                var params = new URLSearchParams();
+                var catInput = cataliticosForm.querySelector('input[name="cat"]');
+                var qInput = cataliticosForm.querySelector('input[name="q"]');
+                if (catInput && catInput.value) params.set('cat', catInput.value);
+                if (qInput && qInput.value) params.set('q', qInput.value);
+                var urlSort = (new URLSearchParams(window.location.search)).get('sort');
+                if (urlSort) params.set('sort', urlSort);
+                cataliticosForm.querySelectorAll('input[name="enorm"]:checked').forEach(function(cb) {
+                    params.append('enorm', cb.value);
+                });
+                var comb = cataliticosForm.querySelector('input[name="combustible"]:checked');
+                if (comb && comb.value) params.set('combustible', comb.value);
+                var diam = cataliticosForm.querySelector('input[name="diametro"]:checked');
+                if (diam && diam.value) params.set('diametro', diam.value);
+                var larg = cataliticosForm.querySelector('input[name="largo"]:checked');
+                if (larg && larg.value) params.set('largo', larg.value);
+                var sens = cataliticosForm.querySelector('input[name="sensor"]:checked');
+                if (sens && sens.value) params.set('sensor', sens.value);
+                return params;
+            }
+            function doFilterAjax() {
+                var params = buildFilterParams();
+                if (window.history && window.history.replaceState) {
+                    var newUrl = '{% url "catalog:product_list" %}' + (params.toString() ? '?' + params.toString() : '');
+                    window.history.replaceState({}, '', newUrl);
+                }
+                searchLoading.style.display = 'flex';
+                productsContainer.style.opacity = '0.5';
+                fetch('{% url "catalog:product_search_api" %}?' + params.toString(), {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) { renderProducts(data); })
+                .catch(function() {
+                    if (productsContainer) productsContainer.innerHTML = '<div class="empty"><h3>Error al filtrar</h3><p>Intenta recargar la página.</p></div>';
+                })
+                .finally(function() {
+                    searchLoading.style.display = 'none';
+                    if (productsContainer) productsContainer.style.opacity = '1';
+                });
+            }
+            cataliticosForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                doFilterAjax();
+            });
+            cataliticosForm.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(function(inp) {
+                inp.addEventListener('change', function() { doFilterAjax(); });
+            });
+        }
     })();
     </script>
-    <footer class="site-footer" style="margin-top:2rem;padding:24px 24px 32px;text-align:center;color:var(--text-muted);font-size:0.875rem;border-top:1px solid var(--navy-border);">
-        <p>© 2026 Monteazul Spa • Barros Borgono 71, Providencia, Santiago, Región Metropolitana • Fundada 07/06/2016</p>
-        <p style="margin-top:6px;opacity:0.85;">Sitio creado por Atlanta Holding</p>
-    </footer>
-    <a class="wa-float" href="https://wa.me/{{ whatsapp_number|default:'56900000000' }}?text=Hola%20Monteazul%2C%20quiero%20contactar%20a%20un%20vendedor" target="_blank" rel="noopener" title="Contactar vendedor por WhatsApp">💬 Contactar vendedor</a>
-</body>
-</html>
+{% endblock %}

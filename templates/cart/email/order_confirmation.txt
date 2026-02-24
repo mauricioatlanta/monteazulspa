@@ -1,0 +1,19 @@
+Hola {{ order.full_name }},
+
+Tu pedido {{ order.order_number }} fue confirmado correctamente.
+
+Resumen:
+
+{% for item in order.items.all %}
+- {{ item.name }} x{{ item.quantity }} — ${{ item.line_total }}
+{% endfor %}
+
+Subtotal: ${{ order.subtotal }}
+Despacho: ${{ order.shipping_cost }}
+TOTAL PAGADO: ${{ order.total }}
+
+Pronto nos pondremos en contacto si es necesario.
+
+Si tienes dudas, puedes escribirnos por WhatsApp.
+
+Gracias por confiar en MonteAzul SPA.

@@ -3,8 +3,10 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{{ title|default:"Inicio" }} | Monteazul SPA</title>
+  {% if meta_description %}<meta name="description" content="{{ meta_description }}">{% endif %}
+  <link rel="canonical" href="{{ request.build_absolute_uri }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -76,13 +78,13 @@
       text-decoration: none;
       color: inherit;
     }
-    .logo-link img { height: 36px; width: auto; display: block; }
+    .logo-link img { height: 52px; width: auto; display: block; object-fit: contain; }
     .logo-text {
       font-weight: 800;
-      font-size: 1.1rem;
+      font-size: 1.25rem;
       letter-spacing: 0.06em;
     }
-    .logo-sub { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
+    .logo-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
     .nav {
       display: flex;
       align-items: center;
@@ -216,7 +218,6 @@
       grid-template-columns: repeat(2, 1fr);
       gap: 20px;
     }
-    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
     .field {
       display: flex;
       flex-direction: column;
@@ -234,8 +235,8 @@
       padding: 14px 16px;
       border-radius: var(--radius-sm);
       border: 1px solid rgba(255,255,255,0.18);
-      background: #151a22;
-      color: #f0f2f5;
+      background: #151a22 !important;
+      color: #f0f2f5 !important;
       font-family: inherit;
       font-size: 0.95rem;
       font-weight: 500;
@@ -245,8 +246,8 @@
       appearance: none;
     }
     .field select option {
-      background: #151a22;
-      color: #f0f2f5;
+      background: #151a22 !important;
+      color: #f0f2f5 !important;
     }
     .field select:focus {
       border-color: var(--accent);
@@ -334,7 +335,7 @@
 
     .wa-float {
       position: fixed;
-      left: 20px;
+      right: 20px;
       bottom: 20px;
       z-index: 60;
       display: flex;
@@ -387,6 +388,83 @@
       font-size: 0.8rem;
       opacity: 0.85;
     }
+
+    /* ========== Mobile-First: touch targets ≥48px, sin zoom iOS, uso con pulgar ========== */
+    @media (max-width: 768px) {
+      .header-inner { padding: 12px 16px; gap: 12px; }
+      .nav a {
+        padding: 12px 16px;
+        min-height: 48px;
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.9rem;
+      }
+      .hero { padding: 32px 16px 48px; }
+      .hero h1 { font-size: clamp(1.65rem, 6vw, 2.2rem); }
+      .hero p { font-size: 1rem; margin-bottom: 24px; }
+      .hero-marcas { font-size: 0.8rem !important; }
+      .validator-card { padding: 24px 20px; }
+      .validator-title { margin-bottom: 20px; font-size: 0.9rem; }
+      .steps-line { gap: 6px; margin-bottom: 22px; }
+      .step-pill {
+        padding: 12px 14px;
+        min-height: 44px;
+        font-size: 0.8rem;
+      }
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+      .field select {
+        min-height: 48px;
+        padding: 16px 18px;
+        font-size: 16px; /* Evita zoom automático en iOS al enfocar */
+      }
+      .field .hint { font-size: 0.8rem; }
+      .actions {
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 20px;
+        padding-top: 20px;
+      }
+      .btn-submit {
+        width: 100%;
+        min-height: 52px;
+        padding: 16px 24px;
+        font-size: 1rem;
+      }
+      .btn-clear {
+        width: 100%;
+        min-height: 48px;
+        padding: 14px 24px;
+        font-size: 0.95rem;
+      }
+      .links-row { margin-top: 24px; gap: 12px; }
+      .links-row a {
+        min-height: 48px;
+        padding: 14px 20px;
+        font-size: 0.95rem;
+        justify-content: center;
+      }
+      .wa-float {
+        right: 16px;
+        bottom: max(16px, env(safe-area-inset-bottom));
+        padding: 14px 18px;
+        min-height: 48px;
+        font-size: 0.9rem;
+      }
+      .toast {
+        left: 16px;
+        right: 16px;
+        bottom: max(16px, env(safe-area-inset-bottom));
+        max-width: none;
+      }
+      .footer { padding: 24px 16px 40px; font-size: 0.8rem; }
+    }
+    @media (max-width: 380px) {
+      .validator-card { padding: 20px 16px; }
+      .step-pill .num { width: 22px; height: 22px; font-size: 0.75rem; }
+    }
   </style>
 </head>
 <body>
@@ -396,7 +474,7 @@
   <header class="header">
     <div class="header-inner">
       <a class="logo-link" href="/">
-        <img src="/media/logomonteazul.png" alt="">
+        <img src="/media/logomonteazul.png" alt="MonteAzul SPA">
         <span>
           <span class="logo-text">Monteazul SPA</span>
           <div class="logo-sub">Ingeniería en escapes</div>
@@ -415,10 +493,13 @@
     <div class="hero-badge">Mercado Chile • Desde 1980</div>
     <h1>Repuestos que calzan en tu vehículo</h1>
     <p>Elige año, marca, modelo y motor. Te mostramos solo productos compatibles.</p>
+    {% if brands %}
+    <p class="hero-marcas" style="margin-top:0.5rem; font-size:0.9rem; color:var(--muted);">Marcas disponibles: {% for b in brands %}{{ b.name }}{% if not forloop.last %}, {% endif %}{% endfor %}.</p>
+    {% endif %}
 
     <div class="validator-wrap" id="buscador">
       <div class="validator-card">
-        <div class="validator-title">Validador de compatibilidad</div>
+        <div class="validator-title" id="validator-legend">Validador de compatibilidad</div>
         <div class="steps-line" aria-label="Progreso">
           <div class="step-pill active" id="st1"><span class="num">1</span> Año</div>
           <span class="step-conn"></span>
@@ -429,42 +510,42 @@
           <div class="step-pill" id="st4"><span class="num">4</span> Motor</div>
         </div>
 
-        <form method="post" action="/validar-vehiculo/" id="vehicleForm">
+        <form method="post" action="{% url 'validate_vehicle' %}" id="vehicleForm" role="search" aria-labelledby="validator-legend" data-url-modelos="{% url 'core:api_models' %}" data-url-motores="{% url 'core:api_engines' %}">
           {% csrf_token %}
           <div class="form-grid">
             <div class="field">
-              <label for="year">Año</label>
-              <select id="year" name="year" required>
+              <label for="year">Año del vehículo</label>
+              <select id="year" name="year" required aria-describedby="year-hint">
                 <option value="">Año</option>
                 {% for y in years %}
                   <option value="{{ y }}">{{ y }}</option>
                 {% endfor %}
               </select>
-              <span class="hint">Paso 1: año del vehículo</span>
+              <span class="hint" id="year-hint">Paso 1: año del vehículo</span>
             </div>
             <div class="field">
-              <label for="brand">Marca</label>
-              <select id="brand" name="brand" required disabled>
+              <label for="brand">Marca del vehículo</label>
+              <select id="brand" name="brand" required disabled aria-describedby="brand-hint">
                 <option value="">Marca</option>
                 {% for b in brands %}
                   <option value="{{ b.id }}">{{ b.name }}</option>
                 {% endfor %}
               </select>
-              <span class="hint">Paso 2: elige marca</span>
+              <span class="hint" id="brand-hint">Paso 2: elige marca (Toyota, Chevrolet, Nissan, etc.)</span>
             </div>
             <div class="field">
-              <label for="model">Modelo</label>
-              <select id="model" name="model" required disabled>
+              <label for="model">Modelo del vehículo</label>
+              <select id="model" name="model" required disabled aria-describedby="model-hint">
                 <option value="">Modelo</option>
               </select>
-              <span class="hint">Paso 3: modelo</span>
+              <span class="hint" id="model-hint">Paso 3: modelo según la marca elegida</span>
             </div>
             <div class="field">
               <label for="engine">Motor (opcional)</label>
-              <select id="engine" name="engine" disabled>
+              <select id="engine" name="engine" disabled aria-describedby="engine-hint">
                 <option value="">Motor</option>
               </select>
-              <span class="hint">Paso 4: motor si aplica</span>
+              <span class="hint" id="engine-hint">Paso 4: motor si aplica</span>
             </div>
           </div>
 
@@ -489,12 +570,47 @@
     <p id="toastMsg">Mensaje</p>
   </div>
 
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Buscar repuestos por vehículo | Monteazul SPA",
+    "description": "Encuentra catalíticos y repuestos de escape compatibles con tu auto. Filtra por año, marca y modelo.",
+    "url": "{{ request.scheme }}://{{ request.get_host }}{% url 'core:vehicle_search' %}",
+    "mainEntity": {
+      "@type": "WebApplication",
+      "name": "Buscador de compatibilidad por vehículo",
+      "applicationCategory": "AutomotiveApplication",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CLP" }
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Monteazul SPA",
+    "url": "https://www.monteazulspa.cl",
+    "telephone": "+{{ whatsapp_number|default:'56979503154' }}",
+    "areaServed": "CL",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Exequiel Fernández 3663, Of. 6",
+      "addressLocality": "Macul",
+      "addressRegion": "Región Metropolitana",
+      "addressCountry": "CL"
+    }
+  }
+  </script>
   <footer class="footer">
-    © {% now "Y" %} Monteazul SPA • Barros Borgono 71, Providencia, Santiago, Región Metropolitana • Fundada 07/06/2016<br>
-    <span class="footer-credits">Sitio creado por <strong>Atlanta Holding</strong></span>
+    © {% now "Y" %} Monteazul SPA • Centro de Venta: <a href="https://www.google.com/maps/search/?api=1&query=Exequiel%20Fern%C3%A1ndez%203663%20Of%206%2C%20Macul%2C%20Santiago%2C%20Chile" target="_blank" rel="noopener" style="color: rgba(255,255,255,0.95); text-decoration: underline;">Exequiel Fernández 3663 Of. 6, Macul, Santiago</a> • Oficina Corporativa: Barros Borgoño 71, Providencia, Santiago • Fundada 07/06/2016<br>
+    <span class="footer-credits">Sitio creado por <strong>Atlanta Global Solutions</strong></span>
   </footer>
 
   <script>
+    const vehicleForm = document.getElementById('vehicleForm');
+    const urlModelos = vehicleForm ? vehicleForm.getAttribute('data-url-modelos') || '/api/modelos/' : '/api/modelos/';
+    const urlMotores = vehicleForm ? vehicleForm.getAttribute('data-url-motores') || '/api/motores/' : '/api/motores/';
     const yearSelect = document.getElementById('year');
     const brandSelect = document.getElementById('brand');
     const modelSelect = document.getElementById('model');
@@ -579,7 +695,7 @@
       modelSelect.disabled = true;
       modelSelect.innerHTML = '<option value="">Cargando...</option>';
       try {
-        const res = await fetch('/api/modelos/?brand_id=' + encodeURIComponent(brandSelect.value));
+        const res = await fetch(urlModelos + (urlModelos.includes('?') ? '&' : '?') + 'brand_id=' + encodeURIComponent(brandSelect.value));
         const data = await res.json();
         modelSelect.innerHTML = '<option value="">Modelo</option>';
         (data.models || []).forEach(m => {
@@ -609,7 +725,7 @@
       engineSelect.disabled = true;
       engineSelect.innerHTML = '<option value="">Cargando...</option>';
       try {
-        const res = await fetch('/api/motores/?model_id=' + encodeURIComponent(modelSelect.value));
+        const res = await fetch(urlMotores + (urlMotores.includes('?') ? '&' : '?') + 'model_id=' + encodeURIComponent(modelSelect.value));
         const data = await res.json();
         engineSelect.innerHTML = '<option value="">Motor (opcional)</option>';
         (data.engines || []).forEach(e => {
@@ -656,9 +772,5 @@
     }
     btnSearch.disabled = !canSearch();
   </script>
-  <footer class="site-footer" style="margin-top:2rem;padding:24px 18px;text-align:center;color:var(--muted);font-size:0.875rem;border-top:1px solid var(--border);">
-    <p>© 2026 Monteazul Spa • Barros Borgono 71, Providencia, Santiago, Región Metropolitana • Fundada 07/06/2016</p>
-    <p style="margin-top:6px;opacity:0.85;">Sitio creado por Atlanta Holding</p>
-  </footer>
 </body>
 </html>

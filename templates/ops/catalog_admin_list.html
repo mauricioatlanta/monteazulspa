@@ -1,0 +1,317 @@
+{% extends "ops/base_ops.html" %}
+{% load catalog_filters %}{% load static %}
+{% block extra_head %}
+{{ block.super }}
+<style>
+    :root {
+        --navy: #0c1322;
+        --navy-mid: #121c2e;
+        --navy-light: #1a2742;
+        --navy-surface: rgba(255,255,255,0.04);
+        --navy-border: rgba(255,255,255,0.08);
+        --cyan: #00d4ff;
+        --cyan-soft: rgba(0,212,255,0.15);
+        --text: #e8ecf4;
+        --text-muted: rgba(255,255,255,0.55);
+    }
+    .catalog-admin-wrap { max-width: 1400px; margin: 0 auto; }
+    .catalog-admin-wrap h1 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--text); }
+    .breadcrumb-bar {
+        display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+        margin-bottom: 16px; font-size: 0.9rem; color: var(--text-muted);
+    }
+    .breadcrumb-bar a { color: var(--text-muted); text-decoration: none; }
+    .breadcrumb-bar a:hover { color: var(--cyan); }
+    .catalog-admin-layout {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 24px;
+        align-items: start;
+    }
+    @media (max-width: 900px) { .catalog-admin-layout { grid-template-columns: 1fr; } }
+    .catalog-sidebar {
+        background: var(--navy-surface);
+        border: 1px solid var(--navy-border);
+        border-radius: 12px;
+        padding: 18px;
+    }
+    .catalog-sidebar h3 {
+        font-size: 0.85rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--cyan);
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--navy-border);
+    }
+    .filter-list { list-style: none; }
+    .filter-list li { margin-bottom: 4px; }
+    .filter-list a {
+        display: block;
+        padding: 8px 12px;
+        border-radius: 8px;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: background 0.2s, color 0.2s;
+    }
+    .filter-list a:hover, .filter-list a.active {
+        background: var(--cyan-soft);
+        color: var(--cyan);
+    }
+    .search-form-admin {
+        display: flex;
+        border: 1px solid var(--navy-border);
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--navy-surface);
+        margin-bottom: 20px;
+    }
+    .search-form-admin input {
+        flex: 1;
+        padding: 10px 14px;
+        border: none;
+        background: transparent;
+        color: var(--text);
+        font-size: 0.9rem;
+    }
+    .search-form-admin button { padding: 10px 14px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; }
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 22px;
+    }
+    .product-card-wrap {
+        background: var(--navy-surface);
+        border: 1px solid var(--navy-border);
+        border-radius: 14px;
+        overflow: hidden;
+        backdrop-filter: blur(8px);
+        transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .product-card-wrap:hover { border-color: rgba(0,212,255,0.3); box-shadow: 0 8px 24px rgba(0,212,255,0.1); }
+    .product-card-wrap.inactive { opacity: 0.75; }
+    .product-card-link {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+    }
+    .product-card-img {
+        width: 100%;
+        aspect-ratio: 1.05;
+        background: var(--navy-light);
+        position: relative;
+        overflow: hidden;
+    }
+    .product-card-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center;
+    }
+    .product-card-img .no-img {
+        position: absolute; inset: 0;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--text-muted); font-size: 0.85rem;
+    }
+    .product-card-body { padding: 16px; }
+    .product-card-cat {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--cyan);
+        margin-bottom: 4px;
+    }
+    .product-card-name {
+        font-weight: 600;
+        font-size: 1rem;
+        line-height: 1.35;
+        margin-bottom: 6px;
+        color: var(--text);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .product-card-sku { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; font-family: monospace; }
+    .product-card-price { font-weight: 800; font-size: 1.25rem; color: var(--cyan); }
+    .product-card-iva { font-weight: 500; font-size: 0.75rem; color: var(--cyan); opacity: 0.85; }
+    .product-card-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .product-card-compat { font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; line-height: 1.35; }
+    .product-card-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .product-card-badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+    .product-card-badge.euro { border: 1px solid currentColor; }
+    .product-card-badge.euro.euro3 { background: rgba(255, 140, 0, 0.2); color: #ff8c00; }
+    .product-card-badge.euro.euro4 { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+    .product-card-badge.euro.euro5 { background: rgba(0, 200, 83, 0.2); color: #00c853; }
+    .product-card-badge.euro:not(.euro3):not(.euro4):not(.euro5) { background: rgba(0, 255, 200, 0.15); border-color: rgba(0, 255, 200, 0.35); color: #00e5ff; }
+    .product-card-badge.marca-twg { background: rgba(255, 180, 0, 0.15); border: 1px solid rgba(255, 180, 0, 0.4); color: #ffb400; }
+    .product-card-badge.marca-clf { background: rgba(0, 230, 118, 0.15); border: 1px solid rgba(0, 230, 118, 0.35); color: #00e676; }
+    .product-card-badge.cat-resonador { background: rgba(0, 212, 255, 0.12); border: 1px solid rgba(0, 212, 255, 0.35); color: var(--cyan); }
+    .product-card-badge.cat-alto-flujo { background: rgba(0, 230, 118, 0.12); border: 1px solid rgba(0, 230, 118, 0.35); color: #00e676; }
+    .product-card-badge.type-universal { background: rgba(255, 180, 0, 0.15); border: 1px solid rgba(255, 180, 0, 0.4); color: #ffb400; }
+    .product-card-badge.type-plugplay { background: rgba(0, 230, 118, 0.15); border: 1px solid rgba(0, 230, 118, 0.35); color: #00e676; }
+    .product-card-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 12px 16px;
+        background: rgba(0,0,0,0.2);
+        border-top: 1px solid var(--navy-border);
+    }
+    .product-card-actions .btn {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+    }
+    .product-card-actions .btn-view { background: var(--cyan-soft); color: var(--cyan); border: 1px solid rgba(0,212,255,0.3); }
+    .product-card-actions .btn-edit { background: rgba(33,150,243,0.2); color: #2196f3; border: 1px solid rgba(33,150,243,0.3); }
+    .product-card-actions .btn-delete { background: rgba(244,67,54,0.2); color: #f44336; border: 1px solid rgba(244,67,54,0.3); }
+    .product-card-actions .btn:hover { opacity: 0.9; }
+    .empty { text-align: center; padding: 48px 24px; background: var(--navy-surface); border: 1px solid var(--navy-border); border-radius: 14px; }
+    .empty h3 { font-size: 1.2rem; margin-bottom: 8px; color: var(--text); }
+    .empty p { color: var(--text-muted); }
+    .pagination {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 24px;
+        align-items: center;
+        justify-content: center;
+    }
+    .pagination a, .pagination span {
+        padding: 8px 14px;
+        border-radius: 8px;
+        background: var(--navy-surface);
+        border: 1px solid var(--navy-border);
+        color: var(--text);
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    .pagination a:hover { background: var(--cyan-soft); color: var(--cyan); border-color: rgba(0,212,255,0.3); }
+    .pagination .current { background: var(--cyan-soft); color: var(--cyan); border-color: rgba(0,212,255,0.3); }
+    .pagination .disabled { opacity: 0.5; pointer-events: none; }
+    .add-product-bar {
+        display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+        margin-bottom: 16px; padding: 12px 16px; background: var(--cyan-soft); border: 1px solid rgba(0,212,255,0.3); border-radius: 10px;
+    }
+    .add-product-bar .btn-add {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; text-decoration: none;
+        background: var(--cyan); color: var(--navy); border: none;
+    }
+    .add-product-bar .btn-add:hover { opacity: 0.9; filter: brightness(1.05); }
+    .results-sort-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+    .sort-form { display: flex; align-items: center; gap: 8px; }
+    .sort-form select {
+        padding: 8px 12px; border-radius: 8px; background: var(--navy-surface); border: 1px solid var(--navy-border);
+        color: var(--text); font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block ops_content %}
+<div class="catalog-admin-wrap">
+    <h1>Catálogo (Admin)</h1>
+    <div class="breadcrumb-bar">
+        <a href="{% url 'ops:dashboard' %}">Operaciones</a>
+        <span>›</span>
+        <span>Catálogo</span>
+    </div>
+
+    <form class="search-form-admin" method="get" action="{% url 'ops:catalog_admin_list' %}">
+        {% if cat_slug %}<input type="hidden" name="cat" value="{{ cat_slug }}">{% endif %}
+        <input type="text" name="q" value="{{ q }}" placeholder="Buscar por nombre, SKU o categoría…">
+        <button type="submit">🔍</button>
+    </form>
+
+    <div class="add-product-bar">
+        <span style="color: var(--text); font-size: 0.9rem;">{% if current_category %}{% if current_category.slug == 'flexibles' or current_category.slug == 'flexibles-normales' or current_category.slug == 'flexibles-con-extension' %}{% if current_category.slug == 'flexibles-con-extension' %}Flexibles Reforzados con extensión{% else %}Flexibles Reforzados{% endif %}{% else %}{{ current_category.name }}{% endif %}{% else %}Catálogo{% endif %}</span>
+        <a href="{% url 'ops:catalog_admin_add' %}{% if current_category %}?cat={{ current_category.slug }}{% endif %}" class="btn-add">+ Agregar producto</a>
+    </div>
+
+    <div class="catalog-admin-layout">
+        <aside class="catalog-sidebar">
+            <h3>Categoría</h3>
+            <ul class="filter-list">
+                <li><a href="{% url 'ops:catalog_admin_list' %}{% if q %}?q={{ q|urlencode }}{% endif %}" {% if not current_category %}class="active"{% endif %}>Todas</a></li>
+                {% for root in root_categories %}
+                    <li>
+                        {% if root.slug == 'cataliticos' %}
+                        <a href="{% url 'ops:catalog_admin_cataliticos_choice' %}{% if q %}?q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.slug in 'cataliticos-twc-euro3,cataliticos-twc-euro4,cataliticos-twc-euro5,cataliticos-twc-diesel,cataliticos-clf,cataliticos-ensamble-directo' %}class="active"{% endif %}>Convertidores Catalíticos</a>
+                        {% elif root.slug == 'flexibles' %}
+                        <a href="{% url 'ops:catalog_admin_list' %}?cat={{ root.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if cat_slug == 'flexibles' or cat_slug == 'flexibles-normales' or cat_slug == 'flexibles-con-extension' %}class="active"{% endif %}>Flexibles Reforzados</a>
+                        {% elif root.slug == 'silenciadores' or root.slug == 'silenciadores-alto-flujo' or root.slug == 'silenciadores-de-alto-flujo' %}
+                        <a href="{% url 'ops:catalog_admin_list' %}?cat=silenciadores-alto-flujo{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.slug in 'silenciadores,silenciadores-alto-flujo,silenciadores-de-alto-flujo' %}class="active"{% endif %}>Silenciadores Alto Flujo</a>
+                        {% else %}
+                        <a href="{% url 'ops:catalog_admin_list' %}?cat={{ root.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == root.id %}class="active"{% endif %}>{{ root.name }}</a>
+                        {% endif %}
+                    </li>
+                    {% if root.slug == 'cataliticos' %}
+                    <li style="padding-left: 16px;"><a href="{% url 'ops:catalog_admin_list' %}?cat=cataliticos-twc-diesel{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.slug == 'cataliticos-twc-diesel' %}class="active"{% endif %}>Diesel</a></li>
+                    {% endif %}
+                    {% if root.slug == 'flexibles' and root.children_list %}
+                    {% for sub in root.children_list %}
+                    <li style="padding-left: 16px;">
+                        <a href="{% url 'ops:catalog_admin_list' %}?cat={{ sub.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == sub.id %}class="active"{% endif %}>{% if sub.slug == 'flexibles-normales' %}Flexibles Reforzados{% elif sub.slug == 'flexibles-con-extension' %}Flexibles con extensión{% else %}{{ sub.name }}{% endif %}</a>
+                    </li>
+                    {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </aside>
+
+        <div class="catalog-content">
+            <div class="results-sort-row">
+                <p class="results-info" style="color: var(--text-muted); margin: 0;">
+                    {% if current_category %}{% if current_category.slug == 'flexibles' or current_category.slug == 'flexibles-normales' %}Flexibles Reforzados{% elif current_category.slug == 'flexibles-con-extension' %}Flexibles Reforzados con extensión{% else %}{{ current_category.name }}{% endif %} — {% endif %}
+                    Página {{ page.number }} de {{ page.paginator.num_pages }} ({{ page.paginator.count }} productos)
+                </p>
+                <form method="get" action="{% url 'ops:catalog_admin_list' %}" class="sort-form">
+                    {% if cat_slug %}<input type="hidden" name="cat" value="{{ cat_slug }}">{% endif %}
+                    {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+                    <label for="sort-select" class="text-sm" style="color: var(--text-muted);">Ordenar:</label>
+                    <select name="sort" id="sort-select" onchange="this.form.submit()">
+                        <option value="" {% if not sort_param %}selected{% endif %}>Por defecto</option>
+                        <option value="name" {% if sort_param == 'name' %}selected{% endif %}>Por nombre</option>
+                        <option value="price" {% if sort_param == 'price' %}selected{% endif %}>Precio: menor a mayor</option>
+                        <option value="price_desc" {% if sort_param == 'price_desc' %}selected{% endif %}>Precio: mayor a menor</option>
+                    </select>
+                </form>
+            </div>
+
+            {% if products %}
+            <div class="products-grid {% if is_cataliticos_subcat %}cataliticos-mosaic{% endif %}" style="{% if is_cataliticos_subcat %}grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 26px;{% endif %}">
+                {% for product in products %}
+                    {% include "catalog/_product_card.html" with product=product ops_mode=True is_cataliticos_subcat=is_cataliticos_subcat %}
+                {% endfor %}
+            </div>
+
+            {% if page.has_other_pages %}
+            <div class="pagination">
+                {% if page.has_previous %}
+                    <a href="?page=1{% if q %}&q={{ q|urlencode }}{% endif %}{% if cat_slug %}&cat={{ cat_slug }}{% endif %}{% if sort_param %}&sort={{ sort_param }}{% endif %}">«</a>
+                    <a href="?page={{ page.previous_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if cat_slug %}&cat={{ cat_slug }}{% endif %}{% if sort_param %}&sort={{ sort_param }}{% endif %}">‹</a>
+                {% endif %}
+                <span class="current">Pág. {{ page.number }}</span>
+                {% if page.has_next %}
+                    <a href="?page={{ page.next_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if cat_slug %}&cat={{ cat_slug }}{% endif %}{% if sort_param %}&sort={{ sort_param }}{% endif %}">›</a>
+                    <a href="?page={{ page.paginator.num_pages }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if cat_slug %}&cat={{ cat_slug }}{% endif %}{% if sort_param %}&sort={{ sort_param }}{% endif %}">»</a>
+                {% endif %}
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="empty">
+                <h3>No hay productos</h3>
+                <p>{% if q %}Prueba con otros términos.{% elif current_category %}No hay productos en esta categoría.{% else %}No hay productos en el catálogo.{% endif %}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

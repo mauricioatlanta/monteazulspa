@@ -10,36 +10,75 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import sys
 from pathlib import Path
 from decouple import config as env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Permitir cargar la app 'cataliticos' del proyecto hermano (mismo padre que monteazulspa)
+CATALITICOS_ROOT = BASE_DIR.parent / "cataliticos"
+if CATALITICOS_ROOT.exists():
+    sys.path.insert(0, str(CATALITICOS_ROOT))
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("DJANGO_SECRET_KEY", default="dev-secret-change-me")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("DJANGO_DEBUG", default=False, cast=bool)
+# Producción: DEBUG=False en .env
+DEBUG = env("DEBUG", default=False, cast=bool)
 
-# Hosts permitidos (incluye tu dominio)
+# --- D) Dominio canónico (sin www) para consolidar autoridad SEO ---
+# El middleware CanonicalHostAndSecureMiddleware redirige todo a https://monteazulspa.cl
+# En Cloudflare: configurar redirección www → sin www
+
+# Hosts permitidos. En producción: www y sin-www (desarrollo: 127.0.0.1, localhost vía env).
+# Incluir atlantareciclajes.pythonanywhere.com para pruebas directas sin dominio.
 ALLOWED_HOSTS = [
     h.strip() for h in env(
         "DJANGO_ALLOWED_HOSTS",
-        default="127.0.0.1,localhost,monteazulspa.cl,www.monteazulspa.cl"
+        default="127.0.0.1,localhost,monteazulspa.cl,www.monteazulspa.cl,atlantareciclajes.pythonanywhere.com"
     ).split(",")
     if h.strip()
 ]
 
-# CSRF para dominios (necesario si usas POST/forms en producción)
+# Orígenes HTTPS de confianza para CSRF (POST/forms desde el sitio).
 CSRF_TRUSTED_ORIGINS = [
     o.strip() for o in env(
         "DJANGO_CSRF_TRUSTED_ORIGINS",
-        default="https://monteazulspa.cl,https://www.monteazulspa.cl,http://monteazulspa.cl,http://www.monteazulspa.cl"
+        default="https://www.monteazulspa.cl,https://monteazulspa.cl"
     ).split(",")
     if o.strip()
 ]
+
+# Host canónico: todo se redirige aquí (evita diferencias de sesión/cookies entre www y sin-www).
+# SEO: usar sin www consolida autoridad en una sola URL.
+CANONICAL_HOST = env("CANONICAL_HOST", default="monteazulspa.cl").strip()
+SITE_URL = env("SITE_URL", default="https://monteazulspa.cl").strip()
+
+# Google Analytics (vacío = no se inyecta script)
+GOOGLE_ANALYTICS_ID = env("GOOGLE_ANALYTICS_ID", default="").strip()
+
+# Proxy (nginx/etc.) termina SSL; Django confía en X-Forwarded-Proto.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Un solo switch de producción: DJANGO_ENV=production activa SSL redirect + cookies seguras.
+DJANGO_ENV = env("DJANGO_ENV", default="development").strip().lower()
+_production = DJANGO_ENV == "production"
+
+# En producción, HTTP→HTTPS por defecto. Override: SECURE_SSL_REDIRECT=0 en .env si hace falta.
+SECURE_SSL_REDIRECT = env("SECURE_SSL_REDIRECT", default=_production, cast=bool)
+
+# Cookies solo por HTTPS en producción (evita “no seguro” y robo de sesión).
+SESSION_COOKIE_SECURE = _production
+CSRF_COOKIE_SECURE = _production
+
+# Opcional: HSTS (descomenta cuando HTTPS esté estable)
+# SECURE_HSTS_SECONDS = 31536000
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# SECURE_HSTS_PRELOAD = True
 
 
 # Application definition
@@ -50,6 +89,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.humanize",
+    "django.contrib.sitemaps",
 
     # Apps del proyecto (las tuyas)
     "apps.core.apps.CoreConfig",
@@ -63,10 +104,19 @@ INSTALLED_APPS = [
     "apps.shipping.apps.ShippingConfig",
     "apps.audit.apps.AuditConfig",
     "apps.reports.apps.ReportsConfig",
+    "apps.ops.apps.OpsConfig",
+    "apps.reviews.apps.ReviewsConfig",
 ]
+if CATALITICOS_ROOT.exists():
+    INSTALLED_APPS.append("cataliticos.apps.CataliticosConfig")
 
+# SecurityMiddleware primero (estándar y evita comportamientos raros con SECURE_SSL_REDIRECT/HSTS).
+# Luego el middleware canónico (host + HTTPS).
+# OpsNoCacheMiddleware: /ops/ y /operaciones/ no se cachean (seguridad).
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "apps.ops.middleware.OpsNoCacheMiddleware",
+    "config.middleware.CanonicalHostAndSecureMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -89,6 +139,10 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "config.context_processors.whatsapp",
+                "config.context_processors.company_info",
+                "config.context_processors.seo_settings",
+                "config.context_processors.shipping_location_display",
+                "config.context_processors.header_categories",
             ],
         },
     },
@@ -102,8 +156,14 @@ DATABASES = {
     "default": {
         "ENGINE": env("DB_ENGINE", default="django.db.backends.sqlite3"),
         "NAME": env("DB_NAME", default=str(BASE_DIR / "db.sqlite3")),
-    }
+    },
 }
+if CATALITICOS_ROOT.exists():
+    DATABASES["cataliticos_db"] = {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": str(CATALITICOS_ROOT / "db.sqlite3"),
+    }
+    DATABASE_ROUTERS = ["cataliticos.db_router.CataliticosRouter"]
 
 
 # Password validation
@@ -131,9 +191,48 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# WhatsApp de contacto (número con código país, sin +)
-# Ejemplo: 56912345678 para Chile. Variable de entorno: WHATSAPP_NUMBER
-WHATSAPP_NUMBER = env("WHATSAPP_NUMBER", default="56900000000")
+# WhatsApp de contacto (número con código país, sin + ni espacios)
+# Ejemplo: 56979503154 para +56 9 7950 3154. Variable de entorno: WHATSAPP_NUMBER
+WHATSAPP_NUMBER = env("WHATSAPP_NUMBER", default="56979503154")
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# --- Centro de Operaciones: garantías por defecto ---
+DEFAULT_WARRANTY_DAYS = 15
+DEFAULT_WARRANTY_TERMS = "Garantía limitada por falla de fabricación."
+
+# Grupos de permisos Ops (OWNER, ADMIN_OPERACIONES, CATALOGO)
+OPS_GROUP_OWNER = "OWNER"
+OPS_GROUP_ADMIN_OPERACIONES = "ADMIN_OPERACIONES"
+OPS_GROUP_CATALOGO = "CATALOGO"
+
+# IVA Chile (19%). Precios en BD: False = precio neto, True = precio con IVA incluido
+IVA_PERCENT = env("IVA_PERCENT", default=19, cast=int)
+PRICE_INCLUDES_IVA = env("PRICE_INCLUDES_IVA", default=True, cast=bool)
+
+# --- Email (SMTP Gmail recomendado; usa contraseña de aplicación) ---
+# Variables: EMAIL_HOST_USER, EMAIL_HOST_PASSWORD. Si no existen, usa backend de consola (desarrollo).
+EMAIL_BACKEND = (
+    "django.core.mail.backends.smtp.EmailBackend"
+    if env("EMAIL_HOST_USER", default="")
+    else "django.core.mail.backends.console.EmailBackend"
+)
+EMAIL_HOST = env("EMAIL_HOST", default="smtp.gmail.com")
+EMAIL_PORT = env("EMAIL_PORT", default=587, cast=int)
+EMAIL_USE_TLS = env("EMAIL_USE_TLS", default=True, cast=bool)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+DEFAULT_FROM_EMAIL = env(
+    "DEFAULT_FROM_EMAIL",
+    default="MonteAzul SPA <noreply@monteazulspa.cl>",
+)
+
+# --- Transbank Webpay Plus (NUNCA hardcode; usar .env) ---
+TBK_ENV = env("TBK_ENV", default="integration").strip().lower()
+TBK_COMMERCE_CODE = env("TBK_COMMERCE_CODE", default="597055555532").strip()
+TBK_API_KEY = env("TBK_API_KEY", default="").strip()
+TBK_RETURN_URL = env(
+    "TBK_RETURN_URL",
+    default="https://monteazulspa.cl/carrito/webpay/retorno/",
+).strip()

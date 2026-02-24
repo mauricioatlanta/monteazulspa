@@ -1,0 +1,533 @@
+{% extends "ops/base_ops.html" %}
+{% load catalog_filters %}
+{% block extra_head %}
+{{ block.super }}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --inv-bg-dark: #060b15;
+  --inv-bg-gradient: linear-gradient(145deg, #0b1220 0%, #060b15 100%);
+  --inv-glass-bg: rgba(15, 25, 45, 0.6);
+  --inv-glass-border: rgba(0, 180, 255, 0.2);
+  --inv-glass-glow: rgba(0, 180, 255, 0.08);
+  --inv-accent: #00b4ff;
+  --inv-accent-dim: rgba(0, 180, 255, 0.15);
+  --inv-text: #e8ecf4;
+  --inv-text-muted: rgba(255, 255, 255, 0.65);
+  --inv-success: #22c55e;
+  --inv-warning: #f59e0b;
+  --inv-danger: #ef4444;
+}
+
+.inv-wrapper {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--inv-bg-gradient);
+  min-height: calc(100vh - 120px);
+  padding: 0;
+  margin: 0 -1rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.inv-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 380px;
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0, 180, 255, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.inv-main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.inv-header {
+  margin-bottom: 2rem;
+}
+
+.inv-header h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 1.75rem;
+  letter-spacing: 0.05em;
+  color: var(--inv-text);
+  margin-bottom: 0.25rem;
+}
+
+.inv-header .subtitle {
+  font-size: 0.95rem;
+  color: var(--inv-text-muted);
+}
+
+/* KPI grid */
+.inv-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 900px) {
+  .inv-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 500px) {
+  .inv-kpi-grid { grid-template-columns: 1fr; }
+}
+
+.inv-kpi-card {
+  background: var(--inv-glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--inv-glass-border);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 0 25px var(--inv-glass-glow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.inv-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 35px rgba(0, 180, 255, 0.12);
+}
+
+.inv-kpi-card.alert { border-left: 4px solid var(--inv-warning); }
+.inv-kpi-card.danger { border-left: 4px solid var(--inv-danger); }
+
+.inv-kpi-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--inv-text-muted);
+  margin-bottom: 0.35rem;
+}
+
+.inv-kpi-value {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--inv-accent);
+}
+
+.inv-kpi-value.warning { color: var(--inv-warning); }
+.inv-kpi-value.danger { color: var(--inv-danger); }
+.inv-kpi-value.success { color: var(--inv-success); }
+
+/* Filter bar - chips */
+.inv-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--inv-glass-bg);
+  border: 1px solid var(--inv-glass-border);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+}
+
+.inv-filter-bar .chip {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: var(--inv-accent-dim);
+  color: var(--inv-accent);
+  border: 1px solid var(--inv-glass-border);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.inv-filter-bar .chip:hover {
+  background: rgba(0, 180, 255, 0.25);
+  border-color: rgba(0, 180, 255, 0.4);
+}
+
+.inv-filter-bar .chip.active {
+  background: linear-gradient(135deg, #0099dd 0%, #00b4ff 100%);
+  color: #fff;
+  border-color: rgba(0, 180, 255, 0.6);
+}
+
+.inv-filter-bar .chip-label { color: var(--inv-text-muted); font-size: 0.85rem; margin-right: 0.5rem; }
+.inv-filter-bar input[type="number"] {
+  width: 4rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--inv-glass-border);
+  background: rgba(0,0,0,0.3);
+  color: var(--inv-text);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.inv-filter-bar button[type="submit"] {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  background: var(--inv-accent);
+  color: #0f172a;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.inv-filter-bar button[type="submit"]:hover { background: #00c4ff; }
+
+/* Layout: grid + activity */
+.inv-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .inv-layout { grid-template-columns: 1fr; }
+}
+
+/* Data panel - productos */
+.inv-panel {
+  background: var(--inv-glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--inv-glass-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 25px var(--inv-glass-glow);
+}
+
+.inv-panel-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  color: var(--inv-text);
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--inv-glass-border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.inv-panel-title .count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--inv-text-muted);
+  font-weight: 400;
+}
+
+/* Tabla estilo command center */
+.inv-table-wrap {
+  overflow-x: auto;
+}
+
+.inv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.inv-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  color: var(--inv-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.75rem;
+  border-bottom: 1px solid var(--inv-glass-border);
+  background: rgba(0,0,0,0.2);
+}
+
+.inv-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  color: var(--inv-text);
+}
+
+.inv-table tbody tr {
+  transition: background 0.15s;
+}
+
+.inv-table tbody tr:hover {
+  background: rgba(0, 180, 255, 0.06);
+}
+
+.inv-table .sku {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  color: var(--inv-accent);
+}
+
+.inv-table .stock-cell {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+}
+
+.inv-table .stock-cell.low {
+  color: var(--inv-warning);
+}
+
+.inv-table .stock-cell.critical {
+  color: var(--inv-danger);
+}
+
+.inv-table .btn-mov {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  background: var(--inv-accent-dim);
+  color: var(--inv-accent);
+  border: 1px solid var(--inv-glass-border);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.inv-table .btn-mov:hover {
+  background: rgba(0, 180, 255, 0.25);
+  border-color: var(--inv-accent);
+}
+
+/* Immobilized banner */
+.inv-immobilized {
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: #fcd34d;
+}
+
+.inv-immobilized strong { color: #fbbf24; }
+
+/* Activity feed */
+.inv-activity {
+  position: sticky;
+  top: 1rem;
+}
+
+.inv-activity .inv-panel-title { padding: 1rem 1rem; }
+
+.inv-feed {
+  padding: 0.5rem 0;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.inv-feed-item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.8rem;
+  transition: background 0.15s;
+}
+
+.inv-feed-item:hover { background: rgba(0, 180, 255, 0.05); }
+
+.inv-feed-item .feed-time {
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--inv-text-muted);
+  font-size: 0.75rem;
+}
+
+.inv-feed-item .feed-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.inv-feed-item .feed-sku {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  color: var(--inv-accent);
+}
+
+.inv-feed-item .feed-type {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.inv-feed-item .feed-type.in { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+.inv-feed-item .feed-type.out { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+.inv-feed-item .feed-type.adjustment { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+.inv-feed-item .feed-type.return { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+.inv-feed-item .feed-type.warranty_return { background: rgba(34, 211, 238, 0.2); color: #67e8f9; }
+
+.inv-feed-item .feed-qty {
+  font-weight: 600;
+  color: var(--inv-text);
+}
+
+.inv-feed-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--inv-text-muted);
+  font-size: 0.9rem;
+}
+
+.inv-cta-movements {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #0099dd 0%, #00b4ff 100%);
+  color: #0f172a;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.inv-cta-movements:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(0, 180, 255, 0.4);
+  color: #0f172a;
+}
+
+/* Empty state */
+.inv-empty {
+  padding: 3rem 2rem;
+  text-align: center;
+  color: var(--inv-text-muted);
+}
+
+.inv-empty p { margin-bottom: 0.5rem; }
+</style>
+{% endblock %}
+
+{% block ops_content %}
+<div class="inv-wrapper">
+  <div class="inv-main">
+    <header class="inv-header">
+      <h1>📦 Centro de Inventario</h1>
+      <p class="subtitle">Vista de operaciones en tiempo real · Stock, valorización y actividad</p>
+    </header>
+
+    <!-- KPIs -->
+    <section class="inv-kpi-grid">
+      <div class="inv-kpi-card">
+        <div class="inv-kpi-label">SKUs activos</div>
+        <div class="inv-kpi-value">{{ total_skus }}</div>
+        <div class="inv-kpi-label" style="margin-top:0.2rem;">productos en catálogo</div>
+      </div>
+      <div class="inv-kpi-card">
+        <div class="inv-kpi-label">Valor en bodega (costo)</div>
+        <div class="inv-kpi-value">$ {{ inventory_valorized_display }}</div>
+        <div class="inv-kpi-label" style="margin-top:0.2rem;">stock &gt; 0</div>
+      </div>
+      <div class="inv-kpi-card {% if low_stock_count > 0 %}alert{% endif %}">
+        <div class="inv-kpi-label">Alertas bajo stock</div>
+        <div class="inv-kpi-value {% if low_stock_count > 0 %}warning{% endif %}">{{ low_stock_count }}</div>
+        <div class="inv-kpi-label" style="margin-top:0.2rem;">requieren atención</div>
+      </div>
+      <div class="inv-kpi-card">
+        <div class="inv-kpi-label">Vista actual</div>
+        <div class="inv-kpi-value success">{{ products|length }}</div>
+        <div class="inv-kpi-label" style="margin-top:0.2rem;">{% if low_filter %}solo bajo stock{% elif no_move_days %}sin movimiento {{ no_move_days }}d{% else %}todos{% endif %}</div>
+      </div>
+    </section>
+
+    {% if no_move_days and immobilized_value is not None %}
+    <div class="inv-immobilized">
+      Productos sin movimientos en los últimos <strong>{{ no_move_days }}</strong> días (stock &gt; 0).
+      <strong>Monto inmovilizado (costo):</strong> {{ immobilized_value|pesos_cl }}
+    </div>
+    {% endif %}
+
+    <!-- Filtros -->
+    <form method="get" class="inv-filter-bar">
+      <a href="{% url 'ops:inventory_list' %}" class="chip {% if not low_filter and not no_move_days %}active{% endif %}">Todos</a>
+      <a href="{% url 'ops:inventory_list' %}?low=1" class="chip {% if low_filter %}active{% endif %}">Bajo stock</a>
+      <span class="chip-label">Sin movimiento (días):</span>
+      <input type="number" name="no_move" value="{{ no_move_days|default:'' }}" min="1" max="365" placeholder="60" aria-label="Días sin movimiento">
+      <button type="submit">Aplicar</button>
+    </form>
+
+    <div class="inv-layout">
+      <!-- Tabla de productos -->
+      <div class="inv-panel">
+        <div class="inv-panel-title">
+          <span>Vista de productos</span>
+          <span class="count">({{ products|length }})</span>
+        </div>
+        <div class="inv-table-wrap">
+          <table class="inv-table">
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Stock</th>
+                <th>Mín.</th>
+                {% if no_move_days %}<th>Valor costo</th>{% endif %}
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in products %}
+              <tr>
+                <td class="sku">{{ p.sku }}</td>
+                <td>{{ p.name|truncatewords:10 }}</td>
+                <td>{{ p.category.name }}</td>
+                <td class="stock-cell {% if p.stock_minimum_alert and p.stock <= p.stock_minimum_alert %}{% if p.stock == 0 %}critical{% else %}low{% endif %}{% endif %}">{{ p.stock }}</td>
+                <td>{{ p.stock_minimum_alert|default:"—" }}</td>
+                {% if no_move_days %}<td>{{ p.valor_costo|pesos_cl }}</td>{% endif %}
+                <td><a href="{% url 'ops:inventory_movements_product' p.pk %}" class="btn-mov">Movimientos</a></td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="{% if no_move_days %}7{% else %}6{% endif %}" class="inv-empty">
+                  <p>{% if no_move_days %}Ningún producto sin movimiento en el período.{% elif low_filter %}No hay productos bajo stock.{% else %}No hay productos activos.{% endif %}</p>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Actividad reciente -->
+      <div class="inv-activity">
+        <div class="inv-panel">
+          <div class="inv-panel-title">Actividad reciente</div>
+          <div class="inv-feed">
+            {% for m in recent_movements %}
+            <div class="inv-feed-item">
+              <span class="feed-time">{{ m.created_at|date:"d/m H:i" }}</span>
+              <div class="feed-body">
+                <span class="feed-sku">{{ m.product.sku }}</span>
+                <span class="feed-type {{ m.movement_type|lower }}">{{ m.get_movement_type_display }}</span>
+                <span class="feed-qty">{{ m.quantity }}</span>
+                {% if m.related_order %}
+                <a href="{% url 'ops:sales_detail' m.related_order_id %}" style="font-size:0.75rem;color:var(--inv-text-muted);">#{{ m.related_order_id }}</a>
+                {% endif %}
+              </div>
+            </div>
+            {% empty %}
+            <div class="inv-feed-empty">No hay movimientos recientes.</div>
+            {% endfor %}
+          </div>
+          <div style="padding: 0 1rem 1rem;">
+            <a href="{% url 'ops:inventory_movements' %}" class="inv-cta-movements">Ver todos los movimientos →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

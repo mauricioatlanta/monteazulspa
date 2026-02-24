@@ -1,0 +1,92 @@
+{% extends "ops/base_ops.html" %}
+{% load catalog_filters %}{% load static %}
+{% block extra_head %}
+{{ block.super }}
+<style>
+    :root { --navy: #0c1322; --navy-light: #1a2742; --navy-surface: rgba(255,255,255,0.04); --navy-border: rgba(255,255,255,0.08); --cyan: #00d4ff; --cyan-soft: rgba(0,212,255,0.15); --text: #e8ecf4; --text-muted: rgba(255,255,255,0.55); }
+    .product-detail-admin { max-width: 900px; margin: 0 auto; }
+    .product-detail-admin h1 { font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--text); }
+    .product-detail-admin .breadcrumb { margin-bottom: 16px; font-size: 0.9rem; color: var(--text-muted); }
+    .product-detail-admin .breadcrumb a { color: var(--text-muted); text-decoration: none; }
+    .product-detail-admin .breadcrumb a:hover { color: var(--cyan); }
+    .detail-card {
+        background: var(--navy-surface);
+        border: 1px solid var(--navy-border);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+    .detail-card h2 { font-size: 1rem; color: var(--cyan); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .detail-item { font-size: 0.9rem; }
+    .detail-item strong { color: var(--text-muted); display: block; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 2px; }
+    .detail-item span { color: var(--text); }
+    .product-images-admin { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+    .product-images-admin img { width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid var(--navy-border); }
+    .action-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--navy-border); }
+    .action-bar .btn { padding: 10px 18px; border-radius: 8px; font-size: 0.9rem; text-decoration: none; font-weight: 600; border: none; cursor: pointer; }
+    .action-bar .btn-edit { background: rgba(33,150,243,0.2); color: #2196f3; border: 1px solid rgba(33,150,243,0.3); }
+    .action-bar .btn-delete { background: rgba(244,67,54,0.2); color: #f44336; border: 1px solid rgba(244,67,54,0.3); }
+    .action-bar .btn-back { background: var(--cyan-soft); color: var(--cyan); border: 1px solid rgba(0,212,255,0.3); }
+    .action-bar .btn-add { background: var(--cyan); color: var(--navy, #0c1322); border: none; }
+    .badge-inactive { background: rgba(244,67,54,0.2); color: #f44336; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; }
+</style>
+{% endblock %}
+
+{% block ops_content %}
+<div class="product-detail-admin">
+    <div class="breadcrumb">
+        <a href="{% url 'ops:dashboard' %}">Operaciones</a> ›
+        <a href="{% url 'ops:catalog_admin_list' %}">Catálogo</a> ›
+        {{ product.sku }}
+    </div>
+    <h1>{{ product.name }}{% if not product.is_active %} <span class="badge-inactive">Inactivo</span>{% endif %}</h1>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">SKU: {{ product.sku }} · {{ product.category.name }}</p>
+
+    <div class="detail-card">
+        <h2>Precio y stock</h2>
+        <div class="detail-grid">
+            <div class="detail-item"><strong>Precio</strong><span>{{ product.price|pesos_cl }}</span></div>
+            <div class="detail-item"><strong>Costo</strong><span>{{ product.cost_price|pesos_cl }}</span></div>
+            <div class="detail-item"><strong>Stock</strong><span>{{ product.stock }}</span></div>
+            <div class="detail-item"><strong>Alerta mínimo</strong><span>{{ product.stock_minimum_alert }}</span></div>
+        </div>
+    </div>
+
+    <div class="detail-card">
+        <h2>Imágenes</h2>
+        <div class="product-images-admin">
+            {% for img in product.images.all %}
+                <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:product.name }}">
+            {% empty %}
+                <span style="color: var(--text-muted);">Sin imágenes. Edita el producto para agregar.</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if product.ficha_tecnica %}
+    <div class="detail-card">
+        <h2>Ficha técnica / Descripción</h2>
+        <div style="color: var(--text); white-space: pre-wrap; font-size: 0.9rem;">{{ product.ficha_tecnica }}</div>
+    </div>
+    {% endif %}
+
+    <div class="detail-card">
+        <h2>Detalles técnicos</h2>
+        <div class="detail-grid">
+            {% if product.euro_norm %}<div class="detail-item"><strong>Norma Euro</strong><span>{{ product.get_euro_norm_display }}</span></div>{% endif %}
+            {% if product.material %}<div class="detail-item"><strong>Material</strong><span>{{ product.get_material_display }}</span></div>{% endif %}
+            {% if product.install_type %}<div class="detail-item"><strong>Instalación</strong><span>{{ product.get_install_type_display }}</span></div>{% endif %}
+            {% if product.weight is not None %}<div class="detail-item"><strong>Peso (kg)</strong><span>{{ product.weight }}</span></div>{% endif %}
+        </div>
+    </div>
+
+    <div class="action-bar">
+        <a href="{% url 'ops:catalog_admin_list' %}{% if product.category %}?cat={{ product.category.slug }}{% endif %}" class="btn btn-back">← Volver al listado</a>
+        <a href="{% url 'ops:catalog_admin_add' %}?cat={{ product.category.slug }}" class="btn btn-add">+ Agregar producto ({{ product.category.name }})</a>
+        <a href="{% url 'ops:catalog_admin_edit' product.slug %}" class="btn btn-edit">Editar</a>
+        <a href="{% url 'ops:catalog_admin_delete' product.slug %}" class="btn btn-delete">Borrar</a>
+        <a href="{% url 'catalog:product_detail' product.slug %}" class="btn btn-back" target="_blank">Ver en sitio público</a>
+    </div>
+</div>
+{% endblock %}

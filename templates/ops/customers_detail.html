@@ -1,0 +1,32 @@
+{% extends "ops/base_ops.html" %}
+{% block ops_content %}
+<h1 style="margin-bottom:1rem;">Cliente #{{ customer.pk }}</h1>
+<div class="ops-card">
+    <p><strong>Tipo:</strong> {{ customer.get_customer_type_display }}</p>
+    <p><strong>Usuario:</strong> {{ customer.user.get_username|default:"—" }}</p>
+    <p><strong>Descuento %:</strong> {{ customer.discount_percent }}</p>
+    <p><strong>Activo (interno):</strong> {{ customer.is_internal_active|yesno:"Sí,No" }}</p>
+    <p><strong>Empresa:</strong> {{ customer.company_name|default:"—" }}</p>
+    <p><strong>RUT:</strong> {{ customer.rut|default:"—" }}</p>
+    <p><strong>Teléfono:</strong> {{ customer.phone|default:"—" }}</p>
+</div>
+<div class="ops-card">
+    <h2>Órdenes (últimas 50)</h2>
+    <table class="ops-table">
+        <thead><tr><th>ID</th><th>Fecha</th><th>Estado</th><th>Total</th></tr></thead>
+        <tbody>
+        {% for o in orders %}
+        <tr>
+            <td><a href="{% url 'ops:sales_detail' o.pk %}">#{{ o.pk }}</a></td>
+            <td>{{ o.created_at|date:"d/m/Y H:i" }}</td>
+            <td><span class="badge badge-{{ o.status|lower }}">{{ o.get_status_display }}</span></td>
+            <td>$ {{ o.total|floatformat:0 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">Sin órdenes.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<p><a href="{% url 'ops:customers_list' %}" class="btn btn-secondary">Volver a clientes</a></p>
+{% endblock %}

@@ -1,0 +1,839 @@
+{% extends "ops/base_ops.html" %}
+{% block extra_head %}
+{{ block.super }}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ce-bg-dark: #060b15;
+  --ce-bg-gradient: linear-gradient(145deg, #0b1220 0%, #060b15 100%);
+  --ce-glass-bg: rgba(15, 25, 45, 0.6);
+  --ce-glass-border: rgba(0, 255, 255, 0.2);
+  --ce-glass-glow: rgba(0, 255, 255, 0.15);
+  --ce-accent: #00e5ff;
+  --ce-accent-dim: rgba(0, 229, 255, 0.15);
+  --ce-magenta: rgba(255, 100, 200, 0.9);
+  --ce-text: #e8ecf4;
+  --ce-text-muted: rgba(255, 255, 255, 0.65);
+  --ce-success: #22c55e;
+  --ce-warning: #f59e0b;
+  --ce-danger: #ef4444;
+}
+
+.ce-wrapper {
+  font-family: 'Inter', 'Poppins', system-ui, sans-serif;
+  background: var(--ce-bg-gradient);
+  min-height: calc(100vh - 120px);
+  margin: 0 -1rem 0;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+.ce-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 400px;
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0, 229, 255, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.ce-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.ce-header { margin-bottom: 2rem; }
+.ce-header h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 1.85rem;
+  letter-spacing: 0.05em;
+  color: var(--ce-text);
+  margin-bottom: 0.25rem;
+}
+.ce-header .subtitle {
+  font-size: 0.95rem;
+  color: var(--ce-text-muted);
+}
+
+/* Cockpit Estratégico – estado superior tipo Bloomberg */
+.ce-cockpit {
+  margin-bottom: 2rem;
+  padding: 1.5rem 1.75rem;
+  background: var(--ce-glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--ce-glass-border);
+  border-radius: 16px;
+  box-shadow: 0 0 25px var(--ce-glass-glow);
+}
+.ce-cockpit-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .ce-cockpit-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 500px) {
+  .ce-cockpit-grid { grid-template-columns: 1fr; }
+}
+.ce-cockpit-item { min-width: 0; }
+.ce-cockpit-item .label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ce-text-muted);
+  margin-bottom: 0.35rem;
+}
+/* Indicador circular animado (estado sistema) */
+.ce-gauge-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.ce-gauge-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--ce-gauge-color, var(--ce-accent)) 0% calc(var(--ce-gauge-pct, 70) * 1%),
+    rgba(255,255,255,0.1) calc(var(--ce-gauge-pct, 70) * 1%) 100%
+  );
+  animation: ce-gauge-pulse 2s ease-in-out infinite;
+}
+@keyframes ce-gauge-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+.ce-cockpit-item .value {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--ce-accent);
+}
+.ce-cockpit-item .value.success { color: var(--ce-success); }
+.ce-cockpit-item .value.warning { color: var(--ce-warning); }
+.ce-cockpit-item .value.danger { color: var(--ce-danger); }
+/* Barra de riesgo dinámica */
+.ce-risk-bar-wrap {
+  margin-top: 0.35rem;
+}
+.ce-risk-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.1);
+  overflow: hidden;
+  display: flex;
+  width: 100%;
+  max-width: 140px;
+}
+.ce-risk-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease, background 0.3s;
+}
+.ce-risk-bar-fill.low { background: var(--ce-success); }
+.ce-risk-bar-fill.medium { background: var(--ce-warning); }
+.ce-risk-bar-fill.high { background: var(--ce-danger); }
+.ce-risk-pct {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin-top: 0.2rem;
+}
+/* Número grande estilo Bloomberg (margen) */
+.ce-bloomberg-value {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 800;
+  font-size: 2rem;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+.ce-bloomberg-value.positive { color: var(--ce-success); }
+.ce-bloomberg-value.warning { color: var(--ce-warning); }
+.ce-bloomberg-value.negative { color: var(--ce-danger); }
+/* Frase asesor */
+.ce-advisor-strip {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--ce-glass-border);
+}
+.ce-advisor-message {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border-left: 4px solid var(--ce-accent);
+  background: rgba(0, 229, 255, 0.06);
+}
+.ce-advisor-message.success { border-left-color: var(--ce-success); background: rgba(34, 197, 94, 0.08); }
+.ce-advisor-message.warning { border-left-color: var(--ce-warning); background: rgba(245, 158, 11, 0.08); }
+.ce-advisor-message.danger { border-left-color: var(--ce-danger); background: rgba(239, 68, 68, 0.08); }
+.ce-advisor-message strong { color: var(--ce-text); }
+
+/* Cards glass */
+.ce-card {
+  background: var(--ce-glass-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--ce-glass-border);
+  border-radius: 16px;
+  padding: 1.5rem 1.75rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 0 25px var(--ce-glass-glow);
+}
+.ce-card h2 {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.05em;
+  color: var(--ce-text);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--ce-glass-border);
+}
+.ce-card h2 .icon { margin-right: 0.5rem; opacity: 0.9; }
+
+/* Bloque Garantía */
+.ce-warranty-slider-wrap {
+  margin-bottom: 1rem;
+}
+.ce-warranty-slider-wrap label {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--ce-text-muted);
+  margin-bottom: 0.5rem;
+}
+.ce-warranty-slider-wrap input[type="range"] {
+  width: 100%;
+  max-width: 320px;
+  height: 8px;
+  -webkit-appearance: none;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  outline: none;
+}
+.ce-warranty-slider-wrap input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ce-accent), #0099cc);
+  border: 2px solid rgba(255,255,255,0.3);
+  cursor: pointer;
+  box-shadow: 0 0 15px var(--ce-accent-dim);
+}
+.ce-warranty-days-value {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--ce-accent);
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+.ce-exposure {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.ce-exposure.low { background: rgba(34, 197, 94, 0.15); color: var(--ce-success); }
+.ce-exposure.medium { background: rgba(245, 158, 11, 0.15); color: var(--ce-warning); }
+.ce-exposure.high { background: rgba(239, 68, 68, 0.15); color: var(--ce-danger); }
+.ce-exposure .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+}
+.ce-warranty-terms-wrap { margin-top: 1rem; }
+.ce-warranty-terms-wrap label { display: block; font-size: 0.9rem; color: var(--ce-text-muted); margin-bottom: 0.5rem; }
+.ce-warranty-terms-wrap textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 0.75rem 1rem;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--ce-glass-border);
+  border-radius: 10px;
+  color: var(--ce-text);
+  font-size: 0.9rem;
+  resize: vertical;
+}
+.ce-warranty-terms-wrap textarea:focus {
+  outline: none;
+  border-color: var(--ce-accent);
+  box-shadow: 0 0 15px var(--ce-accent-dim);
+}
+
+/* Recomendaciones */
+.ce-recommendations { list-style: none; padding: 0; margin: 0; }
+.ce-recommendations li {
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  border-left: 3px solid var(--ce-accent);
+  background: rgba(0, 229, 255, 0.06);
+}
+.ce-recommendations li.warning { border-left-color: var(--ce-warning); background: rgba(245, 158, 11, 0.08); }
+.ce-recommendations li.info { border-left-color: var(--ce-accent); }
+
+/* Tabla roles */
+.ce-roles-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.ce-roles-table th, .ce-roles-table td {
+  text-align: left;
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.ce-roles-table th {
+  color: var(--ce-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.8rem;
+}
+.ce-roles-table tr:hover { background: rgba(255,255,255,0.03); }
+.ce-roles-table .role-name { font-weight: 600; color: var(--ce-text); }
+.ce-roles-table .badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.ce-roles-table .badge-max { background: rgba(0, 229, 255, 0.2); color: var(--ce-accent); }
+.ce-roles-table .badge-mid { background: rgba(245, 158, 11, 0.2); color: var(--ce-warning); }
+.ce-roles-table .badge-low { background: rgba(255,255,255,0.1); color: var(--ce-text-muted); }
+.ce-roles-didactico {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--ce-text-muted);
+  line-height: 1.5;
+}
+.ce-btn-manage {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.5rem 1.25rem;
+  background: linear-gradient(135deg, #0099dd, var(--ce-accent));
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 10px;
+  text-decoration: none;
+  box-shadow: 0 0 20px var(--ce-accent-dim);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.ce-btn-manage:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 28px rgba(0, 229, 255, 0.35);
+  color: #fff;
+}
+
+/* Config estratégica: subsecciones */
+.ce-config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+.ce-config-block h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ce-text);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.ce-config-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-size: 0.9rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.ce-config-row:last-child { border-bottom: none; }
+.ce-config-row label { color: var(--ce-text-muted); cursor: pointer; }
+.ce-config-row input[type="number"], .ce-config-row input[type="text"] {
+  width: 80px;
+  padding: 0.35rem 0.5rem;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--ce-glass-border);
+  border-radius: 6px;
+  color: var(--ce-text);
+  font-size: 0.9rem;
+}
+.ce-toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.ce-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+input.ce-toggle-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+input.ce-toggle-input:checked + .ce-toggle {
+  background: var(--ce-accent);
+  box-shadow: 0 0 15px var(--ce-accent-dim);
+}
+input.ce-toggle-input:checked + .ce-toggle::after {
+  transform: translateX(20px);
+}
+.ce-toggle-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.ce-toggle-wrap .ce-toggle { flex-shrink: 0; }
+
+/* Submit */
+.ce-submit-wrap {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--ce-glass-border);
+}
+.ce-btn-save {
+  padding: 0.75rem 2rem;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  background: linear-gradient(135deg, #00b4ff, var(--ce-accent));
+  color: #0a0f1a;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 0 25px var(--ce-accent-dim);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.ce-btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 35px rgba(0, 229, 255, 0.4);
+}
+/* Efecto energético al guardar */
+.ce-btn-save:active {
+  transform: scale(0.98);
+}
+.ce-btn-save.ce-save-pulse {
+  animation: ce-save-pulse 0.6s ease;
+}
+@keyframes ce-save-pulse {
+  0% { box-shadow: 0 0 25px var(--ce-accent-dim); }
+  50% { box-shadow: 0 0 40px rgba(0, 229, 255, 0.6); }
+  100% { box-shadow: 0 0 25px var(--ce-accent-dim); }
+}
+/* Toggles con glow al activar */
+input.ce-toggle-input:checked + .ce-toggle {
+  box-shadow: 0 0 15px var(--ce-accent-dim), 0 0 25px rgba(0, 229, 255, 0.25);
+}
+/* Panel Simulación */
+.ce-simulate-wrap { margin-top: 1rem; }
+.ce-simulate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ce-accent);
+  background: var(--ce-accent-dim);
+  border: 1px solid var(--ce-glass-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.ce-simulate-btn:hover {
+  background: rgba(0, 229, 255, 0.25);
+  box-shadow: 0 0 20px var(--ce-glass-glow);
+}
+.ce-simulate-panel {
+  display: none;
+  margin-top: 1.25rem;
+  padding: 1.25rem;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid var(--ce-glass-border);
+  border-radius: 12px;
+  animation: ce-fade-in 0.3s ease;
+}
+.ce-simulate-panel.is-open { display: block; }
+@keyframes ce-fade-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ce-simulate-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  color: var(--ce-text-muted);
+  margin-bottom: 1rem;
+}
+.ce-simulate-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 600px) {
+  .ce-simulate-grid { grid-template-columns: 1fr; }
+}
+.ce-simulate-card {
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.03);
+}
+.ce-simulate-card .days { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.25rem; color: var(--ce-accent); }
+.ce-simulate-card .exposure { font-size: 0.8rem; margin-top: 0.35rem; }
+.ce-simulate-card .impact { font-size: 0.8rem; color: var(--ce-text-muted); margin-top: 0.5rem; }
+.ce-simulate-card.low .exposure { color: var(--ce-success); }
+.ce-simulate-card.medium .exposure { color: var(--ce-warning); }
+.ce-simulate-card.high .exposure { color: var(--ce-danger); }
+/* Recomendaciones con fade-in */
+.ce-recommendations li {
+  animation: ce-rec-fade 0.5s ease backwards;
+}
+.ce-recommendations li:nth-child(1) { animation-delay: 0.1s; }
+.ce-recommendations li:nth-child(2) { animation-delay: 0.2s; }
+.ce-recommendations li:nth-child(3) { animation-delay: 0.3s; }
+@keyframes ce-rec-fade {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+</style>
+{% endblock %}
+
+{% block ops_content %}
+{% if messages %}
+<ul class="messages" style="list-style:none; margin-bottom:1rem;">
+  {% for message in messages %}
+  <li style="padding:0.5rem 1rem; border-radius:6px; background:{% if message.tags == 'error' %}rgba(244,67,54,0.2){% else %}rgba(76,175,80,0.2){% endif %}; color:{% if message.tags == 'error' %}#f44336{% else %}#22c55e{% endif %};">
+    {{ message }}
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<div class="ce-wrapper">
+  <div class="ce-main">
+    <header class="ce-header">
+      <h1>🧠 Centro Estratégico del Dueño</h1>
+      <p class="subtitle">Control total del negocio – Configuración crítica y decisiones estratégicas.</p>
+    </header>
+
+    <!-- Cockpit Estratégico – impacto visual superior -->
+    <section class="ce-cockpit" aria-label="Estado estratégico">
+      <div class="ce-cockpit-grid">
+        <div class="ce-cockpit-item">
+          <div class="label">Sistema</div>
+          <div class="ce-gauge-wrap">
+            <div class="ce-gauge-circle" style="--ce-gauge-pct: {% if sistema_estado_class == 'success' %}75{% elif sistema_estado_class == 'warning' %}45{% else %}25{% endif %}; --ce-gauge-color: {% if sistema_estado_class == 'success' %}var(--ce-success){% elif sistema_estado_class == 'warning' %}var(--ce-warning){% else %}var(--ce-danger){% endif %};"></div>
+            <span class="value {{ sistema_estado_class }}">{{ sistema_estado }}</span>
+          </div>
+        </div>
+        <div class="ce-cockpit-item">
+          <div class="label">Riesgo financiero</div>
+          <div class="ce-risk-bar-wrap">
+            <div class="ce-risk-bar" role="progressbar" aria-valuenow="{{ risk_financiero_pct }}" aria-valuemin="0" aria-valuemax="100">
+              <div class="ce-risk-bar-fill {{ exposicion }}" id="ce-risk-bar-fill" style="width: {{ risk_financiero_pct }}%;"></div>
+            </div>
+            <div class="ce-risk-pct {% if exposicion == 'low' %}success{% elif exposicion == 'medium' %}warning{% else %}danger{% endif %}" id="ce-risk-pct">{{ risk_financiero_pct }}%</div>
+          </div>
+        </div>
+        <div class="ce-cockpit-item">
+          <div class="label">Margen promedio</div>
+          <div class="ce-bloomberg-value {% if margen_pct >= margen_minimo_recomendado|add:5 %}positive{% elif margen_pct >= margen_minimo_recomendado %}warning{% else %}negative{% endif %}" id="ce-margin-display">{{ margen_pct }}%</div>
+          <div class="label" style="margin-top:0.2rem; font-size:0.7rem;">vs mín. {{ margen_minimo_recomendado }}%</div>
+        </div>
+        <div class="ce-cockpit-item">
+          <div class="label">Garantía activa</div>
+          <div class="value" id="ce-warranty-display">{{ config.warranty_days }} días</div>
+          <div class="label" style="margin-top:0.25rem; font-size:0.7rem;">Impacto est. mensual ref.: $ {{ impact_estimate_monthly_display }}</div>
+        </div>
+      </div>
+      <div class="ce-advisor-strip">
+        <p class="ce-advisor-message {{ advisor_message_class }}" id="ce-advisor-msg">{{ advisor_message }}</p>
+      </div>
+    </section>
+
+    <form method="post" action="{% url 'ops:settings' %}">
+      {% csrf_token %}
+
+      <!-- BLOQUE 1 – Garantía (editable) -->
+      <div class="ce-card">
+        <h2><span class="icon">🛡️</span> Política de Garantía</h2>
+        <div class="ce-warranty-slider-wrap">
+          <label for="id_warranty_days">Duración de garantía por defecto</label>
+          <div>
+            <input type="range" id="id_warranty_days" name="warranty_days" min="1" max="90" value="{{ config.warranty_days }}" step="1">
+            <span class="ce-warranty-days-value" id="warranty_days_display">{{ config.warranty_days }} días</span>
+          </div>
+          <div class="ce-exposure {{ exposicion }}">
+            <span class="dot"></span>
+            {{ exposicion_label }}
+          </div>
+        </div>
+        <div class="ce-warranty-terms-wrap">
+          <label for="id_warranty_terms">Términos de garantía (visibles al cliente)</label>
+          <textarea id="id_warranty_terms" name="warranty_terms" placeholder="Ej: Garantía limitada por falla de fabricación.">{{ config.warranty_terms }}</textarea>
+        </div>
+        <div class="ce-simulate-wrap">
+          <button type="button" class="ce-simulate-btn" id="ce-simulate-btn" aria-expanded="false">
+            🧪 Simular cambios
+          </button>
+          <div class="ce-simulate-panel" id="ce-simulate-panel" role="region" aria-label="Comparativa escenarios garantía">
+            <div class="ce-simulate-title">Comparativa por días de garantía (impacto referencial)</div>
+            <div class="ce-simulate-grid">
+              {% for sim in scenario_simulations %}
+              <div class="ce-simulate-card {{ sim.exposure }}">
+                <div class="days">{{ sim.days }} días</div>
+                <div class="exposure">{{ sim.exposure_label }} · Riesgo {{ sim.risk_pct }}%</div>
+                <div class="impact">Impacto est. mensual ref.: $ {{ sim.impact_display }}</div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOQUE 2 – Recomendaciones -->
+      <div class="ce-card">
+        <h2><span class="icon">🤖</span> Recomendaciones del Sistema</h2>
+        <ul class="ce-recommendations">
+          {% for rec in recommendations %}
+          <li class="{{ rec.type }}">{{ rec.text }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- BLOQUE 3 – Roles -->
+      <div class="ce-card">
+        <h2><span class="icon">👥</span> Control de Accesos</h2>
+        <table class="ce-roles-table">
+          <thead>
+            <tr>
+              <th>Rol</th>
+              <th>Puede ver</th>
+              <th>Puede editar</th>
+              <th>Nivel</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="role-name">👑 Dueño</td>
+              <td>Todo</td>
+              <td>Todo</td>
+              <td><span class="badge badge-max">Máximo</span></td>
+            </tr>
+            <tr>
+              <td class="role-name">🧾 Operaciones</td>
+              <td>Ventas, clientes, garantías, reportes</td>
+              <td>Parcial</td>
+              <td><span class="badge badge-mid">Medio</span></td>
+            </tr>
+            <tr>
+              <td class="role-name">📦 Catálogo</td>
+              <td>Inventario y productos</td>
+              <td>Limitado</td>
+              <td><span class="badge badge-low">Bajo</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="ce-roles-didactico">
+          Asigna usuarios a cada rol desde el panel de gestión. Los permisos se aplican de forma automática según el grupo del usuario.
+        </p>
+        <a href="/admin/auth/group/" class="ce-btn-manage" target="_blank" rel="noopener">🔵 Gestionar permisos</a>
+      </div>
+
+      <!-- BLOQUE 4 – Configuraciones Estratégicas -->
+      <div class="ce-card">
+        <h2><span class="icon">⚙️</span> Configuraciones Estratégicas</h2>
+        <div class="ce-config-grid">
+          <div class="ce-config-block">
+            <h3>💰 Financiero</h3>
+            <div class="ce-config-row">
+              <label for="id_comision">% comisión vendedores</label>
+              <input type="number" id="id_comision" name="comision_vendedores_pct" value="{{ config.comision_vendedores_pct }}" min="0" max="100" step="0.01">
+            </div>
+            <div class="ce-config-row">
+              <label class="ce-toggle-wrap">
+                <input type="checkbox" class="ce-toggle-input" name="alertas_margen_bajo" {% if config.alertas_margen_bajo %}checked{% endif %}>
+                <span class="ce-toggle"></span>
+                <span>Alertas de margen bajo</span>
+              </label>
+            </div>
+            <div class="ce-config-row">
+              <label for="id_margen_min">Margen mínimo recomendado %</label>
+              <input type="number" id="id_margen_min" name="margen_minimo_recomendado" value="{{ config.margen_minimo_recomendado }}" min="0" max="100" step="0.5">
+            </div>
+            <div class="ce-config-row">
+              <label class="ce-toggle-wrap">
+                <input type="checkbox" class="ce-toggle-input" name="modo_estricto_precios" {% if config.modo_estricto_precios %}checked{% endif %}>
+                <span class="ce-toggle"></span>
+                <span>Modo estricto de precios</span>
+              </label>
+            </div>
+          </div>
+          <div class="ce-config-block">
+            <h3>📦 Inventario</h3>
+            <div class="ce-config-row">
+              <label class="ce-toggle-wrap">
+                <input type="checkbox" class="ce-toggle-input" name="alerta_stock_critico" {% if config.alerta_stock_critico %}checked{% endif %}>
+                <span class="ce-toggle"></span>
+                <span>Alerta de stock crítico</span>
+              </label>
+            </div>
+            <div class="ce-config-row">
+              <label for="id_dias_bodega">Días máx. en bodega</label>
+              <input type="number" id="id_dias_bodega" name="dias_max_bodega" value="{{ config.dias_max_bodega|default:'' }}" min="1" placeholder="Opcional">
+            </div>
+            <div class="ce-config-row">
+              <label class="ce-toggle-wrap">
+                <input type="checkbox" class="ce-toggle-input" name="bloqueo_venta_sin_stock" {% if config.bloqueo_venta_sin_stock %}checked{% endif %}>
+                <span class="ce-toggle"></span>
+                <span>Bloquear venta sin stock</span>
+              </label>
+            </div>
+          </div>
+          <div class="ce-config-block">
+            <h3>🔔 Notificaciones</h3>
+            <div class="ce-config-row">
+              <label class="ce-toggle-wrap">
+                <input type="checkbox" class="ce-toggle-input" name="notif_whatsapp" {% if config.notif_whatsapp %}checked{% endif %}>
+                <span class="ce-toggle"></span>
+                <span>WhatsApp automático</span>
+              </label>
+            </div>
+            <div class="ce-config-row">
+              <label class="ce-toggle-wrap">
+                <input type="checkbox" class="ce-toggle-input" name="notif_email" {% if config.notif_email %}checked{% endif %}>
+                <span class="ce-toggle"></span>
+                <span>Email automático</span>
+              </label>
+            </div>
+            <div class="ce-config-row">
+              <label class="ce-toggle-wrap">
+                <input type="checkbox" class="ce-toggle-input" name="aviso_ventas_altas" {% if config.aviso_ventas_altas %}checked{% endif %}>
+                <span class="ce-toggle"></span>
+                <span>Aviso de ventas altas</span>
+              </label>
+            </div>
+            <div class="ce-config-row">
+              <label class="ce-toggle-wrap">
+                <input type="checkbox" class="ce-toggle-input" name="aviso_perdidas" {% if config.aviso_perdidas %}checked{% endif %}>
+                <span class="ce-toggle"></span>
+                <span>Aviso de pérdidas</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="ce-submit-wrap">
+          <button type="submit" class="ce-btn-save">Guardar configuración</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+(function() {
+  function riskForDays(d) {
+    d = parseInt(d, 10);
+    if (d <= 10) return 25;
+    if (d <= 30) return 35 + Math.min(30, d - 10);
+    return Math.min(95, 65 + Math.floor((d - 30) / 10));
+  }
+  function exposureClass(pct) {
+    if (pct <= 25) return 'low';
+    if (pct <= 65) return 'medium';
+    return 'high';
+  }
+  function riskPctClass(pct) {
+    var ex = exposureClass(pct);
+    return ex === 'low' ? 'success' : (ex === 'medium' ? 'warning' : 'danger');
+  }
+
+  var slider = document.getElementById('id_warranty_days');
+  var display = document.getElementById('warranty_days_display');
+  var riskFill = document.getElementById('ce-risk-bar-fill');
+  var riskPct = document.getElementById('ce-risk-pct');
+  if (slider && display) {
+    slider.addEventListener('input', function() {
+      var days = this.value;
+      display.textContent = days + ' días';
+      if (riskFill && riskPct) {
+        var pct = riskForDays(days);
+        riskFill.style.width = pct + '%';
+        riskFill.className = 'ce-risk-bar-fill ' + exposureClass(pct);
+        riskPct.textContent = pct + '%';
+        riskPct.className = 'ce-risk-pct ' + riskPctClass(pct);
+      }
+    });
+  }
+
+  var simBtn = document.getElementById('ce-simulate-btn');
+  var simPanel = document.getElementById('ce-simulate-panel');
+  if (simBtn && simPanel) {
+    simBtn.addEventListener('click', function() {
+      var open = simPanel.classList.toggle('is-open');
+      simBtn.setAttribute('aria-expanded', open);
+    });
+  }
+
+  var form = document.querySelector('form');
+  if (form) {
+    form.addEventListener('submit', function() {
+      var names = ['alertas_margen_bajo','modo_estricto_precios','alerta_stock_critico','bloqueo_venta_sin_stock','notif_whatsapp','notif_email','aviso_ventas_altas','aviso_perdidas'];
+      names.forEach(function(n) {
+        var el = form.querySelector('input.ce-toggle-input[name="' + n + '"]');
+        if (el && !el.checked) {
+          var h = document.createElement('input');
+          h.type = 'hidden';
+          h.name = n;
+          h.value = '0';
+          form.appendChild(h);
+        }
+      });
+      var saveBtn = form.querySelector('.ce-btn-save');
+      if (saveBtn) {
+        saveBtn.classList.add('ce-save-pulse');
+        setTimeout(function() { saveBtn.classList.remove('ce-save-pulse'); }, 600);
+      }
+    });
+  }
+})();
+</script>
+{% endblock %}

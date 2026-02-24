@@ -1,0 +1,31 @@
+{% extends "ops/base_ops.html" %}
+{% block ops_content %}
+<h1 style="margin-bottom:1rem;">Reporte de ventas</h1>
+<form method="get" style="margin-bottom:1rem;">
+    <label>Desde:</label>
+    <input type="date" name="from" value="{{ date_from|date:'Y-m-d' }}">
+    <label style="margin-left:1rem;">Hasta:</label>
+    <input type="date" name="to" value="{{ date_to|date:'Y-m-d' }}">
+    <button type="submit" class="btn btn-secondary">Aplicar</button>
+    <a href="?from={{ date_from|date:'Y-m-d' }}&to={{ date_to|date:'Y-m-d' }}&export=csv" class="btn btn-primary" style="margin-left:0.5rem;">Exportar CSV</a>
+</form>
+<div class="ops-card">
+    <p><strong>Total en período:</strong> $ {{ total|floatformat:0 }}</p>
+    <table class="ops-table">
+        <thead><tr><th>ID</th><th>Fecha</th><th>Cliente</th><th>Estado</th><th>Total</th></tr></thead>
+        <tbody>
+        {% for o in orders %}
+        <tr>
+            <td><a href="{% url 'ops:sales_detail' o.pk %}">#{{ o.pk }}</a></td>
+            <td>{{ o.created_at|date:"d/m/Y H:i" }}</td>
+            <td>{{ o.customer }}</td>
+            <td>{{ o.get_status_display }}</td>
+            <td>$ {{ o.total|floatformat:0 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">No hay ventas en el período.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

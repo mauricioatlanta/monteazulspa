@@ -4,60 +4,78 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bienvenida | Monteazul SPA — monteazulspa.cl</title>
+  <title>Catalíticos en Chile | Venta de Catalíticos Universales y Diesel | MonteAzul SPA</title>
+  <meta name="description" content="Venta de catalíticos universales, catalíticos diesel Euro 4 y Euro 5, flexibles de escape y sistemas de escape en Chile. Compra online con despacho a todo el país.">
+  <link rel="canonical" href="{{ SITE_URL|default:'https://monteazulspa.cl' }}/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #0a0c10;
-      --surface: rgba(255,255,255,0.03);
-      --surface-hover: rgba(255,255,255,0.06);
-      --border: rgba(255,255,255,0.08);
+      --bg-soft: #0d1016;
+      --surface: rgba(255,255,255,0.04);
+      --surface-hover: rgba(255,255,255,0.08);
+      --surface-glass: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.1);
       --text: #f0f2f5;
-      --muted: rgba(255,255,255,0.5);
-      --accent: #00f0ff;
-      --accent-soft: rgba(0,240,255,0.12);
-      --yellow: #ffc800;
-      --yellow-soft: rgba(255,200,0,0.15);
+      --text-secondary: rgba(255,255,255,0.72);
+      --muted: rgba(255,255,255,0.52);
+      --accent: #00d4e6;
+      --accent-soft: rgba(0,212,230,0.15);
+      --glow: rgba(0,212,230,0.35);
+      --cta-primary: #f5c400;
+      --cta-primary-hover: #ffd000;
+      --cta-primary-text: #0a0c10;
+      --success: #00e676;
+      --radius: 18px;
+      --radius-sm: 12px;
+      --radius-lg: 24px;
+      --section-padding: clamp(48px, 8vw, 80px);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       font-family: 'Outfit', system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       overflow-x: hidden;
+      line-height: 1.5;
     }
     .bg-mesh {
       position: fixed;
       inset: 0;
       background:
-        radial-gradient(ellipse 120% 80% at 50% -20%, rgba(0,240,255,0.08), transparent 50%),
-        radial-gradient(ellipse 80% 60% at 100% 50%, rgba(120,80,255,0.06), transparent 45%),
-        linear-gradient(180deg, var(--bg) 0%, #0d1016 100%);
+        radial-gradient(ellipse 140% 70% at 50% -15%, rgba(0,212,230,0.07), transparent 55%),
+        radial-gradient(ellipse 70% 50% at 95% 40%, rgba(100,80,220,0.05), transparent 50%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 100%);
       pointer-events: none;
+      z-index: 0;
     }
-    .grid-bg {
+    .grid-overlay {
       position: fixed;
       inset: 0;
-      background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
-      background-size: 48px 48px;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 64px 64px;
       pointer-events: none;
       opacity: 0.5;
+      z-index: 0;
     }
+
+    /* ----- Header (logo, banner: hace scroll con la página) ----- */
     .header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
       backdrop-filter: blur(20px);
-      background: rgba(10,12,16,0.7);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(10,12,16,0.75);
       border-bottom: 1px solid var(--border);
     }
     .header-inner {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 14px 24px;
+      padding: 16px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -71,25 +89,58 @@
       text-decoration: none;
       color: inherit;
     }
-    .logo-link img { height: 80px; width: auto; display: block; }
-    .logo-text { font-weight: 800; font-size: 1.35rem; letter-spacing: 0.06em; }
-    .logo-sub { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
+    .logo-link img { height: 56px; width: auto; display: block; object-fit: contain; }
+    .logo-text { font-weight: 800; font-size: 1.35rem; letter-spacing: 0.05em; }
+    .logo-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
     .nav {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
     }
     .nav a {
-      padding: 10px 16px;
-      border-radius: 10px;
-      color: var(--muted);
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
       text-decoration: none;
       font-weight: 600;
       font-size: 0.9rem;
       transition: color 0.2s, background 0.2s;
     }
     .nav a:hover { color: var(--accent); background: var(--surface-hover); }
+    .nav a.here { color: var(--accent); background: var(--accent-soft); }
+    /* Nav bar fija: solo ella permanece visible al hacer scroll */
+    .nav-bar-sticky {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,12,16,0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-bar-sticky .nav-bar-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.5rem 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .nav-bar-sticky .nav-bar-link {
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: color 0.2s, background 0.2s;
+    }
+    .nav-bar-sticky .nav-bar-link:hover { color: var(--accent); background: var(--surface-hover); }
+    .nav-bar-sticky .nav-bar-link.here { color: var(--accent); background: var(--accent-soft); }
 
+    /* ----- Acceso equipo (credenciales admin) ----- */
     .team-access {
       display: flex;
       align-items: center;
@@ -121,14 +172,12 @@
       padding: 8px 12px;
       border-radius: 8px;
       border: 1px solid var(--border);
-      background: rgba(255,255,255,0.04);
+      background: rgba(255,255,255,0.06);
       color: var(--text);
       font-family: inherit;
       font-size: 0.85rem;
     }
-    .team-access-form input::placeholder {
-      color: var(--muted);
-    }
+    .team-access-form input::placeholder { color: var(--muted); }
     .team-access-form input:focus {
       outline: none;
       border-color: var(--accent);
@@ -145,138 +194,596 @@
       cursor: pointer;
       transition: background 0.2s, color 0.2s;
     }
-    .team-access-form button:hover {
-      background: rgba(0,240,255,0.25);
+    .team-access-form button:hover { background: rgba(0,212,230,0.25); }
+
+    /* ----- Banner productos en cabecera ----- */
+    .header-banner {
+      width: 100%;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-soft);
     }
-    .team-roles {
-      font-size: 0.7rem;
-      color: var(--muted);
-      margin-top: 2px;
+    .header-banner-track {
+      display: flex;
+      width: max-content;
+      animation: headerBannerScroll 40s linear infinite;
+      will-change: transform;
+    }
+    .header-banner-track:hover { animation-play-state: paused; }
+    @keyframes headerBannerScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .header-banner-slide {
+      flex-shrink: 0;
+      width: 100px;
+      height: 56px;
+      padding: 6px;
+    }
+    .header-banner-slide a {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .header-banner-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
+    /* ----- Hero ----- */
     .hero {
       position: relative;
-      padding: 36px 24px 40px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      z-index: 1;
+      padding: clamp(56px, 10vw, 88px) 24px clamp(64px, 12vw, 96px);
       text-align: center;
+      max-width: 900px;
+      margin: 0 auto;
     }
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      border: 1px solid rgba(0,240,255,0.25);
-      color: var(--accent);
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      margin-bottom: 24px;
+    .hero-brand { position: relative; display: inline-block; margin-bottom: 8px; }
+    .hero .hero-logo-wrap {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 6px;
     }
-    .hero .logo-hero {
-      height: 160px;
+    .hero .hero-logo {
+      display: block;
+      height: clamp(80px, 18vw, 140px);
       width: auto;
-      margin-bottom: 24px;
+      margin: 0 auto;
+      object-fit: contain;
     }
+    .hero .hero-logo-reflection {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%) scaleY(-1);
+      top: 100%;
+      margin-top: 4px;
+      height: 42%;
+      width: auto;
+      max-width: 100%;
+      object-fit: contain;
+      object-position: top;
+      opacity: 0.45;
+      filter: blur(2px);
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 75%);
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 75%);
+      pointer-events: none;
+    }
+    .hero .hero-title-wrap { position: relative; }
     .hero h1 {
       font-weight: 800;
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      letter-spacing: -0.02em;
-      line-height: 1.15;
-      margin-bottom: 14px;
-      max-width: 640px;
-      margin-left: auto;
-      margin-right: auto;
+      font-size: clamp(2.2rem, 5.5vw, 3.5rem);
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 16px;
     }
-    .hero-tagline {
+    .hero .hero-title-reflection {
+      display: block;
+      position: relative;
+      top: -0.15em;
+      transform: scaleY(-1);
+      font-weight: 800;
+      font-size: clamp(2.2rem, 5.5vw, 3.5rem);
+      letter-spacing: -0.03em;
+      line-height: 0.5;
+      opacity: 0.35;
+      filter: blur(1px);
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 70%);
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 70%);
+      pointer-events: none;
+      color: var(--text);
+    }
+    .hero .hero-promise {
       color: var(--accent);
-      font-size: 1.15rem;
-      font-weight: 600;
-      max-width: 520px;
-      margin: 0 auto 16px;
+      font-size: clamp(1.1rem, 2vw, 1.35rem);
+      font-weight: 700;
+      margin-bottom: 12px;
     }
-    .hero p {
-      color: var(--muted);
-      font-size: 1.1rem;
+    .hero .hero-sub {
+      color: var(--text-secondary);
+      font-size: clamp(0.95rem, 1.5vw, 1.1rem);
       line-height: 1.6;
-      max-width: 480px;
-      margin: 0 auto 40px;
+      margin-bottom: 12px;
     }
-    .ctas {
+    .hero .hero-sub-retiro {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-bottom: 20px;
+    }
+    .hero-authority {
       display: flex;
       flex-wrap: wrap;
-      gap: 16px;
       justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 32px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+    .hero-ctas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: center;
+      margin-bottom: 40px;
     }
     .btn-primary {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 10px;
-      padding: 16px 28px;
-      background: var(--yellow);
-      color: #0a0c10;
+      padding: 18px 32px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: var(--cta-primary);
+      color: var(--cta-primary-text);
       text-decoration: none;
+      font-family: inherit;
       font-weight: 800;
-      font-size: 0.95rem;
-      letter-spacing: 0.04em;
-      border-radius: 12px;
-      transition: transform 0.2s, box-shadow 0.2s;
+      font-size: 1rem;
+      letter-spacing: 0.03em;
+      transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+      box-shadow: 0 4px 20px rgba(245,196,0,0.25);
     }
     .btn-primary:hover {
+      background: var(--cta-primary-hover);
       transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(255,200,0,0.25);
+      box-shadow: 0 8px 28px rgba(245,196,0,0.35);
     }
     .btn-secondary {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 10px;
-      padding: 16px 28px;
-      background: var(--surface);
+      padding: 18px 32px;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--border);
+      background: var(--surface-glass);
       color: var(--text);
       text-decoration: none;
+      font-family: inherit;
       font-weight: 700;
-      font-size: 0.9rem;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      transition: border-color 0.2s, color 0.2s;
+      font-size: 1rem;
+      backdrop-filter: blur(8px);
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
     }
     .btn-secondary:hover {
       border-color: var(--accent);
       color: var(--accent);
+      background: var(--accent-soft);
     }
-    .footer {
+    .trust-chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+    .trust-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: var(--surface-glass);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .trust-chip:hover { border-color: rgba(0,212,230,0.4); background: var(--accent-soft); color: var(--text); }
+    .trust-chip svg { flex-shrink: 0; opacity: 0.9; }
+
+    /* ----- Section common ----- */
+    .section {
+      position: relative;
+      z-index: 1;
       max-width: 1200px;
       margin: 0 auto;
-      padding: 32px 24px 48px;
+      padding: var(--section-padding) 24px;
+    }
+    .section-title {
+      font-weight: 800;
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .section-sub {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      margin-bottom: 32px;
+    }
+
+    /* ----- Quiénes somos ----- */
+    .about-card {
+      background: linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: clamp(32px, 5vw, 48px);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 24px 48px -12px rgba(0,0,0,0.4);
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .about-card .section-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .about-card .section-title::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 32px;
+      border-radius: 2px;
+      background: linear-gradient(180deg, var(--accent), transparent);
+    }
+    .about-items {
+      display: grid;
+      gap: 24px;
+    }
+    .about-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .about-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .about-item:first-of-type { padding-top: 0; }
+    .about-item-icon {
+      flex-shrink: 0;
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-sm);
+      background: var(--accent-soft);
+      border: 1px solid rgba(0,212,230,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+    }
+    .about-item-icon svg { width: 26px; height: 26px; }
+    .about-item-text {
+      color: var(--text-secondary);
+      font-size: 1.08rem;
+      line-height: 1.75;
+    }
+    .about-item-text strong { color: var(--text); font-weight: 600; }
+    .about-item-text .accent { color: var(--accent); font-weight: 600; }
+
+    /* ----- Medios de pago ----- */
+    .payment-wrap {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 640px) { .payment-wrap { grid-template-columns: 1fr; } }
+    .payment-card {
+      background: var(--surface-glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
       text-align: center;
+      backdrop-filter: blur(12px);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .payment-card:hover { border-color: rgba(0,212,230,0.3); transform: translateY(-2px); }
+    .payment-card .ico-wrap {
+      width: 72px;
+      height: 48px;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+    }
+    .payment-card .ico-wrap img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .payment-card .ico-wrap.ico-transfer {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .payment-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+    .payment-card p { font-size: 0.9rem; color: var(--text-secondary); }
+    .payment-logos-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 1.5rem;
+      opacity: 0.8;
+    }
+    .payment-logos-row img {
+      height: 32px;
+      width: auto;
+      filter: brightness(1.1);
+    }
+    .payment-trust {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 0.9rem;
       color: var(--muted);
-      font-size: 0.85rem;
-      line-height: 1.8;
-      border-top: 1px solid var(--border);
     }
-    .footer p { margin: 0 0 4px; }
-    .footer-credits {
+    .payment-trust span { color: var(--text-secondary); }
+
+    /* ----- Cómo comprar ----- */
+    .steps-wrap {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    @media (max-width: 768px) { .steps-wrap { grid-template-columns: 1fr; } }
+    .step-card {
+      background: var(--surface-glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      text-align: center;
+      backdrop-filter: blur(12px);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .step-card:hover { border-color: rgba(0,212,230,0.3); transform: translateY(-2px); }
+    .step-num {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 1.2rem;
+    }
+    .step-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+    .step-card p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
+
+    /* ----- Mapa punto de retiro ----- */
+    .mapa-retiro {
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.3);
+      border: 1px solid var(--border);
+    }
+
+    /* ----- Contacto rápido ----- */
+    .contact-card {
+      background: var(--surface-glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      backdrop-filter: blur(16px);
+      text-align: center;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 24px 48px rgba(0,0,0,0.2);
+    }
+    .contact-card h2 { margin-bottom: 12px; }
+    .contact-card .contact-sub { color: var(--text-secondary); margin-bottom: 28px; }
+    .contact-info {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 24px 32px;
+      margin-bottom: 28px;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+    .contact-info span { display: flex; align-items: center; gap: 8px; }
+    .btn-wa-large {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 20px 40px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: #25d366;
+      color: #fff;
+      text-decoration: none;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 1.15rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(37,211,102,0.35);
+    }
+    .btn-wa-large:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(37,211,102,0.45);
+    }
+
+    /* ----- Productos destacados ----- */
+    .featured-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .featured-head .section-sub { margin-bottom: 0; }
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+    }
+    .product-card {
+      background: var(--surface-glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+    .product-card:hover {
+      border-color: rgba(0,212,230,0.35);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+    }
+    .product-card a.img-wrap {
       display: block;
-      margin-top: 12px;
-      font-size: 0.8rem;
-      opacity: 0.85;
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: var(--bg-soft);
     }
+    .product-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+    .product-card:hover img { transform: scale(1.05); }
+    .product-card .body { padding: 18px; }
+    .product-card .name { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; line-height: 1.3; }
+    .product-card .sku { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--accent); margin-bottom: 12px; }
+    .product-card .btn-consult {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--accent);
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-align: center;
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+    }
+    .product-card .btn-consult:hover { background: var(--accent-soft); color: var(--text); }
+
+    /* ----- Footer ----- */
+    .site-footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 48px 24px 32px;
+      background: rgba(10,12,16,0.6);
+    }
+    .footer-inner { max-width: 1200px; margin: 0 auto; }
+    .footer-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 32px;
+      margin-bottom: 32px;
+    }
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+    }
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-payment-icons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .footer-payment-icons span { margin-right: 4px; }
+    .footer-shipping {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+    .footer-bottom {
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .footer-credits { display: block; margin-top: 8px; font-size: 0.8rem; opacity: 0.85; }
+
+    /* ----- Sección SEO texto indexable ----- */
+    .seo-texto { max-width: 900px; margin-left: auto; margin-right: auto; }
+    /* ----- Categorías principales (enlaces SEO) ----- */
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 768px) { .categories-grid { grid-template-columns: 1fr; } }
+    .category-card {
+      display: block;
+      padding: 28px 24px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--surface-glass);
+      backdrop-filter: blur(12px);
+      text-align: center;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+    .category-card:hover {
+      border-color: rgba(0,212,230,0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+    }
+    .category-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+    .category-card p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
+    .seo-texto-inner { text-align: center; }
+    .seo-texto-inner p { margin-bottom: 1rem; color: var(--text-secondary); line-height: 1.7; }
+    .seo-texto-inner p:last-child { margin-bottom: 0; }
+
+    /* ----- WhatsApp flotante ----- */
     .wa-float {
       position: fixed;
-      left: 20px;
+      right: 20px;
       bottom: 20px;
       z-index: 60;
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 14px 18px;
+      padding: 14px 20px;
       border-radius: 999px;
-      background: rgba(0,230,118,0.12);
-      border: 1px solid rgba(0,230,118,0.3);
+      background: rgba(37,211,102,0.15);
+      border: 1px solid rgba(37,211,102,0.4);
       color: var(--text);
       text-decoration: none;
       font-weight: 700;
@@ -284,207 +791,39 @@
       box-shadow: 0 8px 32px rgba(0,0,0,0.4);
       transition: box-shadow 0.2s, transform 0.2s;
     }
-    .wa-float:hover { box-shadow: 0 12px 40px rgba(0,230,118,0.25); transform: translateY(-2px); }
-    .video-banner {
-      width: 100%;
-      max-height: 280px;
-      object-fit: cover;
-      display: block;
-      background: #000;
-    }
-    .video-banner-wrap {
-      position: relative;
-      width: 100%;
-      overflow: hidden;
-    }
-    .video-banner-wrap.video-secondary {
-      max-width: 800px;
-      margin: 0 auto;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-    }
-    .shipping-announce {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 12px 24px;
-      background: linear-gradient(90deg, rgba(0,240,255,0.08), rgba(0,230,118,0.08));
-      border-bottom: 1px solid var(--border);
-      color: var(--accent);
-      font-weight: 700;
-      font-size: 0.9rem;
-      letter-spacing: 0.04em;
-    }
-    .shipping-announce span { color: var(--text); }
+    .wa-float:hover { box-shadow: 0 12px 40px rgba(37,211,102,0.3); transform: translateY(-2px); }
 
-    .section { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
-    .section-title {
-      font-weight: 800;
-      font-size: 1.4rem;
-      letter-spacing: -0.02em;
-      margin-bottom: 20px;
-      text-align: center;
+    /* ----- Animaciones suaves ----- */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(12px);
+      animation: fadeIn 0.6s ease forwards;
     }
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
+    @keyframes fadeIn {
+      to { opacity: 1; transform: translateY(0); }
     }
-    .feature-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 20px;
-      text-align: center;
-      transition: border-color 0.2s, transform 0.2s;
-    }
-    .feature-card:hover {
-      border-color: rgba(0,240,255,0.3);
-      transform: translateY(-2px);
-    }
-    .feature-icon {
-      font-size: 2rem;
-      margin-bottom: 10px;
-      line-height: 1;
-    }
-    .feature-card h3 {
-      font-size: 0.95rem;
-      font-weight: 700;
-      margin-bottom: 6px;
-      color: var(--text);
-    }
-    .feature-card p {
-      font-size: 0.8rem;
-      color: var(--muted);
-      line-height: 1.45;
-      margin: 0;
-    }
-    .promo-banner {
-      background: linear-gradient(135deg, rgba(0,240,255,0.1), rgba(120,80,255,0.08));
-      border: 1px solid rgba(0,240,255,0.2);
-      border-radius: 16px;
-      padding: 24px 32px;
-      margin: 24px 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-    .promo-banner p {
-      margin: 0;
-      font-size: 1rem;
-      color: var(--text);
-    }
-    .promo-banner strong { color: var(--accent); }
-    .promo-banner.promo-link {
-      text-decoration: none;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .promo-banner.promo-link:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,240,255,0.15);
-    }
-    .trust-strip {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 24px 40px;
-      padding: 20px 24px;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-    }
-    .trust-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
-    .trust-item span:first-child { font-size: 1.2rem; }
-    .cta-banner {
-      text-align: center;
-      padding: 28px 24px;
-      background: linear-gradient(180deg, transparent, var(--surface));
-    }
-    .cta-banner p {
-      color: var(--muted);
-      font-size: 0.95rem;
-      margin-bottom: 16px;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .hero .logo-hero { height: 100px; margin-bottom: 16px; }
-    .hero h1 { margin-bottom: 10px; }
-    .hero p { margin: 0 auto 24px; }
-    .hero .hero-tagline { margin-bottom: 12px; }
-    .banners-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-      margin-top: 16px;
-    }
-    .banner-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
-    }
-    .banner-card:hover {
-      border-color: rgba(0,240,255,0.35);
-      transform: translateY(-3px);
-      box-shadow: 0 12px 32px rgba(0,240,255,0.12);
-    }
-    .banner-card a {
-      display: block;
-      text-decoration: none;
-      color: inherit;
-    }
-    .banner-card img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      display: block;
-    }
-    .banner-card .banner-caption {
-      padding: 14px 18px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text);
-      text-align: center;
-    }
-    .banner-card .banner-caption span { color: var(--accent); }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
   </style>
 </head>
 <body>
   <div class="bg-mesh" aria-hidden="true"></div>
-  <div class="grid-bg" aria-hidden="true"></div>
-
-  <div class="shipping-announce">
-    <span>🚚 Envío a todo Chile — Llevamos tus repuestos a cada rincón del país</span>
-  </div>
+  <div class="grid-overlay" aria-hidden="true"></div>
 
   <header class="header">
     <div class="header-inner">
-      <a class="logo-link" href="/">
-        <img src="/media/logomonteazul.png" alt="">
+      <a class="logo-link" href="{% url 'core:home' %}">
+        <img src="/media/logomonteazul.png" alt="Monteazul SPA">
         <span>
           <span class="logo-text">Monteazul SPA</span>
-          <div class="logo-sub">monteazulspa.cl</div>
+          <div class="logo-sub">Ingeniería en escapes</div>
         </span>
       </a>
-      <nav class="nav">
-        <a href="{% url 'catalog:product_list' %}">Centro de compra</a>
-        <a href="{% url 'core:vehicle_search' %}">Buscar por vehículo</a>
-      </nav>
       <div class="team-access">
         <span class="team-access-sep" aria-hidden="true"></span>
         <div>
-          <div class="team-access-label">equipo monteazul</div>
+          <div class="team-access-label">Equipo Monteazul</div>
         </div>
         <form class="team-access-form" method="post" action="{% url 'admin:login' %}">
           {% csrf_token %}
@@ -495,106 +834,293 @@
         </form>
       </div>
     </div>
+    {% if hero_product_images %}
+    <div class="header-banner" aria-label="Productos Monteazul">
+      <div class="header-banner-track">
+        {% for slide in hero_product_images %}
+        <div class="header-banner-slide">
+          <a href="{{ slide.url }}" title="{{ slide.name }}">
+            <img src="{{ slide.image_url }}" alt="{{ slide.sku }}" loading="lazy">
+          </a>
+        </div>
+        {% endfor %}
+        {% for slide in hero_product_images %}
+        <div class="header-banner-slide">
+          <a href="{{ slide.url }}" title="{{ slide.name }}">
+            <img src="{{ slide.image_url }}" alt="{{ slide.sku }}" loading="lazy">
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
   </header>
 
-  <div class="video-banner-wrap">
-    <video class="video-banner" src="/media/video_intro.mp4" autoplay muted loop playsinline aria-label="Video introductorio Monteazul SPA"></video>
-  </div>
-
-  <main class="hero">
-    <img class="logo-hero" src="/media/logomonteazul.png" alt="Monteazul SPA">
-    <h1>Bienvenido a Monteazul SPA</h1>
-    <p class="hero-tagline">Especialistas en repuestos de escape para tu vehículo</p>
-    <p>Catalíticos, silenciadores, tubos flexibles y más. Todo con compatibilidad verificada por año, marca, modelo y motor. Calidad garantizada y envío a todo Chile.</p>
-    <div class="ctas">
-      <a href="{% url 'catalog:product_list' %}" class="btn-primary">Ir al centro de compra</a>
-      <a href="{% url 'core:vehicle_search' %}" class="btn-secondary">Buscar por tipo de vehículo</a>
+  <nav class="nav-bar-sticky" aria-label="Navegación principal">
+    <div class="nav-bar-inner">
+      <a href="{% url 'core:home' %}" class="nav-bar-link here">Inicio</a>
+      <a href="{% url 'catalog:product_list' %}" class="nav-bar-link">Productos</a>
+      <a href="{% url 'core:vehicle_search' %}" class="nav-bar-link">Buscar por vehículo</a>
+      {% for cat in header_categories %}
+      <a href="{% url 'catalog:product_list' %}?cat={{ cat.slug }}" class="nav-bar-link">
+        {% if cat.slug == "cataliticos" %}Convertidores Catalíticos
+        {% elif cat.slug == "flexibles" %}Flexibles
+        {% elif cat.slug == "resonadores" %}Resonadores
+        {% elif cat.slug == "silenciadores" or cat.slug == "silenciadores-alto-flujo" %}Silenciadores de Alto Flujo
+        {% else %}{{ cat.name }}{% endif %}
+      </a>
+      {% endfor %}
+      <a href="#contacto" class="nav-bar-link">Contacto</a>
     </div>
+  </nav>
+
+  <main>
+    <!-- 1) HERO -->
+    <section class="hero">
+      <div class="hero-brand fade-in">
+        <div class="hero-logo-wrap">
+          <img src="/media/logomonteazul.png" alt="Monteazul SPA" class="hero-logo" width="280" height="140">
+          <img src="/media/logomonteazul.png" alt="Reflejo logo MonteAzul" class="hero-logo-reflection" aria-hidden="true" width="280" height="140">
+        </div>
+      </div>
+      <div class="hero-title-wrap fade-in">
+        <h1>Venta de Catalíticos en Chile – Universales y Diesel</h1>
+      </div>
+      <p class="hero-promise fade-in delay-1">Venta de repuestos de escape automotriz. Compra online y retira en bodega en Macul o recibe despacho a todo Chile.</p>
+      <p class="hero-sub hero-sub-retiro fade-in delay-1">📦 Retiro y pago en bodega en Macul • 🚚 Envíos a todo Chile</p>
+      <div class="hero-authority fade-in delay-1">
+        <span>✔ Fundada en 2016</span>
+        <span>✔ Especialistas en sistema de escape</span>
+        <span>✔ Envíos a todo Chile</span>
+      </div>
+      <div class="hero-ctas fade-in delay-2">
+        <a href="https://wa.me/{{ whatsapp_number }}?text=Hola%20Monteazul%2C%20quiero%20cotizar%20repuestos%20de%20escape%20para%20mi%20veh%C3%ADculo" class="btn-primary" target="_blank" rel="noopener">Cotizar por WhatsApp</a>
+        <a href="{% url 'core:vehicle_search' %}" class="btn-secondary">Buscar por vehículo</a>
+      </div>
+      <div class="trust-chips fade-in delay-3">
+        <span class="trust-chip">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          Envío a todo Chile
+        </span>
+        <span class="trust-chip">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Compatibilidad verificada
+        </span>
+        <span class="trust-chip">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+          Repuestos premium
+        </span>
+        <span class="trust-chip">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+          Soporte experto
+        </span>
+      </div>
+    </section>
+
+    <!-- 2) Sección SEO debajo del hero -->
+    <section class="section seo-texto seo-home" id="seo-home">
+      <h2 class="section-title" style="text-align: center;">Especialistas en Catalíticos y Sistemas de Escape en Chile</h2>
+      <div class="seo-texto-inner">
+        <p>
+          En MonteAzul SPA ofrecemos venta de catalíticos universales, catalíticos diesel Euro 4 y Euro 5, flexibles de escape y componentes de alto flujo para vehículos livianos y comerciales.
+          Trabajamos con modelos compatibles para distintas marcas y motores, asegurando rendimiento, reducción de emisiones y cumplimiento normativo.
+        </p>
+        <p>
+          Realizamos envíos a todo Chile y contamos con stock permanente de catalíticos TWG, CLF y soluciones para bencina y diesel.
+        </p>
+      </div>
+    </section>
+
+    <!-- 3) Categorías principales -->
+    <section class="section" id="categorias">
+      <h2 class="section-title" style="text-align: center;">Explora por categoría</h2>
+      <p class="section-sub" style="text-align: center; margin-bottom: 28px;">Catalíticos universales, diesel y flexibles de escape</p>
+      <div class="categories-grid">
+        <a href="{% url 'catalog:product_list' %}?cat=cataliticos-twc-diesel" class="category-card" title="Catalíticos Diesel Euro 4 y Euro 5">
+          <h3>Catalíticos Diesel</h3>
+          <p>Euro 4 y Euro 5 para vehículos diésel. TWG y modelos compatibles.</p>
+        </a>
+        <a href="{% url 'catalog:product_list' %}?cat=cataliticos-twc" class="category-card" title="Catalíticos Universales para bencina">
+          <h3>Catalíticos Universales</h3>
+          <p>Euro 3, Euro 4 y Euro 5 para bencina. TWG redondos y ovalados.</p>
+        </a>
+        <a href="{% url 'catalog:product_list' %}?cat=flexibles" class="category-card" title="Flexibles de escape reforzados">
+          <h3>Flexibles de Escape</h3>
+          <p>Tubos flexibles reforzados y con extensión. Varias medidas.</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- 4) Quiénes somos -->
+    <section class="section" id="quienes-somos">
+      <div class="about-card">
+        <h2 class="section-title">¿Quiénes somos?</h2>
+        <div class="about-items">
+          <div class="about-item">
+            <div class="about-item-icon" aria-hidden="true">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <p class="about-item-text"><strong>Especialistas en sistemas de escape para vehículos:</strong> catalíticos, silenciadores, tubos flexibles y más.</p>
+          </div>
+          <div class="about-item">
+            <div class="about-item-icon" aria-hidden="true">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <p class="about-item-text"><span class="accent">Asesoría real</span> y compatibilidad verificada por año, marca, modelo y motor. No vendemos por catálogo genérico: <strong>te mostramos lo que calza en tu auto.</strong></p>
+          </div>
+          <div class="about-item">
+            <div class="about-item-icon" aria-hidden="true">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            </div>
+            <p class="about-item-text"><strong>Despacho a todo Chile.</strong> Atención directa por WhatsApp para cotizaciones y dudas técnicas.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3) Medios de pago -->
+    <section class="section">
+      <h2 class="section-title">Paga como quieras</h2>
+      <p class="section-sub">Débito, crédito y transferencias bancarias</p>
+      <div class="payment-wrap">
+        <div class="payment-card">
+          <div class="ico-wrap">
+            <img src="{% static 'img/visa.svg' %}" alt="Visa" width="72" height="48">
+          </div>
+          <h3>Visa</h3>
+          <p>Débito y crédito</p>
+        </div>
+        <div class="payment-card">
+          <div class="ico-wrap">
+            <img src="{% static 'img/mastercard.svg' %}" alt="Mastercard" width="72" height="48">
+          </div>
+          <h3>Mastercard</h3>
+          <p>Débito y crédito</p>
+        </div>
+        <div class="payment-card">
+          <div class="ico-wrap ico-transfer">
+            <img src="{% static 'img/transferencia.svg' %}" alt="Transferencia bancaria" width="72" height="48">
+          </div>
+          <h3>Transferencia</h3>
+          <p>Transferencias bancarias</p>
+        </div>
+      </div>
+      <div class="payment-logos-row">
+        <img src="{% static 'img/visa.svg' %}" alt="Visa" width="48" height="32">
+        <img src="{% static 'img/mastercard.svg' %}" alt="Mastercard" width="48" height="32">
+        <img src="{% static 'img/debito.svg' %}" alt="Débito" width="48" height="32">
+        <img src="{% static 'img/transferencia.svg' %}" alt="Transferencia bancaria" width="48" height="32">
+      </div>
+      <p class="payment-trust"><span>Compra segura</span> • Comprobante y respaldo • Atención directa</p>
+    </section>
+
+    <!-- 4) Cómo comprar -->
+    <section class="section">
+      <h2 class="section-title">Cómo comprar</h2>
+      <div class="steps-wrap">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <h3>Busca por vehículo o catálogo</h3>
+          <p>Usa el buscador por año, marca y modelo o explora el catálogo completo.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <h3>Confirma compatibilidad con asesor</h3>
+          <p>Te ayudamos por WhatsApp a confirmar que el repuesto calza en tu vehículo.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <h3>Pagas y despachamos a tu región</h3>
+          <p>Débito, crédito o transferencia. Enviamos a todo Chile.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4b) Punto de retiro en Macul -->
+    <section class="section" id="punto-retiro">
+      <h2 class="section-title">📍 Punto de retiro en Macul</h2>
+      <p class="section-sub" style="margin-bottom: 1rem;">Compra online y retira directamente en nuestra bodega. También puedes pagar al momento del retiro.</p>
+      <p class="section-sub" style="margin-bottom: 0.5rem;"><strong>Dirección:</strong> Exequiel Fernández 3663 Of. 6, Macul, Santiago</p>
+      <p class="section-sub" style="margin-bottom: 1.5rem;"><strong>Horario:</strong> Lunes a Viernes 9:00 – 18:00</p>
+      <div class="mapa-retiro">
+        <iframe
+          src="https://www.google.com/maps?q=Exequiel+Fern%C3%A1ndez+3663+Of+6,+Macul,+Santiago,+Chile&output=embed"
+          width="100%"
+          height="350"
+          style="border:0;"
+          allowfullscreen=""
+          loading="lazy"
+          title="Ubicación Monteazul SPA Macul">
+        </iframe>
+      </div>
+    </section>
+
+    <!-- 5) Contacto rápido -->
+    <section class="section" id="contacto">
+      <div class="contact-card">
+        <h2 class="section-title">Contacto rápido</h2>
+        <p class="contact-sub">Respuesta directa por WhatsApp. También puedes visitarnos en Providencia.</p>
+        <div class="contact-info">
+          <span>📍 Barros Borgoño 71, Providencia, Santiago</span>
+          <span>🕐 Atención por WhatsApp</span>
+        </div>
+        <a href="https://wa.me/{{ whatsapp_number }}?text=Hola%20Monteazul%2C%20quiero%20cotizar%20o%20consultar%20repuestos%20de%20escape" class="btn-wa-large" target="_blank" rel="noopener">Escribir por WhatsApp</a>
+      </div>
+    </section>
+
+    <!-- 6) Productos destacados -->
+    <section class="section">
+      <div class="featured-head">
+        <div>
+          <h2 class="section-title">Lo más vendido esta semana</h2>
+          <p class="section-sub">Repuestos de escape con compatibilidad verificada</p>
+        </div>
+        <a href="{% url 'catalog:product_list' %}" class="btn-secondary">Ver todo el catálogo</a>
+      </div>
+      <div class="product-grid">
+        {% for p in featured_products %}
+        <article class="product-card">
+          <a class="img-wrap" href="{{ p.url }}" title="{{ p.name }}">
+            <img src="{{ p.image_url }}" alt="{{ p.name }} — {{ p.sku }}" loading="lazy">
+          </a>
+          <div class="body">
+            <div class="name">{{ p.name }}</div>
+            <div class="sku">{{ p.sku }}</div>
+            <a href="https://wa.me/{{ whatsapp_number }}?text=Hola%2C%20consulto%20compatibilidad%20del%20producto%20{{ p.sku|urlencode }}%20-%20{{ p.name|urlencode }}" class="btn-consult" target="_blank" rel="noopener">Consultar compatibilidad</a>
+          </div>
+        </article>
+        {% empty %}
+        <p class="section-sub">Próximamente más productos destacados.</p>
+        {% endfor %}
+      </div>
+    </section>
   </main>
 
-  <div class="trust-strip">
-    <div class="trust-item"><span>🚚</span> Envío a todo Chile</div>
-    <div class="trust-item"><span>✓</span> Compatibilidad verificada</div>
-    <div class="trust-item"><span>🔧</span> Año, marca, modelo, motor</div>
-    <div class="trust-item"><span>📦</span> Repuestos de calidad</div>
-  </div>
-
-  <section class="section">
-    <h2 class="section-title">¿Por qué elegir Monteazul?</h2>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">🔍</div>
-        <h3>Busca por tu vehículo</h3>
-        <p>Ingresa año, marca, modelo y motor. Te mostramos solo los repuestos que calzan en tu auto.</p>
+  <!-- 7) Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <nav class="footer-links">
+          <a href="{% url 'catalog:product_list' %}">Productos</a>
+          <a href="{% url 'core:vehicle_search' %}">Buscar por vehículo</a>
+          <a href="{% url 'catalog:product_list' %}?cat=cataliticos">Catalíticos</a>
+          <a href="#contacto">Contacto</a>
+        </nav>
+        <div class="footer-payment-icons">
+          <span>Medios de pago:</span>
+          <span title="Débito">💳</span>
+          <span title="Crédito">💳</span>
+          <span title="Transferencia">🏦</span>
+        </div>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">📋</div>
-        <h3>Catálogo completo</h3>
-        <p>Catalíticos, silenciadores, flexibles, extensiones y más. Todo lo que necesitas para tu escape.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🚀</div>
-        <h3>Envío nacional</h3>
-        <p>Despachamos a todas las regiones de Chile. Tu pedido llega seguro y en los plazos acordados.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">⚙️</div>
-        <h3>Ingeniería en escapes</h3>
-        <p>Desde 2016 especializados en el rubro. Conocimiento técnico y asesoría profesional.</p>
+      <p class="footer-shipping">Envíos a todo Chile</p>
+      <div class="footer-bottom">
+        © {% now "Y" %} Monteazul SPA • Retiro y pago en bodega: <a href="https://www.google.com/maps/search/?api=1&query=Exequiel%20Fern%C3%A1ndez%203663%20Of%206%2C%20Macul%2C%20Santiago%2C%20Chile" target="_blank" rel="noopener" style="color: rgba(255,255,255,0.95); text-decoration: underline;">Exequiel Fernández 3663 Of. 6, Macul, Santiago</a> • Oficina Corporativa: Barros Borgoño 71, Providencia, Santiago • Fundada 07/06/2016
+        <span class="footer-credits">Sitio creado por <strong>Atlanta Global Solutions</strong></span>
       </div>
     </div>
-  </section>
-
-  <section class="section">
-    <h2 class="section-title">Productos destacados</h2>
-    <div class="banners-grid">
-      <div class="banner-card">
-        <a href="{% url 'catalog:product_list' %}">
-          <img src="/media/banners/banner_twcat003.png" alt="Catalítico TWCAT003 - Monteazul SPA">
-          <div class="banner-caption">Catalítico <span>TWCAT003</span></div>
-        </a>
-      </div>
-      <div class="banner-card">
-        <a href="{% url 'catalog:product_list' %}">
-          <img src="/media/banners/banner_twcat052.png" alt="Catalítico TWCAT052 - Monteazul SPA">
-          <div class="banner-caption">Catalítico <span>TWCAT052</span></div>
-        </a>
-      </div>
-      <div class="banner-card">
-        <a href="{% url 'catalog:product_list' %}">
-          <img src="/media/banners/banner_3x6.png" alt="Tubo flexible 3x6 - Monteazul SPA">
-          <div class="banner-caption">Tubo flexible <span>3x6</span></div>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <div class="section">
-    <h2 class="section-title">Más piezas para tu escape</h2>
-    <div class="video-banner-wrap video-secondary">
-      <video class="video-banner" src="/media/faltan_piezas_video.mp4" controls playsinline aria-label="Más piezas Monteazul SPA"></video>
-    </div>
-  </div>
-
-  <div class="section">
-    <a href="https://wa.me/{{ whatsapp_number }}?text=Hola%20Monteazul%2C%20necesito%20ayuda%20para%20encontrar%20el%20repuesto%20correcto%20para%20mi%20veh%C3%ADculo" target="_blank" rel="noopener" class="promo-banner promo-link">
-      <p><strong>¿No encuentras tu vehículo?</strong> Contáctanos por WhatsApp y te ayudamos a ubicar el repuesto correcto para tu modelo.</p>
-    </a>
-  </div>
-
-  <div class="cta-banner">
-    <p>Explora nuestro catálogo o usa el buscador para ver solo los productos compatibles con tu vehículo.</p>
-    <div class="ctas">
-      <a href="{% url 'catalog:product_list' %}" class="btn-primary">Ver catálogo</a>
-      <a href="{% url 'core:vehicle_search' %}" class="btn-secondary">Buscar por vehículo</a>
-    </div>
-  </div>
-
-  <a class="wa-float" href="https://wa.me/{{ whatsapp_number }}?text=Hola%20Monteazul%2C%20quiero%20contactar%20a%20un%20vendedor" target="_blank" rel="noopener" title="Contactar vendedor por WhatsApp">💬 Contactar vendedor</a>
-
-  <footer class="footer">
-    <p>© 2026 Monteazul Spa • Barros Borgono 71, Providencia, Santiago, Región Metropolitana • Fundada 07/06/2016</p>
-    <span class="footer-credits">Sitio creado por <strong>Atlanta Holding</strong></span>
   </footer>
+
+  <a class="wa-float" href="https://wa.me/{{ whatsapp_number }}?text=Hola%20Monteazul%2C%20quiero%20contactar%20a%20un%20vendedor" target="_blank" rel="noopener" title="Contactar por WhatsApp">💬 WhatsApp</a>
 </body>
 </html>

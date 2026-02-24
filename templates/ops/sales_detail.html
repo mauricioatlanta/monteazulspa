@@ -1,0 +1,48 @@
+{% extends "ops/base_ops.html" %}
+{% block ops_content %}
+<h1 style="margin-bottom:1rem;">Orden #{{ order.pk }}</h1>
+<div class="ops-card">
+    <p><strong>Cliente:</strong> {{ order.customer }}</p>
+    <p><strong>Estado:</strong> <span class="badge badge-{{ order.status|lower }}">{{ order.get_status_display }}</span></p>
+    <p><strong>Fecha:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
+    <p><strong>Subtotal:</strong> $ {{ order.subtotal|floatformat:0 }}</p>
+    <p><strong>Descuento:</strong> $ {{ order.discount_total|floatformat:0 }}</p>
+    <p><strong>Impuesto:</strong> $ {{ order.tax_total|floatformat:0 }}</p>
+    <p><strong>Total:</strong> $ {{ order.total|floatformat:0 }}</p>
+    {% if order.status == 'CANCELLED' and order.cancel_reason %}
+    <p><strong>Motivo anulación:</strong> {{ order.cancel_reason }}</p>
+    <p><strong>Anulada:</strong> {{ order.cancelled_at|date:"d/m/Y H:i" }}</p>
+    {% elif order.status != 'CANCELLED' %}
+    <form method="post" action="{% url 'ops:sales_cancel' order.pk %}" style="margin-top:1rem;">
+        {% csrf_token %}
+        <label>Motivo de anulación:</label><br>
+        <textarea name="cancel_reason" rows="3" required style="width:100%; max-width:400px; padding:0.5rem; border-radius:6px; background:#0a0c10; color:#e8ecf4; border:1px solid rgba(255,255,255,0.15);"></textarea><br>
+        <button type="submit" class="btn btn-danger" style="margin-top:0.5rem;">Anular orden</button>
+    </form>
+    {% endif %}
+</div>
+<div class="ops-card">
+    <h2>Líneas</h2>
+    <table class="ops-table">
+        <thead>
+            <tr><th>Producto</th><th>Cantidad</th><th>P. unit.</th><th>Desc. %</th><th>Desc. $</th><th>Costo snapshot</th><th>Garantía hasta</th></tr>
+        </thead>
+        <tbody>
+        {% for item in order.items.all %}
+        <tr>
+            <td>{{ item.product.sku }} – {{ item.product.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>$ {{ item.unit_price_applied|floatformat:0 }}</td>
+            <td>{{ item.discount_percent_applied }}%</td>
+            <td>$ {{ item.discount_amount_applied|floatformat:0 }}</td>
+            <td>$ {{ item.cost_price_snapshot|floatformat:0 }}</td>
+            <td>{{ item.warranty_expiration_date|date:"d/m/Y"|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7">Sin ítems.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<p><a href="{% url 'ops:sales_list' %}" class="btn btn-secondary">Volver a ventas</a></p>
+{% endblock %}

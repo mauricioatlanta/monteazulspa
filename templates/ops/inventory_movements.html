@@ -1,0 +1,225 @@
+{% extends "ops/base_ops.html" %}
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --inv-bg-dark: #060b15;
+  --inv-bg-gradient: linear-gradient(145deg, #0b1220 0%, #060b15 100%);
+  --inv-glass-bg: rgba(15, 25, 45, 0.6);
+  --inv-glass-border: rgba(0, 180, 255, 0.2);
+  --inv-glass-glow: rgba(0, 180, 255, 0.08);
+  --inv-accent: #00b4ff;
+  --inv-accent-dim: rgba(0, 180, 255, 0.15);
+  --inv-text: #e8ecf4;
+  --inv-text-muted: rgba(255, 255, 255, 0.65);
+  --inv-success: #22c55e;
+  --inv-warning: #f59e0b;
+  --inv-danger: #ef4444;
+}
+
+.inv-wrapper {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--inv-bg-gradient);
+  min-height: calc(100vh - 120px);
+  padding: 0;
+  margin: 0 -1rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.inv-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 320px;
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0, 180, 255, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.inv-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.inv-header {
+  margin-bottom: 1.5rem;
+}
+
+.inv-header h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+  color: var(--inv-text);
+  margin-bottom: 0.25rem;
+}
+
+.inv-header .subtitle { font-size: 0.9rem; color: var(--inv-text-muted); }
+
+.inv-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: var(--inv-accent-dim);
+  color: var(--inv-accent);
+  border: 1px solid var(--inv-glass-border);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.inv-back:hover {
+  background: rgba(0, 180, 255, 0.25);
+  border-color: var(--inv-accent);
+}
+
+.inv-panel {
+  background: var(--inv-glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--inv-glass-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 25px var(--inv-glass-glow);
+}
+
+.inv-panel-title {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  color: var(--inv-text);
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--inv-glass-border);
+  background: rgba(0,0,0,0.15);
+}
+
+.inv-table-wrap { overflow-x: auto; }
+
+.inv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.inv-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  color: var(--inv-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.75rem;
+  border-bottom: 1px solid var(--inv-glass-border);
+  background: rgba(0,0,0,0.2);
+}
+
+.inv-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  color: var(--inv-text);
+}
+
+.inv-table tbody tr:hover { background: rgba(0, 180, 255, 0.06); }
+
+.inv-table .sku { font-family: 'JetBrains Mono', monospace; font-weight: 500; color: var(--inv-accent); }
+.inv-table .date { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--inv-text-muted); }
+
+.inv-table .badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.inv-table .badge-in { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+.inv-table .badge-out { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+.inv-table .badge-adjustment { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+.inv-table .badge-return { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+.inv-table .badge-warranty_return { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+
+.inv-table .qty-positive { color: var(--inv-success); font-weight: 600; }
+.inv-table .qty-negative { color: var(--inv-danger); font-weight: 600; }
+
+.inv-table a.order-link {
+  color: var(--inv-accent);
+  text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+}
+.inv-table a.order-link:hover { text-decoration: underline; }
+
+.inv-empty {
+  padding: 3rem 2rem;
+  text-align: center;
+  color: var(--inv-text-muted);
+}
+</style>
+{% endblock %}
+
+{% block ops_content %}
+<div class="inv-wrapper">
+  <div class="inv-main">
+    <header class="inv-header">
+      {% if product_id %}
+      <a href="{% url 'ops:inventory_list' %}" class="inv-back">← Volver al inventario</a>
+      {% endif %}
+      <h1>📋 Movimientos de stock</h1>
+      <p class="subtitle">Historial de entradas, salidas y ajustes</p>
+    </header>
+
+    <div class="inv-panel">
+      <div class="inv-panel-title">Últimos 100 movimientos</div>
+      <div class="inv-table-wrap">
+        <table class="inv-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Producto</th>
+              <th>Tipo</th>
+              <th>Cantidad</th>
+              <th>Orden</th>
+              <th>Motivo</th>
+              <th>Usuario</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for m in movements %}
+            <tr>
+              <td class="date">{{ m.created_at|date:"d/m/Y H:i" }}</td>
+              <td class="sku">{{ m.product.sku }}</td>
+              <td><span class="badge badge-{{ m.movement_type|lower }}">{{ m.get_movement_type_display }}</span></td>
+              <td class="{% if m.quantity > 0 %}qty-positive{% else %}qty-negative{% endif %}">{{ m.quantity }}</td>
+              <td>
+                {% if m.related_order %}
+                <a href="{% url 'ops:sales_detail' m.related_order_id %}" class="order-link">#{{ m.related_order_id }}</a>
+                {% else %}—{% endif %}
+              </td>
+              <td>{{ m.reason|default:"—" }}</td>
+              <td>{{ m.created_by.get_username|default:"—" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="inv-empty">No hay movimientos.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p style="margin-top:1rem;">
+      <a href="{% url 'ops:inventory_list' %}" class="inv-back">← Centro de inventario</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

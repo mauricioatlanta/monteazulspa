@@ -1,0 +1,339 @@
+{% extends "ops/base_ops.html" %}
+{% block extra_head %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+    /* —— Página Convertidores Catalíticos: Centro de Control —— */
+    body {
+        background: radial-gradient(
+            circle at 20% 20%,
+            #0a1f2d 0%,
+            #07121a 35%,
+            #050c12 70%,
+            #03070b 100%
+        );
+        background-attachment: fixed;
+        color: #e8faff;
+        font-family: 'Orbitron', 'Rajdhani', sans-serif;
+    }
+    body::before {
+        content: "";
+        position: fixed;
+        width: 600px;
+        height: 600px;
+        top: -200px;
+        right: -200px;
+        background: radial-gradient(circle, rgba(0, 255, 200, 0.08), transparent 70%);
+        filter: blur(120px);
+        z-index: -1;
+    }
+
+    .catalog-admin-wrap {
+        max-width: 960px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+    }
+    .catalog-admin-wrap h1 {
+        font-size: 48px;
+        font-weight: 700;
+        background: linear-gradient(90deg, #00e5ff, #00ffaa);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 20px rgba(0, 255, 200, 0.25);
+        margin-bottom: 0;
+        letter-spacing: 0.02em;
+    }
+    .section-divider {
+        width: 120px;
+        height: 4px;
+        background: linear-gradient(90deg, #00e5ff, transparent);
+        border-radius: 10px;
+        margin-top: 10px;
+        margin-bottom: 24px;
+    }
+    .breadcrumb-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 24px;
+        font-size: 0.9rem;
+        color: rgba(232, 250, 255, 0.6);
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+    }
+    .breadcrumb-bar a {
+        color: rgba(232, 250, 255, 0.7);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    .breadcrumb-bar a:hover {
+        color: #00e5ff;
+    }
+    .catalog-admin-wrap .intro-text {
+        color: rgba(232, 250, 255, 0.7);
+        margin-bottom: 32px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 1.05rem;
+    }
+
+    /* —— Cards: vidrio, profundidad, hover, barrido —— */
+    .euro-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 24px;
+    }
+    .catalog-card {
+        background: rgba(10, 20, 30, 0.75);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid rgba(0, 255, 200, 0.2);
+        border-radius: 18px;
+        padding: 40px 28px;
+        transition: all 0.35s ease;
+        position: relative;
+        overflow: hidden;
+        animation: fadeUp 0.6s ease forwards;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .catalog-card:nth-child(1) { animation-delay: 0.05s; }
+    .catalog-card:nth-child(2) { animation-delay: 0.12s; }
+    .catalog-card:nth-child(3) { animation-delay: 0.19s; }
+    .catalog-card:nth-child(4) { animation-delay: 0.26s; }
+    .catalog-card:nth-child(5) { animation-delay: 0.33s; }
+    .catalog-card:nth-child(n+6) { animation-delay: 0.4s; }
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .catalog-card::after {
+        content: "";
+        position: absolute;
+        width: 120px;
+        height: 120%;
+        top: -10%;
+        left: -60px;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(0, 255, 200, 0.2),
+            transparent
+        );
+        transform: rotate(25deg);
+        transition: 0.5s;
+        pointer-events: none;
+    }
+    .catalog-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        border: 1px solid rgba(0, 255, 200, 0.6);
+        box-shadow:
+            0 10px 40px rgba(0, 255, 200, 0.15),
+            0 0 20px rgba(0, 255, 200, 0.2);
+    }
+    .catalog-card:hover::after {
+        left: 110%;
+    }
+    /* —— Carrusel tipo “video” con imágenes en movimiento —— */
+    .card-reel-wrap {
+        width: 100%;
+        height: 140px;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 16px;
+        background: rgba(0, 20, 35, 0.8);
+        border: 1px solid rgba(0, 255, 200, 0.15);
+        position: relative;
+    }
+    .card-reel-wrap::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, rgba(5,12,18,0.95) 0%, transparent 15%, transparent 85%, rgba(5,12,18,0.95) 100%);
+        pointer-events: none;
+        z-index: 2;
+    }
+    .card-reel {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        width: max-content;
+        animation: reelScroll 28s linear infinite;
+    }
+    .card-reel.paused {
+        animation-play-state: paused;
+    }
+    .catalog-card:hover .card-reel {
+        animation-duration: 18s;
+    }
+    @keyframes reelScroll {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+    .card-reel img {
+        height: 100%;
+        width: auto;
+        max-width: 160px;
+        min-width: 100px;
+        object-fit: cover;
+        flex-shrink: 0;
+        display: block;
+    }
+    .card-reel-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(0, 255, 200, 0.35);
+        font-size: 2.5rem;
+    }
+    .catalog-card .card-icon {
+        font-size: 40px;
+        margin-bottom: 12px;
+        line-height: 1;
+        filter: drop-shadow(0 0 8px rgba(0, 255, 200, 0.3));
+    }
+    .catalog-card h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #e8faff;
+        margin-bottom: 6px;
+        letter-spacing: 0.03em;
+    }
+    .catalog-card .card-sub {
+        opacity: 0.75;
+        margin-bottom: 16px;
+        font-size: 0.9rem;
+        color: rgba(232, 250, 255, 0.85);
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 500;
+    }
+    .catalog-card .euro-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        background: rgba(0, 255, 200, 0.1);
+        border: 1px solid rgba(0, 255, 200, 0.3);
+        font-size: 11px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: rgba(0, 229, 255, 0.95);
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+    .catalog-card .card-links {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+        align-items: center;
+    }
+    .catalog-card .card-links a {
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: color 0.2s, box-shadow 0.2s, transform 0.2s;
+    }
+    .catalog-card .card-links a.ver-productos {
+        color: #00e5ff;
+    }
+    .catalog-card .card-links a.ver-productos:hover {
+        color: #00ffaa;
+        text-decoration: underline;
+    }
+    .catalog-card .card-links a.btn-glow {
+        background: linear-gradient(90deg, #00e5ff, #00ffaa);
+        color: #031018;
+        padding: 12px 26px;
+        border-radius: 30px;
+        font-weight: 700;
+        box-shadow: 0 0 20px rgba(0, 255, 200, 0.3);
+        letter-spacing: 0.02em;
+    }
+    .catalog-card .card-links a.btn-glow:hover {
+        box-shadow: 0 0 35px rgba(0, 255, 200, 0.6);
+        transform: scale(1.05);
+    }
+
+    /* —— Botón global Agregar producto —— */
+    .catalog-admin-wrap .add-any-link {
+        display: inline-block;
+        margin-top: 32px;
+        padding: 12px 26px;
+        border-radius: 30px;
+        background: linear-gradient(90deg, #00e5ff, #00ffaa);
+        color: #031018;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.95rem;
+        transition: 0.3s;
+        box-shadow: 0 0 20px rgba(0, 255, 200, 0.3);
+        letter-spacing: 0.02em;
+    }
+    .catalog-admin-wrap .add-any-link:hover {
+        box-shadow: 0 0 35px rgba(0, 255, 200, 0.6);
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %}
+
+{% block ops_content %}
+<div class="catalog-admin-wrap">
+    <h1>Convertidores catalíticos</h1>
+    <div class="section-divider" aria-hidden="true"></div>
+    <div class="breadcrumb-bar">
+        <a href="{% url 'ops:dashboard' %}">Operaciones</a>
+        <span>›</span>
+        <a href="{% url 'ops:catalog_admin_list' %}">Catálogo</a>
+        <span>›</span>
+        <span>Convertidores catalíticos</span>
+    </div>
+
+    <p class="intro-text">Elige una subcategoría para ver o agregar productos:</p>
+
+    <div class="euro-options">
+        {% for item in euro_categories_with_previews %}
+        <div class="catalog-card">
+            <div class="card-reel-wrap">
+                {% if item.preview_urls %}
+                    <div class="card-reel" aria-hidden="true">
+                        {% for url in item.preview_urls %}
+                        <img src="{{ url }}" alt="" loading="lazy" />
+                        {% endfor %}
+                        {% for url in item.preview_urls %}
+                        <img src="{{ url }}" alt="" loading="lazy" />
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="card-reel-placeholder" aria-hidden="true">⚙️</div>
+                {% endif %}
+            </div>
+            <h2>{% if item.category.slug == "cataliticos-clf" or item.category.slug == "cataliticos-ensamble-directo" %}Ensamble Directo CLF{% else %}{{ item.category.name }}{% endif %}</h2>
+            <p class="card-sub">Convertidores homologación {% if item.category.slug == "cataliticos-clf" or item.category.slug == "cataliticos-ensamble-directo" %}Ensamble Directo CLF{% else %}{{ item.category.name }}{% endif %}</p>
+            <span class="euro-badge">Normativa UE</span>
+            <div class="card-links">
+                <a href="{% url 'ops:catalog_admin_list' %}?cat={{ item.category.slug }}" class="ver-productos">Ver productos</a>
+                <a href="{% url 'ops:catalog_admin_add' %}?cat={{ item.category.slug }}" class="btn-glow">+ Agregar producto</a>
+            </div>
+        </div>
+        {% empty %}
+        <p style="color: rgba(232,250,255,0.7); grid-column: 1 / -1; font-family: 'Rajdhani', sans-serif;">No hay subcategorías configuradas. Ejecuta <code>python manage.py estructura_categorias_cataliticos</code> o <code>python manage.py reordenar_categorias</code>.</p>
+        {% endfor %}
+    </div>
+
+    <p style="margin-top: 24px;">
+        <a href="{% url 'ops:catalog_admin_add' %}" class="add-any-link">+ Agregar producto (elegir categoría)</a>
+    </p>
+</div>
+{% endblock %}

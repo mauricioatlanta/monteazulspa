@@ -1,0 +1,15 @@
+{% comment %}
+  Banner de cookies. Se oculta al aceptar y guarda preferencia en session/localStorage.
+{% endcomment %}
+<div id="cookies-banner" class="fixed bottom-0 left-0 right-0 z-40 p-4 hidden" role="dialog" aria-label="Aviso de cookies">
+  <div class="max-w-4xl mx-auto rounded-2xl border border-white/10 bg-[#0d1117] shadow-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+    <p class="text-sm text-white/80 flex-1">
+      Usamos cookies para mejorar tu experiencia y recordar tu ubicación de envío.
+      <a href="/" class="text-[#00f0ff] hover:underline">Política de privacidad</a>.
+    </p>
+    <div class="flex gap-2 w-full sm:w-auto">
+      <button type="button" id="cookies-reject" class="flex-1 sm:flex-none py-2 px-4 rounded-xl border border-white/20 text-white/80 text-sm font-medium hover:bg-white/5 transition-colors">Rechazar</button>
+      <button type="button" id="cookies-accept" class="flex-1 sm:flex-none py-2 px-4 rounded-xl bg-[#00f0ff] text-[#0a0c10] text-sm font-bold hover:bg-[#00d4e6] transition-colors">Aceptar</button>
+    </div>
+  </div>
+</div>

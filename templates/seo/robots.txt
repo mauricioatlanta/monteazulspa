@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /ops/
+Disallow: /operaciones/
+Disallow: /carrito/
+
+Sitemap: {{ SITE_URL|default:"https://monteazulspa.cl" }}/sitemap.xml
