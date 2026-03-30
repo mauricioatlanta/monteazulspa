@@ -608,14 +608,14 @@ def product_list(request):
                     "display_label": euro_display.get(slug, cat.name),
                     "badge_euro": euro_display.get(slug, ""),
                 })
-        # Una sola tarjeta "Ensamble Directo CLF" (enlace a cataliticos-ensamble-directo; productos de ambas)
+        # Una sola tarjeta "Ensamble Directo" (enlace a cataliticos-ensamble-directo; productos de ambas)
         clf_items = []
         cat_ensamble = next((c for c in subcategories if c.slug == "cataliticos-ensamble-directo"), None)
         if cat_ensamble:
             clf_items.append({
                 "category": cat_ensamble,
                 "preview_urls": _preview_for_clf(),
-                "display_label": "Ensamble Directo CLF",
+                "display_label": "Ensamble Directo",
                 "badge_euro": "",
             })
         cataliticos_nivel1 = [
@@ -625,7 +625,7 @@ def product_list(request):
                 "items": twg_items,
             },
             {
-                "label": "Ensamble Directo CLF",
+                "label": "Ensamble Directo",
                 "subtitle": "Plug & Play por modelo",
                 "items": clf_items,
             },
@@ -1252,4 +1252,3 @@ def review_submit(request, slug):
     """Redirige al handler de reseñas en apps.reviews."""
     from apps.reviews.views import review_submit as _submit
     return _submit(request, slug)
-

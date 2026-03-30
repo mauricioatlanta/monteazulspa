@@ -22,7 +22,7 @@
             <span class="product-card-badge euro {{ product.euro_norm|lower }}">{{ product.get_euro_norm_display }}</span>
             {% endif %}
             {% if product.category.slug|slice:":14" == "cataliticos-twc" %}<span class="product-card-badge marca-twg">TWG</span>{% endif %}
-            {% if product.category.slug == "cataliticos-clf" or product.category.slug == "cataliticos-ensamble-directo" %}<span class="product-card-badge marca-clf">Ensamble Directo · CLF</span>{% endif %}
+            {% if product.category.slug == "cataliticos-clf" or product.category.slug == "cataliticos-ensamble-directo" %}<span class="product-card-badge marca-clf">Ensamble Directo</span>{% endif %}
             {% if product.install_type == 'SOLDADURA' %}<span class="product-card-badge type-universal">Universal</span>{% endif %}
             {% if product.install_type == 'PLUG_PLAY' %}<span class="product-card-badge type-plugplay">Plug & Play</span>{% endif %}
         </div>
