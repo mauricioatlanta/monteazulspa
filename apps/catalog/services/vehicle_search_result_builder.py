@@ -12,9 +12,10 @@ siempre con la misma lógica (compatibilidad exacta, perfil técnico, filtro y r
 """
 from __future__ import annotations
 
+from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 
 from apps.catalog.models import (
     Product,
@@ -23,12 +24,95 @@ from apps.catalog.models import (
     VehicleEngine,
     VehicleModel,
 )
-from apps.catalog.services.vehicle_recommendation_rules import get_vehicle_suggested_products_v2
 from apps.catalog.services.vehicle_technical_profile import (
     build_vehicle_profile,
     filter_products_by_technical_fit,
     sort_products_by_technical_rank,
 )
+from apps.catalog.services.technical_rules import _norm_fuel
+
+
+def get_diameter_range(cc: Optional[int]) -> tuple[Decimal, Decimal]:
+    if not cc:
+        return (Decimal("1.75"), Decimal("2.25"))
+
+    try:
+        cc_int = int(cc)
+    except (TypeError, ValueError):
+        return (Decimal("1.75"), Decimal("2.25"))
+
+    if cc_int <= 1400:
+        return (Decimal("1.50"), Decimal("1.75"))
+    if cc_int <= 1600:
+        return (Decimal("1.75"), Decimal("2.25"))
+    if cc_int <= 2000:
+        return (Decimal("2.00"), Decimal("2.25"))
+    if cc_int <= 2500:
+        return (Decimal("2.25"), Decimal("2.50"))
+    return (Decimal("2.50"), Decimal("3.00"))
+
+
+def get_universal_catalysts(
+    *,
+    year: int,
+    engine: Optional[VehicleEngine] = None,
+    fuel_type: Optional[str] = None,
+    displacement_cc: Optional[int] = None,
+    exclude_product_ids: Optional[List[int]] = None,
+) -> QuerySet[Product]:
+    cc = None
+    fuel_raw = None
+    if engine:
+        cc = engine.displacement_cc
+        fuel_raw = engine.fuel_type
+    if displacement_cc is not None:
+        cc = cc or displacement_cc
+    if fuel_type:
+        fuel_raw = fuel_raw or fuel_type
+
+    fuel_norm = _norm_fuel(fuel_raw) if fuel_raw else ""
+    min_d, max_d = get_diameter_range(cc)
+
+    qs = (
+        Product.objects.filter(
+            deleted_at__isnull=True,
+            is_active=True,
+        )
+        .filter(
+            Q(category__slug__startswith="cataliticos")
+            | Q(category__slug__in=["convertidores-cataliticos", "cataliticos-universales", "cataliticos"])
+        )
+        .select_related("category")
+        .prefetch_related("images")
+    )
+
+    if exclude_product_ids:
+        qs = qs.exclude(id__in=[int(x) for x in exclude_product_ids if x])
+
+    qs = qs.filter(
+        diametro_entrada__gte=min_d,
+        diametro_entrada__lte=max_d,
+    )
+
+    if fuel_norm in ("DIESEL", "BENCINA"):
+        qs = qs.filter(combustible=fuel_norm)
+
+    allowed_euro_values: Optional[tuple[str, ...]] = None
+    try:
+        y = int(year)
+        if y >= 2015:
+            allowed_euro_values = ("EURO5",)
+        elif y >= 2010:
+            allowed_euro_values = ("EURO4", "EURO5")
+        elif y >= 2005:
+            allowed_euro_values = ("EURO3", "EURO4")
+    except (TypeError, ValueError):
+        allowed_euro_values = None
+
+    if allowed_euro_values:
+        qs = qs.filter(Q(euro_norm__in=allowed_euro_values) | Q(euro_norm__isnull=True))
+
+    return qs.distinct().order_by("diametro_entrada", "sku", "name")
 
 
 def build_vehicle_result_context(
@@ -153,19 +237,19 @@ def build_vehicle_result_context(
     brand_wide_ids = [p.id for p in products_brand_wide]
 
     # 2B) Sugerencias técnicas universales (sin depender de compatibilidad registrada)
-    # Usar get_vehicle_suggested_products_v2 que ya filtra por perfil técnico.
     exclude_for_other = direct_fit_ids + brand_wide_ids
 
-    products_suggested_qs: QuerySet[Product] = get_vehicle_suggested_products_v2(
-        brand=brand,
-        model=model,
+    products_suggested_qs: QuerySet[Product] = get_universal_catalysts(
         year=year,
         engine=engine,
         exclude_product_ids=exclude_for_other,
-        limit=50,
+        fuel_type=fuel_type,
+        displacement_cc=displacement_cc,
     )
     products_suggested_qs = filter_products_by_technical_fit(products_suggested_qs, profile)
-    products_suggested_technical: List[Product] = list(products_suggested_qs)
+    if products_direct_fit.exists():
+        products_suggested_qs = products_suggested_qs.exclude(diametro_entrada__gt=Decimal("2.50"))
+    products_suggested_technical: List[Product] = list(products_suggested_qs[:24])
 
     # Combinar universales: brand_wide + sugerencias técnicas
     products_universal_all = products_brand_wide + products_suggested_technical
@@ -196,22 +280,6 @@ def build_vehicle_result_context(
     # Reordenar todos los universales por ranking técnico
     products_universal_verified = sort_products_by_technical_rank(products_universal_all, profile)
 
-    # Sugerencias adicionales (fallback): solo si no hay suficientes resultados
-    products_suggested_other: List[Product] = []
-    total_results = len(direct_fit_ids) + len(products_universal_verified)
-    if total_results < 3:
-        # Buscar más productos sin restricciones estrictas
-        exclude_all = direct_fit_ids + [p.id for p in products_universal_verified]
-        fallback_qs = get_vehicle_suggested_products_v2(
-            brand=brand,
-            model=model,
-            year=year,
-            engine=engine,
-            exclude_product_ids=exclude_all,
-            limit=10,
-        )
-        products_suggested_other = list(fallback_qs)
-
     fitment = {
         "brand": brand.name,
         "model": model.name,
@@ -226,18 +294,17 @@ def build_vehicle_result_context(
         # Nuevos campos separados por tipo
         "products_direct_fit": products_direct_fit,
         "products_universal_verified": products_universal_verified,
-        "products_suggested_other": products_suggested_other,
         # Campos legacy para compatibilidad con views/templates actuales
         "products": products_direct_fit,  # Mantener para no romper template actual
         "products_verified": products_direct_fit,
         "products_suggested": products_universal_verified,
         # Campos legacy para API (views_vehicle_search.py)
-        "products_suggested_brand_wide": products_universal_verified[:len(products_universal_verified)//2] if products_universal_verified else [],
-        # "products_suggested_other" ya está definido arriba
+        "products_suggested_brand_wide": products_brand_wide,
+        "products_suggested_other": products_suggested_technical,
         "count": products_direct_fit.count(),
         "count_direct_fit": products_direct_fit.count(),
         "count_universal": len(products_universal_verified),
-        "count_suggested": len(products_suggested_other),
+        "count_suggested": len(products_suggested_technical),
         "fitment": fitment,
         "brand": brand,
         "model": model,

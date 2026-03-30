@@ -319,8 +319,8 @@
                     <div class="card-reel-placeholder" aria-hidden="true">⚙️</div>
                 {% endif %}
             </div>
-            <h2>{% if item.category.slug == "cataliticos-clf" or item.category.slug == "cataliticos-ensamble-directo" %}Ensamble Directo CLF{% else %}{{ item.category.name }}{% endif %}</h2>
-            <p class="card-sub">Convertidores homologación {% if item.category.slug == "cataliticos-clf" or item.category.slug == "cataliticos-ensamble-directo" %}Ensamble Directo CLF{% else %}{{ item.category.name }}{% endif %}</p>
+            <h2>{% if item.category.slug == "cataliticos-clf" or item.category.slug == "cataliticos-ensamble-directo" %}Ensamble Directo{% else %}{{ item.category.name }}{% endif %}</h2>
+            <p class="card-sub">Convertidores homologación {% if item.category.slug == "cataliticos-clf" or item.category.slug == "cataliticos-ensamble-directo" %}Ensamble Directo{% else %}{{ item.category.name }}{% endif %}</p>
             <span class="euro-badge">Normativa UE</span>
             <div class="card-links">
                 <a href="{% url 'ops:catalog_admin_list' %}?cat={{ item.category.slug }}" class="ver-productos">Ver productos</a>

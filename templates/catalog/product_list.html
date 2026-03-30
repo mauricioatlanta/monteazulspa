@@ -739,7 +739,7 @@
                     {% for root in root_categories %}
                         <li class="{% if root.children_list or root.slug == 'cataliticos' %}has-children{% endif %}{% if root.id in expanded_root_ids %} expanded{% endif %}">
                             {% if root.slug == "cataliticos" %}
-                                {# Convertidores Catalíticos: solo 2 subcategorías — Convertidores Cataliticos TWG (página de opciones) y Ensamble Directo CLF #}
+                                {# Convertidores Catalíticos: solo 2 subcategorías — Convertidores Cataliticos TWG (página de opciones) y Ensamble Directo #}
                                 <div class="cat-row">
                                     <a href="{% url 'catalog:product_list' %}?cat={{ root.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == root.id %}class="active"{% endif %}>Convertidores Cataliticos</a>
                                     <button type="button" class="toggle-children" aria-expanded="{% if root.id in expanded_root_ids %}true{% else %}false{% endif %}" aria-label="Mostrar u ocultar subcategorías">▼</button>
@@ -752,7 +752,7 @@
                                         <a href="{% url 'catalog:product_list' %}?cat=cataliticos-twc-diesel{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.slug == 'cataliticos-twc-diesel' %}class="active"{% endif %}>Diesel</a>
                                     </li>
                                     <li>
-                                        <a href="{% url 'catalog:product_list' %}?cat=cataliticos-ensamble-directo{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.slug == 'cataliticos-ensamble-directo' %}class="active"{% endif %}>Ensamble Directo CLF</a>
+                                        <a href="{% url 'catalog:product_list' %}?cat=cataliticos-ensamble-directo{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.slug == 'cataliticos-ensamble-directo' %}class="active"{% endif %}>Ensamble Directo</a>
                                     </li>
                                 </ul>
                             {% elif root.children_list %}
@@ -766,20 +766,20 @@
                                         <li class="{% if sub.children_list %}has-children{% endif %}{% if current_category and current_category.parent_id == sub.id %} expanded{% endif %}">
                                             {% if sub.children_list %}
                                                 <div class="cat-row">
-                                                    <a href="{% url 'catalog:product_list' %}?cat={{ sub.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == sub.id %}class="active"{% endif %}>{% if sub.name == "Cataliticos" %}Convertidores Cataliticos{% elif sub.slug == "flexibles-normales" %}Flexibles Reforzados{% elif sub.slug == "flexibles-con-extension" %}Flexibles Reforzados con extensión{% elif sub.slug == "cataliticos-ensamble-directo" %}Ensamble Directo CLF{% elif sub.slug == "silenciador-linea-dw" %}Silenciadores{% elif sub.slug == "silenciador-alto-flujo-lt" %}Silenciadores Alto Flujo{% elif sub.slug == "resonador-deportivo-alto-flujo-ltm" %}Resonadores Deportivo Alto Flujo{% elif sub.slug == "resonadores" %}Resonadores{% else %}{{ sub.name }}{% endif %}</a>
+                                                    <a href="{% url 'catalog:product_list' %}?cat={{ sub.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == sub.id %}class="active"{% endif %}>{% if sub.name == "Cataliticos" %}Convertidores Cataliticos{% elif sub.slug == "flexibles-normales" %}Flexibles Reforzados{% elif sub.slug == "flexibles-con-extension" %}Flexibles Reforzados con extensión{% elif sub.slug == "cataliticos-ensamble-directo" %}Ensamble Directo{% elif sub.slug == "silenciador-linea-dw" %}Silenciadores{% elif sub.slug == "silenciador-alto-flujo-lt" %}Silenciadores Alto Flujo{% elif sub.slug == "resonador-deportivo-alto-flujo-ltm" %}Resonadores Deportivo Alto Flujo{% elif sub.slug == "resonadores" %}Resonadores{% else %}{{ sub.name }}{% endif %}</a>
                                                     <button type="button" class="toggle-children" aria-expanded="{% if current_category and current_category.parent_id == sub.id %}true{% else %}false{% endif %}" aria-label="Mostrar u ocultar subcategorías">▼</button>
                                                 </div>
                                                 <ul class="filter-list subcategory">
                                                     {% for sub2 in sub.children_list %}
                                                         {% if sub2.slug != "cataliticos-clf" %}
                                                         <li>
-                                                            <a href="{% url 'catalog:product_list' %}?cat={{ sub2.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == sub2.id %}class="active"{% endif %}>{% if sub2.name == "Cataliticos" %}Convertidores Cataliticos{% elif sub2.slug == "cataliticos-ensamble-directo" %}Ensamble Directo CLF{% elif sub2.slug == "silenciador-linea-dw" %}Silenciadores{% elif sub2.slug == "silenciador-alto-flujo-lt" %}Silenciadores Alto Flujo{% elif sub2.slug == "resonador-deportivo-alto-flujo-ltm" %}Resonadores Deportivo Alto Flujo{% elif sub2.slug == "resonadores" %}Resonadores{% else %}{{ sub2.name }}{% endif %}</a>
+                                                            <a href="{% url 'catalog:product_list' %}?cat={{ sub2.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == sub2.id %}class="active"{% endif %}>{% if sub2.name == "Cataliticos" %}Convertidores Cataliticos{% elif sub2.slug == "cataliticos-ensamble-directo" %}Ensamble Directo{% elif sub2.slug == "silenciador-linea-dw" %}Silenciadores{% elif sub2.slug == "silenciador-alto-flujo-lt" %}Silenciadores Alto Flujo{% elif sub2.slug == "resonador-deportivo-alto-flujo-ltm" %}Resonadores Deportivo Alto Flujo{% elif sub2.slug == "resonadores" %}Resonadores{% else %}{{ sub2.name }}{% endif %}</a>
                                                         </li>
                                                         {% endif %}
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
-                                                <a href="{% url 'catalog:product_list' %}?cat={{ sub.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == sub.id %}class="active"{% endif %}>{% if sub.name == "Cataliticos" %}Convertidores Cataliticos{% elif sub.slug == "flexibles-normales" %}Flexibles Reforzados{% elif sub.slug == "flexibles-con-extension" %}Flexibles Reforzados con extensión{% elif sub.slug == "cataliticos-ensamble-directo" %}Ensamble Directo CLF{% elif sub.slug == "silenciador-linea-dw" %}Silenciadores{% elif sub.slug == "silenciador-alto-flujo-lt" %}Silenciadores Alto Flujo{% elif sub.slug == "resonador-deportivo-alto-flujo-ltm" %}Resonadores Deportivo Alto Flujo{% elif sub.slug == "resonadores" %}Resonadores{% else %}{{ sub.name }}{% endif %}</a>
+                                                <a href="{% url 'catalog:product_list' %}?cat={{ sub.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == sub.id %}class="active"{% endif %}>{% if sub.name == "Cataliticos" %}Convertidores Cataliticos{% elif sub.slug == "flexibles-normales" %}Flexibles Reforzados{% elif sub.slug == "flexibles-con-extension" %}Flexibles Reforzados con extensión{% elif sub.slug == "cataliticos-ensamble-directo" %}Ensamble Directo{% elif sub.slug == "silenciador-linea-dw" %}Silenciadores{% elif sub.slug == "silenciador-alto-flujo-lt" %}Silenciadores Alto Flujo{% elif sub.slug == "resonador-deportivo-alto-flujo-ltm" %}Resonadores Deportivo Alto Flujo{% elif sub.slug == "resonadores" %}Resonadores{% else %}{{ sub.name }}{% endif %}</a>
                                             {% endif %}
                                         </li>
                                         {% endif %}
@@ -811,7 +811,7 @@
                     {# Asistente de selección inteligente (3 pasos) #}
                     <div class="cataliticos-assistant">
                         <p class="assistant-label">¿No sabes cuál elegir? Usa el <strong>Asistente de Selección</strong></p>
-                        <p class="assistant-hint" style="margin-bottom: 12px;">Combustible → Año → Tipo (Universal TWG o Ensamble Directo CLF). Te mostramos solo los compatibles.</p>
+                        <p class="assistant-hint" style="margin-bottom: 12px;">Combustible → Año → Tipo (Universal TWG o Ensamble Directo). Te mostramos solo los compatibles.</p>
                         <a href="{% url 'catalog:asistente_cataliticos' %}" class="assistant-btn" style="display: inline-block; text-decoration: none;">Ir al asistente</a>
                     </div>
                     <p class="intro-text" style="margin-top: 28px;">Más información: <a href="{% url 'normativas' %}" class="link-normativas">¿Por qué es importante elegir la norma correcta? Historia y normas Euro →</a></p>
@@ -953,7 +953,7 @@
                 Resultados del asistente: <strong>{% if wizard_fuel == 'diesel' %}Diesel{% else %}Bencina{% endif %}</strong>
                 {% if wizard_anno %} · Año <strong>{{ wizard_anno }}</strong>{% endif %}
                 {% if wizard_euro_display %} · <strong>{{ wizard_euro_display }}</strong>{% endif %}
-                · <strong>{% if wizard_tipo == 'twg' %}Universal (TWG){% else %}Ensamble Directo CLF{% endif %}</strong>
+                · <strong>{% if wizard_tipo == 'twg' %}Universal (TWG){% else %}Ensamble Directo{% endif %}</strong>
             </div>
             {% endif %}
             <div class="flex flex-wrap items-center justify-between gap-4 mb-4">

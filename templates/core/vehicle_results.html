@@ -413,13 +413,16 @@
         {% endif %}
         {% if products_suggested_other %}
         {% with suggested_list=products_suggested_other count_sug=products_suggested_other|length %}
-        <section class="suggested-block" aria-label="Otras opciones sugeridas" style="margin-top:48px;">
+        <section class="suggested-block" aria-label="Catalíticos universales sugeridos" style="margin-top:48px;">
             <div class="results-header">
-                <h2 class="results-title" style="font-size:1.4rem;">Otras opciones sugeridas para confirmar con asesor</h2>
+                <h2 class="results-title" style="font-size:1.4rem;">Catalíticos universales sugeridos</h2>
                 <p class="results-count">
                     Encontramos <strong>{{ count_sug }}</strong> producto{{ count_sug|pluralize }} sugerido{{ count_sug|pluralize }}
-                    (catalíticos, flexibles, silenciadores, colas) según reglas técnicas (año, norma Euro, combustible y cilindrada).
-                    Revisa con tu mecánico o con nuestro equipo antes de instalar.
+                    según reglas técnicas (diámetro, año/norma Euro, combustible y cilindrada).
+                    Confirma con tu mecánico o con nuestro equipo antes de instalar.
+                </p>
+                <p class="text-xs text-slate-400">
+                  Seleccionados según cilindrada y tipo de combustible del motor
                 </p>
             </div>
             <div class="products-grid">
