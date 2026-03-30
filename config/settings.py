@@ -106,6 +106,7 @@ INSTALLED_APPS = [
     "apps.reports.apps.ReportsConfig",
     "apps.ops.apps.OpsConfig",
     "apps.reviews.apps.ReviewsConfig",
+    "apps.tracking.apps.TrackingConfig",
 ]
 if CATALITICOS_ROOT.exists():
     INSTALLED_APPS.append("cataliticos.apps.CataliticosConfig")
