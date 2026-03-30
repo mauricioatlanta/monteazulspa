@@ -376,6 +376,18 @@ def product_list(request):
         params = request.GET.copy()
         params["cat"] = "flexibles"
         return redirect(reverse("catalog:product_list") + "?" + params.urlencode())
+    # Unificar Empaques de Motor: soportar slugs antiguos/alternativos y redirigir al canonical
+    if cat_slug in (
+        "empaques-de-motor",
+        "empaque-de-motor",
+        "empaquetadura-de-motor",
+        "empaquetaduras-motor",
+        "juntas-de-motor",
+        "juntas-motor",
+    ):
+        params = request.GET.copy()
+        params["cat"] = "empaquetaduras-de-motor"
+        return redirect(reverse("catalog:product_list") + "?" + params.urlencode())
     anno = request.GET.get("anno", "").strip()
     wizard_fuel = request.GET.get("fuel", "").strip()
     wizard_tipo = request.GET.get("tipo", "").strip()

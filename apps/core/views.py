@@ -80,11 +80,84 @@ def home(request):
             is_active=True, parent__isnull=True
         ).exclude(slug__in=['flexibles-reforzados', 'por-clasificar']).order_by('name')[:8]
     )
+
+    solutions_specs = [
+        {
+            "title": "Catalíticos Universales",
+            "slug": "cataliticos-twc",
+            "description": "Para bencina. Euro 3, 4 y 5. Alto flujo y compatibilidad verificada.",
+        },
+        {
+            "title": "Catalíticos Diésel",
+            "slug": "cataliticos-twc-diesel",
+            "description": "Euro 4 y Euro 5 para vehículos diésel. TWG y modelos compatibles.",
+        },
+        {
+            "title": "Flexibles de Escape",
+            "slug": "flexibles",
+            "description": "Tubos flexibles reforzados y con extensión. Varias medidas.",
+        },
+        {
+            "title": "Silenciadores",
+            "slug": "silenciador-linea-dw",
+            "description": "Soluciones de atenuación de ruido. Instalación profesional.",
+        },
+        {
+            "title": "Resonadores",
+            "slug": "resonador-deportivo-alto-flujo-ltm",
+            "description": "Alto flujo y control acústico para un sonido equilibrado.",
+        },
+        {
+            "title": "Empaques de Motor",
+            "slug": "empaquetaduras-de-motor",
+            "description": "Sellado perfecto y máxima eficiencia. Soluciones confiables para reparaciones.",
+        },
+    ]
+    solution_slugs = [s["slug"] for s in solutions_specs]
+    existing_cats = {
+        c["slug"]: c
+        for c in Category.objects.filter(is_active=True, slug__in=solution_slugs).values("id", "slug")
+    }
+    product_counts = {
+        row["category__slug"]: row["c"]
+        for row in (
+            Product.objects.filter(
+                is_active=True,
+                deleted_at__isnull=True,
+                category__slug__in=solution_slugs,
+            )
+            .values("category__slug")
+            .annotate(c=Count("id"))
+        )
+    }
+    solutions_cards = []
+    for spec in solutions_specs:
+        slug = spec["slug"]
+        has_category = slug in existing_cats
+        has_products = product_counts.get(slug, 0) > 0
+        if has_category and has_products:
+            href = reverse("catalog:product_list") + "?" + urlencode({"cat": slug})
+            badge = ""
+            is_external = False
+        else:
+            href = "https://wsp.cl/Atepara"
+            badge = "Próximamente" if has_category else "Consultar"
+            is_external = True
+        solutions_cards.append(
+            {
+                "title": spec["title"],
+                "description": spec["description"],
+                "href": href,
+                "badge": badge,
+                "is_external": is_external,
+            }
+        )
     return render(request, 'core/home_welcome.html', {
         'title': 'Monteazul SPA — Especialistas en repuestos de escape',
         'hero_product_images': hero_slides,
         'header_categories': header_categories,
         'featured_products': featured_products,
+        'solutions_cards': solutions_cards,
     })
 
 
@@ -308,5 +381,3 @@ def page_404(request, exception=None):
 def page_500(request):
     """Página 500 personalizada."""
     return render(request, "500.html", status=500)
-
-

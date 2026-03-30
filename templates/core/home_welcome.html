@@ -5,31 +5,32 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Catalíticos Universales Euro 3, 4, 5 y Diésel | Monteazul SPA</title>
-  <meta name="description" content="Especialistas en catalíticos universales Euro 3, Euro 4 y Euro 5 en Santiago. Venta de catalíticos diésel y empaquetaduras de motor. ¡Visítanos en Diez de Julio 354!">
-  <meta name="keywords" content="cataliticos euro 5 chile, cataliticos universales santiago, empaquetaduras de motor, cataliticos diesel, repuestos diez de julio">
+  <meta name="description" content="Especialistas en catalíticos universales Euro 3, Euro 4 y Euro 5 en Santiago. Venta de catalíticos diésel y empaques de motor. ¡Visítanos en Diez de Julio 354!">
+  <meta name="keywords" content="cataliticos euro 5 chile, cataliticos universales santiago, empaques de motor, cataliticos diesel, repuestos diez de julio">
   <link rel="canonical" href="{{ SITE_URL|default:'https://monteazulspa.cl' }}/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
   <style>
     :root {
-      --bg: #0a0c10;
-      --bg-soft: #0d1016;
-      --surface: rgba(255,255,255,0.04);
+      --bg: #0B0F14;
+      --bg-soft: #0d1117;
+      --surface: #111827;
       --surface-hover: rgba(255,255,255,0.08);
-      --surface-glass: rgba(255,255,255,0.06);
-      --border: rgba(255,255,255,0.1);
-      --text: #f0f2f5;
-      --text-secondary: rgba(255,255,255,0.72);
-      --muted: rgba(255,255,255,0.52);
-      --accent: #00d4e6;
-      --accent-soft: rgba(0,212,230,0.15);
-      --glow: rgba(0,212,230,0.35);
-      --cta-primary: #f5c400;
-      --cta-primary-hover: #ffd000;
-      --cta-primary-text: #0a0c10;
-      --success: #00e676;
+      --surface-glass: rgba(17,24,39,0.8);
+      --border: rgba(0,255,255,0.15);
+      --text: #E5E7EB;
+      --text-secondary: rgba(229,231,235,0.75);
+      --muted: rgba(229,231,235,0.55);
+      --accent: #06B6D4;
+      --accent-soft: rgba(6,182,212,0.15);
+      --glow: rgba(6,182,212,0.35);
+      --cta-primary: #10B981;
+      --cta-primary-hover: #0EA971;
+      --cta-primary-text: #041016;
+      --success: #10B981;
       --radius: 18px;
       --radius-sm: 12px;
       --radius-lg: 24px;
@@ -825,6 +826,39 @@
       margin-top: 16px;
       justify-content: center;
     }
+    .mz-btn-wa {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .6rem;
+      padding: .95rem 1.15rem;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: .95rem;
+      color: #fff;
+      background: var(--cta-primary);
+      border: 1px solid rgba(255,255,255,.12);
+      text-decoration: none;
+      box-shadow: 0 18px 50px rgba(16,185,129,.18);
+      transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+    }
+    .mz-btn-wa:hover { transform: translateY(-2px); filter: brightness(1.04); box-shadow: 0 22px 60px rgba(16,185,129,.28); }
+    .mz-btn-outline {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .6rem;
+      padding: .95rem 1.15rem;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: .95rem;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      background: rgba(255,255,255,.04);
+      text-decoration: none;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
+    }
+    .mz-btn-outline:hover { transform: translateY(-2px); background: var(--accent-soft); }
     .mz-btn-primary {
       display: inline-flex;
       align-items: center;
@@ -1386,17 +1420,18 @@
       padding: 12px;
       border-radius: var(--radius-sm);
       border: none;
-      background: rgba(22,224,255,.2);
-      color: var(--accent);
+      background: var(--cta-primary);
+      color: #ffffff;
       font-family: inherit;
-      font-weight: 700;
+      font-weight: 800;
       font-size: 0.9rem;
       text-align: center;
       text-decoration: none;
       margin-bottom: 8px;
-      transition: background .2s, color .2s;
+      box-shadow: 0 10px 28px rgba(16,185,129,0.20);
+      transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
     }
-    .product-card .product-card-btn-primary:hover { background: rgba(22,224,255,.3); color: #fff; }
+    .product-card .product-card-btn-primary:hover { transform: translateY(-1px); background: var(--cta-primary-hover); box-shadow: 0 16px 38px rgba(16,185,129,0.26); }
 
     /* ----- Footer ----- */
     .site-footer {
@@ -1407,13 +1442,7 @@
       background: rgba(10,12,16,0.6);
     }
     .footer-inner { max-width: 1200px; margin: 0 auto; }
-    .footer-top {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 32px;
-      margin-bottom: 32px;
-    }
+    .footer-top { margin-bottom: 24px; }
     .footer-links {
       display: flex;
       flex-wrap: wrap;
@@ -1456,10 +1485,11 @@
     /* ----- Categorías principales (enlaces SEO) ----- */
     .categories-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 20px;
     }
-    @media (max-width: 768px) { .categories-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 1024px) { .categories-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 640px) { .categories-grid { grid-template-columns: 1fr; } }
     .category-card {
       display: block;
       padding: 28px 24px;
@@ -1473,12 +1503,69 @@
       transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
     }
     .category-card:hover {
-      border-color: rgba(0,212,230,0.4);
+      border-color: rgba(6,182,212,0.45);
       transform: translateY(-3px);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.35), 0 0 0 1px rgba(6,182,212,0.12), 0 0 26px rgba(6,182,212,0.10);
     }
     .category-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
     .category-card p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
+    .mz-card-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(229,231,235,0.9);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(0,255,255,0.22);
+      margin-bottom: 10px;
+    }
+    .mz-card-badge.soon {
+      color: rgba(255,255,255,0.9);
+      background: rgba(16,185,129,0.10);
+      border-color: rgba(16,185,129,0.28);
+    }
+    .mz-card-badge.consult {
+      background: rgba(6,182,212,0.12);
+      border-color: rgba(6,182,212,0.28);
+      color: rgba(6,182,212,0.95);
+    }
+
+    .mz-authority-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    @media (max-width: 1024px) { .mz-authority-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 640px) { .mz-authority-grid { grid-template-columns: 1fr; } }
+
+    .mz-problems-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    @media (max-width: 640px) { .mz-problems-grid { grid-template-columns: 1fr; } }
+
+    .mz-footer-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px;
+      align-items: flex-start;
+    }
+    @media (max-width: 900px) { .mz-footer-grid { grid-template-columns: 1fr; } }
+
+    @media (max-width: 560px) {
+      .mz-hero-search-form { display: flex; flex-direction: column; gap: 10px; }
+      .mz-hero-search-input { padding-right: 18px; border-radius: 18px; }
+      .mz-hero-search-button { position: static; top: auto; right: auto; bottom: auto; width: 100%; height: 52px; border-radius: 18px; }
+    }
     .seo-texto-inner { text-align: center; }
     .seo-texto-inner p { margin-bottom: 1rem; color: var(--text-secondary); line-height: 1.7; }
     .seo-texto-inner p:last-child { margin-bottom: 0; }
@@ -1656,14 +1743,14 @@
         {% for slide in hero_product_images %}
         <div class="header-banner-slide">
           <a href="{{ slide.url }}" title="{{ slide.name }}">
-            <img src="{{ slide.image_url }}" alt="{{ slide.sku }}" loading="lazy">
+            <img src="{{ slide.image_url }}" alt="{{ slide.sku }}" loading="lazy" onerror="this.onerror=null;this.src='/media/logomonteazul.png';">
           </a>
         </div>
         {% endfor %}
         {% for slide in hero_product_images %}
         <div class="header-banner-slide">
           <a href="{{ slide.url }}" title="{{ slide.name }}">
-            <img src="{{ slide.image_url }}" alt="{{ slide.sku }}" loading="lazy">
+            <img src="{{ slide.image_url }}" alt="{{ slide.sku }}" loading="lazy" onerror="this.onerror=null;this.src='/media/logomonteazul.png';">
           </a>
         </div>
         {% endfor %}
@@ -1678,30 +1765,20 @@
       <div class="mz-hero-inner">
         <div class="mz-hero-card mz-fade-up">
           <div class="mz-hero-copy">
-            <div style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:10px;">Catalíticos Universales Euro 3, Euro 4, Euro 5, Catalíticos Diésel, Ensamble Directo y Empaquetaduras de Motor</div>
-            <div class="mz-badge mz-fade-up mz-fade-up-1">🔧 Especialistas en Sistemas de Escape Automotriz en Chile</div>
+            <div style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:10px;">Catalíticos, flexibles, silenciadores, resonadores y empaques de motor</div>
+            <div class="mz-badge mz-fade-up mz-fade-up-1">🔧 Ingeniería en Sistemas de Escape</div>
             <h1 class="mz-title mz-fade-up mz-fade-up-2">
-              Especialistas en Catalíticos y Sistemas de Escape en Chile
+              INGENIERÍA EN SISTEMAS DE ESCAPE
             </h1>
             <p class="mz-subtitle mz-fade-up mz-fade-up-3">
-              En MonteAzul SPA ofrecemos venta de catalíticos universales, catalíticos diesel Euro 4 y Euro 5, flexibles de escape y componentes de alto flujo para vehículos livianos y comerciales.
-              Trabajamos con modelos compatibles para distintas marcas y motores, asegurando rendimiento, reducción de emisiones y cumplimiento normativo.
+              Catalíticos, flexibles, silenciadores, resonadores y empaques de motor. Todo para tu vehículo en un solo lugar.
             </p>
             <p class="mz-subtitle mz-fade-up mz-fade-up-3">
-              Realizamos envíos a todo Chile y contamos con stock permanente de catalíticos TWG, Ensamble Directo y soluciones para bencina y diesel.
+              Asesoría técnica real para encontrar el repuesto correcto.
             </p>
-            <div class="mz-hero-search-wrap mz-fade-up mz-fade-up-4">
-              <div class="mz-hero-guided" style="margin-top:0;">
-                <span class="mz-hero-guided-label">Buscar repuesto</span>
-                <div class="mz-hero-guided-links">
-                  <a class="mz-hero-guided-link" href="{% url 'core:vehicle_search' %}">
-                    <span>Por vehículo</span>
-                  </a>
-                  <a class="mz-hero-guided-link" href="{% url 'catalog:escape_search' %}">
-                    <span>Por medidas</span>
-                  </a>
-                </div>
-              </div>
+            <div class="mz-hero-ctas mz-fade-up mz-fade-up-4">
+              <a href="https://wsp.cl/Atepara" target="_blank" rel="noopener" class="mz-btn-wa">Cotizar por WhatsApp</a>
+              <a href="{% url 'catalog:product_list' %}" class="mz-btn-outline">Ver catálogo completo</a>
             </div>
             <div class="mz-trust mz-fade-up mz-fade-up-5">
               <span>⭐ +3.000 vendidos</span>
@@ -1712,21 +1789,11 @@
             <div style="margin-top:14px;font-size:.8rem;color:rgba(255,255,255,.65);">
               Confían en nosotros talleres y clientes de Santiago, Viña del Mar, Temuco y todo Chile.
             </div>
-            <div class="mz-hero-selector">
-              <span style="font-size:.75rem;color:rgba(255,255,255,.5);margin-bottom:8px;display:block;">Selector rápido</span>
-              <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
-                <a class="mz-selector-pill" href="{% url 'catalog:product_list' %}?cat=cataliticos-twc-diesel">Diesel</a>
-                <a class="mz-selector-pill" href="{% url 'catalog:product_list' %}?cat=cataliticos-twc">Bencina</a>
-                <span style="color:rgba(255,255,255,.3);font-size:.8rem;">•</span>
-                <a class="mz-selector-pill" href="{% url 'catalog:product_list' %}?cat=cataliticos">Euro 3 / Euro 5</a>
-                <a class="mz-btn-secondary" href="{% url 'core:vehicle_search' %}" style="padding:.5rem .85rem;font-size:.8rem;">Ver recomendaciones</a>
-              </div>
-            </div>
           </div>
           <div class="mz-hero-product mz-product">
             {% if hero_product_images %}
             <a href="{{ hero_product_images.0.url }}" title="{{ hero_product_images.0.name }}" style="display:flex;align-items:center;justify-content:center;width:100%;">
-              <img src="{{ hero_product_images.0.image_url }}" alt="{{ hero_product_images.0.name }} — {{ hero_product_images.0.sku }}" width="520" height="280" loading="eager">
+              <img src="{{ hero_product_images.0.image_url }}" alt="{{ hero_product_images.0.name }} — {{ hero_product_images.0.sku }}" width="520" height="280" loading="eager" onerror="this.onerror=null;this.src='/media/logomonteazul.png';">
             </a>
             {% else %}
             <img src="/media/logomonteazul.png" alt="Monteazul SPA — Especialistas en sistemas de escape" width="320" height="180" loading="eager">
@@ -1737,50 +1804,98 @@
       <a href="#categorias" class="mz-hero-scroll" aria-label="Bajar al contenido"></a>
     </section>
 
-    <!-- QUICK ACTIONS — Marca Automotriz Premium -->
-    <section class="section mz-quick-actions">
-      <div class="mz-quick-grid">
-        <a class="mz-quick-card" href="{% url 'core:vehicle_search' %}">
-          <div class="mz-quick-icon">🚗</div>
-          <div class="mz-quick-title">Buscar por vehículo</div>
-          <div class="mz-quick-sub">Compatibilidad verificada por año, marca y motor</div>
-        </a>
-        <a class="mz-quick-card" href="#mas-vendido">
-          <div class="mz-quick-icon">🔥</div>
-          <div class="mz-quick-title">Top Sellers</div>
-          <div class="mz-quick-sub">Los catalíticos más vendidos esta semana</div>
-        </a>
-        <a class="mz-quick-card mz-quick-card-primary"
-           href="https://wsp.cl/Atepara"
-           target="_blank" rel="noopener">
-          <div class="mz-quick-icon">💬</div>
-          <div class="mz-quick-title">Asesor técnico</div>
-          <div class="mz-quick-sub">Habla directo con un especialista</div>
-        </a>
-      </div>
-    </section>
-
-    <!-- 2) Categorías principales -->
     <section class="section" id="categorias">
-      <h2 class="section-title" style="text-align: center;">Explora por categoría</h2>
-      <p class="section-sub" style="text-align: center; margin-bottom: 28px;">Catalíticos universales, diesel y flexibles de escape</p>
+      <h2 class="section-title" style="text-align: center;">Soluciones para tu vehículo</h2>
+      <p class="section-sub" style="text-align: center; margin-bottom: 28px;">Ingresa directo a la familia de repuestos que necesitas</p>
       <div class="categories-grid">
-        <a href="{% url 'catalog:product_list' %}?cat=cataliticos-twc-diesel" class="category-card" title="Catalíticos Diesel Euro 4 y Euro 5">
-          <h3>Catalíticos Diesel</h3>
-          <p>Euro 4 y Euro 5 para vehículos diésel. TWG y modelos compatibles.</p>
+        {% for card in solutions_cards %}
+        <a href="{{ card.href }}" class="category-card" title="{{ card.title }}" {% if card.is_external %}target="_blank" rel="noopener"{% endif %}>
+          {% if card.badge %}
+            <div class="mz-card-badge {% if card.badge == 'Próximamente' %}soon{% else %}consult{% endif %}">{{ card.badge }}</div>
+          {% endif %}
+          <h3>{{ card.title }}</h3>
+          <p>{{ card.description }}</p>
         </a>
-        <a href="{% url 'catalog:product_list' %}?cat=cataliticos-twc" class="category-card" title="Catalíticos Universales para bencina">
-          <h3>Catalíticos Universales</h3>
-          <p>Euro 3, Euro 4 y Euro 5 para bencina. TWG redondos y ovalados.</p>
-        </a>
-        <a href="{% url 'catalog:product_list' %}?cat=flexibles" class="category-card" title="Flexibles de escape reforzados">
-          <h3>Flexibles de Escape</h3>
-          <p>Tubos flexibles reforzados y con extensión. Varias medidas.</p>
-        </a>
+        {% endfor %}
       </div>
     </section>
 
-    <!-- 3b) Reseñas de clientes -->
+    <section class="section" id="buscador-mecanico">
+      <h2 class="section-title" style="text-align:center;">Encuentra el repuesto correcto en segundos</h2>
+      <p class="section-sub" style="text-align:center;max-width:62ch;margin-left:auto;margin-right:auto;">Busca por medidas, tipo de repuesto o por tu vehículo.</p>
+      <div style="max-width:780px;margin:0 auto;">
+        <form action="{% url 'catalog:escape_search' %}" method="get" class="mz-hero-search-form" style="margin-bottom:10px;">
+          <input class="mz-hero-search-input" type="search" name="q" placeholder="Ej: 2 x 8, silenciador 2.5, Renault Clio" autocomplete="off">
+          <button class="mz-hero-search-button" type="submit">Buscar</button>
+        </form>
+        <div class="mz-hero-guided" style="justify-content:center;">
+          <div class="mz-hero-guided-links">
+            <a class="mz-hero-guided-link" href="{% url 'catalog:escape_search' %}?q=2%20x%208"><span>2 x 8</span></a>
+            <a class="mz-hero-guided-link" href="{% url 'catalog:escape_search' %}?q=resonador%202.5"><span>resonador 2.5</span></a>
+            <a class="mz-hero-guided-link" href="{% url 'catalog:escape_search' %}?q=cola%20escape%202"><span>cola escape 2</span></a>
+            <a class="mz-hero-guided-link" href="{% url 'catalog:escape_search' %}?q=toyota%20yaris"><span>Toyota Yaris</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="autoridad">
+      <h2 class="section-title" style="text-align:center;">Especialistas en sistemas de escape en Chile</h2>
+      <div class="mz-authority-grid">
+        <div class="category-card"><h3>Asesoría técnica experta</h3></div>
+        <div class="category-card"><h3>Productos certificados</h3></div>
+        <div class="category-card"><h3>Cobertura nacional</h3></div>
+        <div class="category-card"><h3>Compatibilidad garantizada</h3></div>
+      </div>
+    </section>
+
+    <section class="section" id="problemas">
+      <h2 class="section-title" style="text-align:center;">Solucionamos problemas reales de tu vehículo</h2>
+      <div class="mz-problems-grid">
+        <a class="category-card" href="{% url 'catalog:product_list' %}?q=ruido%20escape"><h3>Ruido en el escape</h3></a>
+        <a class="category-card" href="{% url 'catalog:product_list' %}?q=potencia%20escape"><h3>Pérdida de potencia</h3></a>
+        <a class="category-card" href="{% url 'catalog:product_list' %}?q=catal%C3%ADtico"><h3>Falla en catalítico</h3></a>
+        <a class="category-card" href="{% url 'catalog:product_list' %}?q=revisi%C3%B3n%20t%C3%A9cnica"><h3>Revisión técnica rechazada</h3></a>
+      </div>
+    </section>
+
+    <!-- 6) Top Sellers • Repuestos de Escape -->
+    <section class="section" id="mas-vendido">
+      <div class="featured-head">
+        <div>
+          <h2 class="section-title">Top Sellers • Repuestos de Escape</h2>
+          <p class="section-sub">Repuestos de escape con compatibilidad verificada</p>
+        </div>
+        <a href="{% url 'catalog:product_list' %}" class="btn-secondary">Ver todo el catálogo</a>
+      </div>
+      <div class="product-grid">
+        {% for p in featured_products %}
+        <article class="product-card">
+          <a class="img-wrap" href="{{ p.url }}" title="{{ p.name }}">
+            <img src="{{ p.image_url }}" alt="{{ p.name }} — {{ p.sku }}" loading="lazy" onerror="this.onerror=null;this.src='/media/logomonteazul.png';">
+          </a>
+          <div class="body">
+            <div class="name">{{ p.name }}</div>
+            <div class="sku">{{ p.sku }}</div>
+            <div style="font-size:.82rem;color:rgba(255,255,255,.6);margin-bottom:12px;">Compatibilidad verificada • Alto flujo • Envío a regiones</div>
+            <a href="https://wsp.cl/Atepara" class="product-card-btn-primary" target="_blank" rel="noopener">Cotizar por WhatsApp</a>
+            <a href="{{ p.url }}" class="btn-consult">Ver detalle</a>
+          </div>
+        </article>
+        {% empty %}
+        <div class="category-card" style="grid-column: 1 / -1; text-align: center;">
+          <div class="mz-card-badge soon" style="display:inline-flex;">Próximamente</div>
+          <h3 style="margin-bottom:8px;">Estamos preparando el listado de Top Sellers</h3>
+          <p style="color: var(--text-secondary); margin-bottom: 16px;">Mientras tanto, cuéntanos tu vehículo o medida y te cotizamos el repuesto correcto.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
+            <a href="https://wsp.cl/Atepara" target="_blank" rel="noopener" class="mz-btn-wa">Cotizar por WhatsApp</a>
+            <a href="{% url 'catalog:product_list' %}" class="mz-btn-outline">Ver catálogo completo</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
     <section class="section reviews-section" id="reseñas">
       <div style="text-align: center;">
         <span class="reviews-badge" aria-hidden="true">Reseñas verificadas</span>
@@ -1809,185 +1924,50 @@
             <span class="review-author">Alejandro</span>
           </div>
         </article>
-        <article class="review-card">
-          <span class="review-quote-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg></span>
-          <p class="review-text">"Materiales sumamente resistentes y de alta calidad. El producto llegó en perfectas condiciones, listo para su uso."</p>
-          <div class="review-meta">
-            <span class="review-author">Alexis</span>
-          </div>
-        </article>
       </div>
     </section>
-
-    <!-- 4) Quiénes somos -->
-    <section class="section" id="quienes-somos">
-      <div class="about-card">
-        <h2 class="section-title">¿Quiénes somos?</h2>
-        <div class="about-items">
-          <div class="about-item">
-            <div class="about-item-icon" aria-hidden="true">
-              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            </div>
-            <p class="about-item-text"><strong>Especialistas en sistemas de escape para vehículos:</strong> catalíticos, silenciadores, tubos flexibles y más.</p>
-          </div>
-          <div class="about-item">
-            <div class="about-item-icon" aria-hidden="true">
-              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            </div>
-            <p class="about-item-text"><span class="accent">Asesoría real</span> y compatibilidad verificada por año, marca, modelo y motor. No vendemos por catálogo genérico: <strong>te mostramos lo que calza en tu auto.</strong></p>
-          </div>
-          <div class="about-item">
-            <div class="about-item-icon" aria-hidden="true">
-              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-            </div>
-            <p class="about-item-text"><strong>Despacho a todo Chile.</strong> Atención directa por WhatsApp para cotizaciones y dudas técnicas.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3) Medios de pago -->
-    <section class="section">
-      <h2 class="section-title">Paga como quieras</h2>
-      <p class="section-sub">Débito, crédito y transferencias bancarias</p>
-      <div class="payment-wrap">
-        <div class="payment-card">
-          <div class="ico-wrap">
-            <img src="{% static 'img/visa.svg' %}" alt="Visa" width="72" height="48">
-          </div>
-          <h3>Visa</h3>
-          <p>Débito y crédito</p>
-        </div>
-        <div class="payment-card">
-          <div class="ico-wrap">
-            <img src="{% static 'img/mastercard.svg' %}" alt="Mastercard" width="72" height="48">
-          </div>
-          <h3>Mastercard</h3>
-          <p>Débito y crédito</p>
-        </div>
-        <div class="payment-card">
-          <div class="ico-wrap ico-transfer">
-            <img src="{% static 'img/transferencia.svg' %}" alt="Transferencia bancaria" width="72" height="48">
-          </div>
-          <h3>Transferencia</h3>
-          <p>Transferencias bancarias</p>
-        </div>
-      </div>
-      <div class="payment-logos-row">
-        <img src="{% static 'img/visa.svg' %}" alt="Visa" width="48" height="32">
-        <img src="{% static 'img/mastercard.svg' %}" alt="Mastercard" width="48" height="32">
-        <img src="{% static 'img/debito.svg' %}" alt="Débito" width="48" height="32">
-        <img src="{% static 'img/transferencia.svg' %}" alt="Transferencia bancaria" width="48" height="32">
-      </div>
-      <p class="payment-trust"><span>Compra segura</span> • Comprobante y respaldo • Atención directa</p>
-    </section>
-
-    <!-- 4) Cómo comprar -->
-    <section class="section">
-      <h2 class="section-title">Cómo comprar</h2>
-      <div class="steps-wrap">
-        <div class="step-card">
-          <div class="step-num">1</div>
-          <h3>Busca por vehículo o catálogo</h3>
-          <p>Usa el buscador por año, marca y modelo o explora el catálogo completo.</p>
-        </div>
-        <div class="step-card">
-          <div class="step-num">2</div>
-          <h3>Confirma compatibilidad con asesor</h3>
-          <p>Te ayudamos por WhatsApp a confirmar que el repuesto calza en tu vehículo.</p>
-        </div>
-        <div class="step-card">
-          <div class="step-num">3</div>
-          <h3>Pagas y despachamos a tu región</h3>
-          <p>Débito, crédito o transferencia. Enviamos a todo Chile.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4b) Exhibición y Ventas -->
-    <section class="section" id="punto-retiro">
-      <h2 class="section-title">📍 Exhibición y Ventas</h2>
-      <p class="section-sub" style="margin-bottom: 1rem;">Visítanos para exhibición y ventas de repuestos. Atención y orientación técnica para elegir el producto correcto.</p>
-      <p class="section-sub" style="margin-bottom: 0.5rem;"><strong>Dirección:</strong> Diez de Julio 354, Santiago</p>
-      <p class="section-sub" style="margin-bottom: 1.5rem;"><strong>Horario:</strong> Lunes a Viernes 9:00 – 18:00</p>
-      <div class="mapa-retiro">
-        <iframe
-          src="https://www.google.com/maps?q=Diez+de+Julio+354,+Santiago,+Chile&output=embed"
-          width="100%"
-          height="350"
-          style="border:0;"
-          allowfullscreen=""
-          loading="lazy"
-          title="Ubicación Monteazul SPA Diez de Julio 354">
-        </iframe>
-      </div>
-    </section>
-
-    <!-- 5) Contacto rápido -->
-    <section class="section" id="contacto">
+    <section class="section" id="cta-final">
       <div class="contact-card">
-        <h2 class="section-title">Contacto rápido</h2>
-        <p class="contact-sub">Respuesta directa por WhatsApp. También puedes visitarnos en nuestra sala de exhibición y ventas.</p>
-        <div class="contact-info">
-          <span>📍 Diez de Julio 354, Santiago</span>
-          <span>🕐 Atención por WhatsApp</span>
+        <h2 class="section-title" style="text-align:center;">¿No estás seguro de qué necesitas?</h2>
+        <p class="contact-sub">Nuestro equipo te ayuda a encontrar el repuesto exacto.</p>
+        <div style="text-align:center;">
+          <a href="https://wsp.cl/Atepara" class="btn-wa-large" target="_blank" rel="noopener">Escribir por WhatsApp</a>
         </div>
-        <a href="https://wsp.cl/Atepara" class="btn-wa-large" target="_blank" rel="noopener">Escribir por WhatsApp</a>
-      </div>
-    </section>
-
-    <!-- 6) Top Sellers • Repuestos de Escape -->
-    <section class="section" id="mas-vendido">
-      <div class="featured-head">
-        <div>
-          <h2 class="section-title">Top Sellers • Repuestos de Escape</h2>
-          <p class="section-sub">Repuestos de escape con compatibilidad verificada</p>
-        </div>
-        <a href="{% url 'catalog:product_list' %}" class="btn-secondary">Ver todo el catálogo</a>
-      </div>
-      <div class="product-grid">
-        {% for p in featured_products %}
-        <article class="product-card">
-          <a class="img-wrap" href="{{ p.url }}" title="{{ p.name }}">
-            <img src="{{ p.image_url }}" alt="{{ p.name }} — {{ p.sku }}" loading="lazy">
-          </a>
-          <div class="body">
-            <div class="name">{{ p.name }}</div>
-            <div class="sku">{{ p.sku }}</div>
-            <div style="font-size:.82rem;color:rgba(255,255,255,.6);margin-bottom:12px;">Compatibilidad verificada • Alto flujo • Envío a regiones</div>
-            <a href="{{ p.url }}" class="product-card-btn-primary">Ver detalle</a>
-            <a href="https://wsp.cl/Atepara" class="btn-consult" target="_blank" rel="noopener">Consultar compatibilidad</a>
-          </div>
-        </article>
-        {% empty %}
-        <p class="section-sub">Próximamente más productos destacados.</p>
-        {% endfor %}
       </div>
     </section>
   </main>
 
-  <!-- 7) Footer -->
   <footer class="site-footer">
     <div class="footer-inner">
-      <div class="footer-top">
-        <nav class="footer-links">
-          <a href="{% url 'catalog:product_list' %}">Productos</a>
-          <a href="{% url 'core:vehicle_search' %}">Buscar por vehículo</a>
-          <a href="{% url 'catalog:product_list' %}?cat=cataliticos">Catalíticos</a>
-          <a href="#contacto">Contacto</a>
-        </nav>
-        <div class="footer-payment-icons">
-          <span>Medios de pago:</span>
-          <span title="Débito">💳</span>
-          <span title="Crédito">💳</span>
-          <span title="Transferencia">🏦</span>
+      <div class="footer-top mz-footer-grid">
+        <div>
+          <h3 class="section-title" style="font-size:1.1rem;margin-bottom:8px;">Contacto</h3>
+          <p class="section-sub" style="margin:0;">Diez de Julio 354, Santiago</p>
+          <p class="section-sub" style="margin:0.25rem 0 0.75rem 0;"><a href="https://wsp.cl/Atepara" target="_blank" rel="noopener" style="color:#10B981;text-decoration:underline;">WhatsApp</a></p>
+        </div>
+        <div>
+          <h3 class="section-title" style="font-size:1.1rem;margin-bottom:8px;">Categorías</h3>
+          <nav class="footer-links" style="display:flex;flex-direction:column;gap:6px;">
+            <a href="{% url 'catalog:product_list' %}?cat=cataliticos-twc">Catalíticos Universales</a>
+            <a href="{% url 'catalog:product_list' %}?cat=cataliticos-twc-diesel">Catalíticos Diésel</a>
+            <a href="{% url 'catalog:product_list' %}?cat=flexibles">Flexibles de Escape</a>
+            <a href="{% url 'catalog:product_list' %}?cat=silenciador-linea-dw">Silenciadores</a>
+            <a href="{% url 'catalog:product_list' %}?cat=resonador-deportivo-alto-flujo-ltm">Resonadores</a>
+            <a href="{% url 'catalog:product_list' %}?cat=empaquetaduras-de-motor">Empaques de Motor</a>
+          </nav>
+        </div>
+        <div>
+          <h3 class="section-title" style="font-size:1.1rem;margin-bottom:8px;">Legal</h3>
+          <nav class="footer-links" style="display:flex;flex-direction:column;gap:6px;">
+            <a href="{% url 'catalog:product_list' %}">Catálogo</a>
+            <a href="#cta-final">Contacto</a>
+            <a href="{% url 'core:home' %}">Inicio</a>
+          </nav>
         </div>
       </div>
-      <p class="footer-shipping">Envíos a todo Chile</p>
-      <div class="footer-bottom">
-        © {% now "Y" %} Monteazul SPA • Desde 2016 • Ingeniería en sistemas de escape • Envíos a todo Chile
-        <p class="footer-address">Exhibición y Ventas: <a href="https://www.google.com/maps/search/?api=1&query=Diez%20de%20Julio%20354%2C%20Santiago%2C%20Chile" target="_blank" rel="noopener" style="color: rgba(255,255,255,0.85); text-decoration: underline;">Diez de Julio 354, Santiago</a> · Providencia: Barros Borgoño 71</p>
-        <span class="footer-credits">Desarrollo: Atlanta Global Solutions</span>
+      <div class="footer-bottom" style="margin-top:18px;">
+        © {% now "Y" %} Monteazul SPA • Ingeniería en sistemas de escape • Envíos a todo Chile
+        <p class="footer-address">Exhibición y Ventas: <a href="https://www.google.com/maps/search/?api=1&query=Diez%20de%20Julio%20354%2C%20Santiago%2C%20Chile" target="_blank" rel="noopener" style="color: rgba(255,255,255,0.85); text-decoration: underline;">Diez de Julio 354, Santiago</a></p>
       </div>
     </div>
   </footer>
