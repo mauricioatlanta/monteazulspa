@@ -8,7 +8,7 @@
   <!-- Favicon temporal (emoji). Cuando tengas logo: guarda favicon.ico en static/img/ y sustituye por: <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}"> -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚗</text></svg>">
   <title>{% block meta_title %}MonteAzul SPA | Repuestos de Escape{% endblock %}</title>
-  <meta name="description" content="{% block meta_description %}Catalíticos, flexibles reforzados y silenciadores con envío a todo Chile. Retiro en Macul, Santiago.{% endblock %}">
+  <meta name="description" content="{% block meta_description %}Catalíticos, flexibles reforzados y silenciadores con envío a todo Chile. Exhibición y Ventas en Diez de Julio 354, Santiago.{% endblock %}">
   <link rel="canonical" href="{% block canonical_url %}{% canonical_url %}{% endblock %}">
   {% block og_tags %}
     <meta property="og:title" content="{% block og_title %}MonteAzul SPA | Repuestos de Escape{% endblock %}">
@@ -32,8 +32,8 @@
     "name": "Monteazul Spa",
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "Barros Borgoño 71",
-      "addressLocality": "Providencia",
+      "streetAddress": "Diez de Julio 354",
+      "addressLocality": "Santiago",
       "addressRegion": "Región Metropolitana",
       "addressCountry": "CL"
     },
@@ -713,7 +713,7 @@
   {% include "partials/_location_modal.html" %}
   {% include "partials/_cookies_banner.html" %}
 
-  <a class="whatsapp-float fixed right-5 bottom-5 z-50 flex items-center gap-2 px-4 py-3 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-white font-bold text-sm shadow-lg hover:bg-emerald-500/20 hover:shadow-emerald-500/20 transition-all" href="https://wa.me/{{ whatsapp_number|default:'56979503154' }}?text=Hola%20Monteazul%2C%20quiero%20contactar%20a%20un%20vendedor" target="_blank" rel="noopener" title="Contactar vendedor por WhatsApp">💬 Contactar vendedor</a>
+  <a class="whatsapp-float fixed right-5 bottom-5 z-50 flex items-center gap-2 px-4 py-3 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-white font-bold text-sm shadow-lg hover:bg-emerald-500/20 hover:shadow-emerald-500/20 transition-all" href="https://wsp.cl/Atepara" target="_blank" rel="noopener" title="Contactar vendedor por WhatsApp">💬 Contactar vendedor</a>
 
   {% comment %}Mobile Bottom Dock (Premium){% endcomment %}
   <nav class="mobile-dock" aria-label="Navegación móvil">

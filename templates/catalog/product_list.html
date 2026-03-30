@@ -1,7 +1,7 @@
 {% extends "base_public.html" %}
 {% load catalog_filters %}{% load static %}
 {% block meta_title %}{% if q %}Buscar "{{ q }}" | MonteAzul SPA{% elif current_category %}{{ current_category.name }} | MonteAzul SPA{% else %}Catálogo de Productos | MonteAzul SPA{% endif %}{% endblock %}
-{% block meta_description %}{% if q %}Resultados para {{ q }}. Catalíticos, flexibles y repuestos de escape con envío a Chile.{% elif current_category %}Compra {{ current_category.name }} con envío en Chile. MonteAzul SPA - Repuestos de escape.{% else %}Catalíticos, flexibles reforzados y silenciadores. Envío a todo Chile. Retiro en Macul.{% endif %}{% endblock %}
+{% block meta_description %}{% if q %}Resultados para {{ q }}. Catalíticos, flexibles y repuestos de escape con envío a Chile.{% elif current_category %}Compra {{ current_category.name }} con envío en Chile. MonteAzul SPA - Repuestos de escape.{% else %}Catalíticos, flexibles reforzados y silenciadores. Envío a todo Chile. Exhibición y ventas en Diez de Julio 354.{% endif %}{% endblock %}
 {% block extra_head %}
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@400;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">

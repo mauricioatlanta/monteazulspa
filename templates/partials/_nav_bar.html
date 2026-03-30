@@ -36,7 +36,7 @@
         <a href="{% url 'catalog:escape_search' %}" class="nav-drawer-link">Por medidas (texto)</a>
         <a href="{% url 'catalog:buscar_escape' %}" class="nav-drawer-link">Por diámetro y largo</a>
         <span class="nav-drawer-divider">Más</span>
-        <a href="{% url 'core:home' %}#punto-retiro" class="nav-drawer-link"><i class="fa-solid fa-location-dot"></i> Retiro Macul</a>
+        <a href="{% url 'core:home' %}#punto-retiro" class="nav-drawer-link"><i class="fa-solid fa-location-dot"></i> Exhibición y Ventas</a>
         <a href="#contacto" class="nav-drawer-link"><i class="fa-solid fa-comment-dots"></i> Contacto</a>
         <a href="{% url 'cart:view' %}" class="nav-drawer-link nav-drawer-link-cart"><i class="fa-solid fa-cart-shopping"></i> Carrito</a>
       </div>
@@ -51,7 +51,7 @@
       <a href="{% url 'catalog:product_list' %}?cat=silenciador-alto-flujo-lt" class="nav-link{% if request.GET.cat == 'silenciador-alto-flujo-lt' %} active{% endif %}">Silenciadores Alto Flujo</a>
       <a href="{% url 'catalog:product_list' %}?cat=colas-de-escape" class="nav-link{% if request.GET.cat == 'colas-de-escape' %} active{% endif %}">Colas de escapes</a>
       <a href="{% url 'core:home' %}" class="nav-link{% if request.path == '/' or request.path == '/inicio/' %} active{% endif %}"><i class="fa-solid fa-house"></i>Inicio</a>
-      <a href="{% url 'core:home' %}#punto-retiro" class="nav-link"><i class="fa-solid fa-location-dot"></i>Retiro Macul</a>
+      <a href="{% url 'core:home' %}#punto-retiro" class="nav-link"><i class="fa-solid fa-location-dot"></i>Exhibición y Ventas</a>
       <a href="#contacto" class="nav-link"><i class="fa-solid fa-comment-dots"></i>Contacto</a>
       <a href="{% url 'cart:view' %}" class="nav-link cart"><i class="fa-solid fa-cart-shopping"></i>Carrito</a>
     </div>

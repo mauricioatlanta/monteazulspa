@@ -501,6 +501,16 @@
 
     <div class="validator-wrap" id="buscador">
       <div class="validator-card">
+        <div style="margin-bottom:16px; padding:12px 14px; border-radius:12px; border:1px solid rgba(245,196,0,0.35); background: rgba(245,196,0,0.08); color: rgba(255,255,255,0.92);">
+          <div style="font-weight:800; letter-spacing:0.04em;">Módulo en Construcción</div>
+          <div style="margin-top:6px; color: rgba(255,255,255,0.75); font-size:0.9rem; line-height:1.45;">
+            Estamos mejorando el buscador por vehículo. Por ahora, cotiza directo por WhatsApp o revisa el catálogo.
+          </div>
+          <div style="margin-top:10px; display:flex; flex-wrap:wrap; gap:10px;">
+            <a href="https://wsp.cl/Atepara" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:8px; padding:10px 12px; border-radius:12px; background: rgba(34,211,238,0.14); border:1px solid rgba(34,211,238,0.28); color: rgba(255,255,255,0.92); text-decoration:none; font-weight:700;">💬 WhatsApp</a>
+            <a href="{% url 'catalog:product_list' %}" style="display:inline-flex; align-items:center; gap:8px; padding:10px 12px; border-radius:12px; background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.9); text-decoration:none; font-weight:700;">🛒 Ver catálogo</a>
+          </div>
+        </div>
         <div class="validator-title" id="validator-legend">Validador de compatibilidad por vehículo</div>
         <div class="steps-line" aria-label="Progreso">
           <div class="step-pill active" id="st1"><span class="num">1</span> Año</div>
@@ -582,7 +592,7 @@
           </div>
 
           <div class="actions">
-            <button type="submit" class="btn-submit" id="btnSearch" disabled>Ver repuestos compatibles</button>
+            <button type="submit" class="btn-submit" id="btnSearch" disabled>Módulo en Construcción</button>
             <button type="button" class="btn-clear" id="btnClear">Limpiar</button>
           </div>
         </form>
@@ -595,7 +605,7 @@
     </div>
   </main>
 
-  <a class="wa-float" id="contacto" href="https://wa.me/{{ whatsapp_number }}?text=Hola%20Monteazul%2C%20necesito%20ayuda%20con%20compatibilidad%20de%20escape" target="_blank" rel="noopener" title="Contactar vendedor por WhatsApp">💬 Contactar vendedor</a>
+  <a class="wa-float" id="contacto" href="https://wsp.cl/Atepara" target="_blank" rel="noopener" title="Contactar vendedor por WhatsApp">💬 Contactar vendedor</a>
 
   <div class="toast" id="toast" role="status">
     <strong id="toastTitle">Listo</strong>
@@ -627,15 +637,15 @@
     "areaServed": "CL",
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "Exequiel Fernández 3663, Of. 6",
-      "addressLocality": "Macul",
+      "streetAddress": "Diez de Julio 354",
+      "addressLocality": "Santiago",
       "addressRegion": "Región Metropolitana",
       "addressCountry": "CL"
     }
   }
   </script>
   <footer class="footer">
-    © {% now "Y" %} Monteazul SPA • Centro de Venta: <a href="https://www.google.com/maps/search/?api=1&query=Exequiel%20Fern%C3%A1ndez%203663%20Of%206%2C%20Macul%2C%20Santiago%2C%20Chile" target="_blank" rel="noopener" style="color: rgba(255,255,255,0.95); text-decoration: underline;">Exequiel Fernández 3663 Of. 6, Macul, Santiago</a> • Oficina Corporativa: Barros Borgoño 71, Providencia, Santiago • Fundada 07/06/2016<br>
+    © {% now "Y" %} Monteazul SPA • Exhibición y Ventas: <a href="https://www.google.com/maps/search/?api=1&query=Diez%20de%20Julio%20354%2C%20Santiago%2C%20Chile" target="_blank" rel="noopener" style="color: rgba(255,255,255,0.95); text-decoration: underline;">Diez de Julio 354, Santiago</a> • Oficina Corporativa: Barros Borgoño 71, Providencia, Santiago • Fundada 07/06/2016<br>
     <span class="footer-credits">Sitio creado por <strong>Atlanta Global Solutions</strong></span>
   </footer>
 
@@ -679,8 +689,7 @@
     function unDone(el) { el.classList.remove('done'); }
 
     function canSearch() {
-      // Flujo híbrido: podemos buscar con año+marca+modelo, motor es opcional.
-      return yearSelect.value && brandSelect.value && modelSelect.value;
+      return false;
     }
 
     function resetAfterYear() {

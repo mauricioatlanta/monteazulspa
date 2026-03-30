@@ -4,7 +4,7 @@
 {% with seo_desc=product.seo_description|default:product.ficha_tecnica|striptags|truncatechars:155 %}
 {% block meta_title %}{{ seo_title }} | MonteAzul SPA{% endblock %}
 {% block meta_description %}
-  {% if seo_desc %}{{ seo_desc }}{% else %}{{ product.name }} en MonteAzul SPA. Repuestos de escape en Santiago: retiro en bodega en Macul o despacho a todo Chile.{% endif %}
+  {% if seo_desc %}{{ seo_desc }}{% else %}{{ product.name }} en MonteAzul SPA. Repuestos de escape en Santiago: exhibición y ventas en Diez de Julio 354 o despacho a todo Chile.{% endif %}
 {% endblock %}
 {% block og_title %}{{ seo_title }} | MonteAzul SPA{% endblock %}
 {% block og_description %}
@@ -120,7 +120,7 @@
         {% if product.seo_intro %}
           {{ product.seo_intro }}
         {% else %}
-          Repuesto de escape automotriz disponible en <strong>Santiago</strong>. Retiro en bodega en <strong>Macul</strong> o despacho a todo Chile.
+          Repuesto de escape automotriz disponible en <strong>Santiago</strong>. Exhibición y ventas en <strong>Diez de Julio 354</strong> o despacho a todo Chile.
           {% if is_catalitico %}
             {% if product.euro_norm %} Compatible con norma <strong>{{ product.get_euro_norm_display }}</strong>.{% endif %}
             {% if product.diametro_entrada %} Diámetro <strong>{{ product.diametro_entrada }}"</strong>.{% endif %}
@@ -246,7 +246,7 @@ OEM: 18160-PAA-305 · No Accord 2003 en adelante</div>
       <!-- Ayuda / Contacto -->
       <div class="mt-4 rounded-xl border border-white/10 bg-black/20 p-4 text-sm">
         <div class="opacity-70 mb-2">¿Necesitas ayuda?</div>
-        <a href="https://wa.me/{{ whatsapp_number|default:'56979503154' }}?text=Hola%20Monteazul%2C%20consulto%20por%20el%20producto%20{{ product.sku|urlencode }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-semibold hover:bg-emerald-500/30 transition-colors">
+        <a href="https://wsp.cl/Atepara" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-semibold hover:bg-emerald-500/30 transition-colors">
           <span aria-hidden="true">💬</span> WhatsApp
         </a>
       </div>
@@ -574,7 +574,7 @@ Por plataforma Delta II y motorización compartida con General Motors, este cata
         <details class="rounded-xl border border-white/10 bg-black/20 p-4">
           <summary class="cursor-pointer font-semibold text-white/90">¿Puedo retirarlo en Santiago?</summary>
           <p class="mt-2 text-sm text-white/75 leading-relaxed">
-            Sí: retiro en bodega en <strong>Macul</strong> (Santiago) o despacho a todo Chile.
+            Sí: exhibición y ventas en <strong>Diez de Julio 354</strong> (Santiago) o despacho a todo Chile.
           </p>
         </details>
       {% else %}
@@ -588,7 +588,7 @@ Por plataforma Delta II y motorización compartida con General Motors, este cata
         <details class="rounded-xl border border-white/10 bg-black/20 p-4">
           <summary class="cursor-pointer font-semibold text-white/90">¿Hacen despacho?</summary>
           <p class="mt-2 text-sm text-white/75 leading-relaxed">
-            Sí: despacho a todo Chile o retiro en bodega en <strong>Macul</strong> (Santiago).
+            Sí: despacho a todo Chile o exhibición y ventas en <strong>Diez de Julio 354</strong> (Santiago).
           </p>
         </details>
       {% endif %}
@@ -686,7 +686,7 @@ Por plataforma Delta II y motorización compartida con General Motors, este cata
   "category": "{{ product.category.name|default:'Repuestos de escape'|escapejs }}",
   "mpn": "{{ product.sku|escapejs }}",
   {% if first_img and first_img.image %}"image": ["{{ request.scheme }}://{{ request.get_host }}{{ first_img.image.url }}"],{% endif %}
-  "description": "{% if product.seo_description %}{{ product.seo_description|escapejs }}{% elif product.ficha_tecnica %}{{ product.ficha_tecnica|striptags|truncatechars:155|escapejs }}{% else %}{{ product.name|escapejs }} - Repuesto de escape en Santiago. Retiro en Macul o despacho a todo Chile.{% endif %}",
+  "description": "{% if product.seo_description %}{{ product.seo_description|escapejs }}{% elif product.ficha_tecnica %}{{ product.ficha_tecnica|striptags|truncatechars:155|escapejs }}{% else %}{{ product.name|escapejs }} - Repuesto de escape en Santiago. Exhibición y ventas en Diez de Julio 354 o despacho a todo Chile.{% endif %}",
   "brand": {"@type": "Brand", "name": "MonteAzul"},
   {% if review_stats.count > 0 %}
   "aggregateRating": {
