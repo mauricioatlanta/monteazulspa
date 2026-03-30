@@ -1,10 +1,15 @@
+from collections import OrderedDict
+
 from django.conf import settings
+from django.db import models
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.db.models import Q, Count, Prefetch, Case, When, IntegerField
+from django.db.models import Q, Count, Prefetch, Case, When, IntegerField, QuerySet
 from django.views.decorators.http import require_GET
-from .models import Product, Category, ProductCompatibility, ProductImage, ProductViewStat
+from .models import Product, Category, ProductCompatibility, ProductImage, ProductViewStat, SearchLog
+from apps.catalog.utils.engine_query_parser import parse_engine_query
+from apps.catalog.services.vehicle_recommendation_rules import apply_engine_filter
 
 # Import interno para evitar circular - review_submit usa apps.reviews
 from .templatetags.catalog_filters import format_pesos_cl
@@ -96,7 +101,7 @@ CATALITICOS_FILTER_SLUGS = (
 
 
 def _apply_cataliticos_filters(products_qs, get_params):
-    """Aplica filtros técnicos para catalíticos: euro_norm, combustible, diametro, largo, sensor."""
+    """Aplica filtros técnicos para catalíticos: euro_norm, combustible, diametro, largo, sensor, marca, modelo, cilindrada."""
     # enorm: múltiple por getlist o por query string comma-separated
     enorm_list = get_params.getlist("enorm") if hasattr(get_params, "getlist") else []
     enorm_str = (get_params.get("enorm") or "").strip()
@@ -104,9 +109,11 @@ def _apply_cataliticos_filters(products_qs, get_params):
         enorm_list = [n.strip().upper() for n in enorm_str.split(",") if n.strip()]
     if enorm_list:
         products_qs = products_qs.filter(euro_norm__in=enorm_list)
+
     combustible = (get_params.get("combustible") or "").strip().upper()
     if combustible in ("BENCINA", "DIESEL"):
         products_qs = products_qs.filter(combustible=combustible)
+
     diametro = get_params.get("diametro")
     if diametro not in (None, ""):
         try:
@@ -114,6 +121,7 @@ def _apply_cataliticos_filters(products_qs, get_params):
             products_qs = products_qs.filter(diametro_entrada=d)
         except (TypeError, ValueError):
             pass
+
     largo = get_params.get("largo")
     if largo not in (None, ""):
         try:
@@ -121,12 +129,39 @@ def _apply_cataliticos_filters(products_qs, get_params):
             products_qs = products_qs.filter(largo_mm=L)
         except (TypeError, ValueError):
             pass
+
     sensor = get_params.get("sensor")
     if sensor == "1":
         products_qs = products_qs.filter(tiene_sensor=True)
     elif sensor == "0":
         products_qs = products_qs.filter(tiene_sensor=False)
-    return products_qs
+
+    # Filtros por compatibilidad: marca, modelo y cilindrada
+    brand_id = (get_params.get("brand_id") or "").strip()
+    if brand_id.isdigit():
+        products_qs = products_qs.filter(
+            compatibilities__brand_id=int(brand_id),
+            compatibilities__is_active=True,
+        )
+
+    model_id = (get_params.get("model_id") or "").strip()
+    if model_id.isdigit():
+        products_qs = products_qs.filter(
+            compatibilities__model_id=int(model_id),
+            compatibilities__is_active=True,
+        )
+
+    # Cilindrada: para catalíticos usar rango recomendado (recommended_cc_min/cc_max)
+    displacement_cc = (get_params.get("displacement_cc") or "").strip()
+    if displacement_cc.isdigit():
+        cc = int(displacement_cc)
+        # Producto aplica si no tiene rango O si cc está dentro del rango
+        products_qs = products_qs.filter(
+            Q(recommended_cc_min__isnull=True) | Q(recommended_cc_min__lte=cc),
+            Q(recommended_cc_max__isnull=True) | Q(recommended_cc_max__gte=cc),
+        )
+
+    return products_qs.distinct()
 
 
 def _apply_category_filter(products_qs, cat_slug):
@@ -202,28 +237,59 @@ def order_products_for_display(products_list, cat_slug, sort=""):
     return _apply_user_sort(products_list, sort)
 
 
-def _smart_search_queryset(products_qs, q):
+def _smart_search_queryset(products_qs: QuerySet[Product], q: str):
     """
     Búsqueda inteligente: divide en términos, busca en nombre, SKU y categoría.
     Cada término debe coincidir en al menos uno de esos campos (OR por término, AND entre términos).
     Orden: coincidencia exacta en SKU primero, luego por nombre.
     """
     if not q or not q.strip():
-        return products_qs
+        return products_qs, False
     q = q.strip()
     terms = [t.strip() for t in q.split() if t.strip()]
     if not terms:
-        return products_qs
+        return products_qs, False
     for term in terms:
         products_qs = products_qs.filter(
             Q(name__icontains=term)
             | Q(sku__icontains=term)
             | Q(category__name__icontains=term)
         )
+
+    # Enriquecer con heurísticas de motor (cc / fuel / año) con degradación suave:
+    is_relaxed = False
+    parsed_engine = parse_engine_query(q)
+    if parsed_engine.cc or parsed_engine.fuel or parsed_engine.year:
+        base_qs = products_qs
+        filtered = apply_engine_filter(
+            base_qs,
+            cc=parsed_engine.cc,
+            fuel=parsed_engine.fuel,
+            year=parsed_engine.year,
+        )
+        # Evaluar hasta 6 resultados para no hacer count() completo.
+        strict_sample = list(filtered[:6])
+        # Si el filtro fue demasiado agresivo, relajar Euro (año) manteniendo cc+fuel.
+        if len(strict_sample) < 5 and parsed_engine.year:
+            filtered_relaxed = apply_engine_filter(
+                base_qs,
+                cc=parsed_engine.cc,
+                fuel=parsed_engine.fuel,
+                year=None,
+            )
+            relaxed_sample = list(filtered_relaxed[:6])
+            # Solo usar relajado si realmente mejora volumen.
+            if len(relaxed_sample) >= len(strict_sample):
+                products_qs = filtered_relaxed
+                is_relaxed = True
+            else:
+                products_qs = filtered
+        else:
+            products_qs = filtered
     # Respetar orden por categoría (Resonadores, Silenciadores Alto Flujo) si está anotado
     if "_category_order" in products_qs.query.annotations:
-        return products_qs.order_by("_category_order", "category__slug", "name")
-    return products_qs.order_by("category__name", "name")
+        return products_qs.order_by("_category_order", "category__slug", "name"), is_relaxed
+    return products_qs.order_by("category__name", "name"), is_relaxed
 
 
 @require_GET
@@ -252,8 +318,23 @@ def product_search_api(request):
     products_qs = _apply_category_filter(products_qs, cat_slug)
     if cat_slug in CATALITICOS_FILTER_SLUGS:
         products_qs = _apply_cataliticos_filters(products_qs, request.GET)
-    products_qs = _smart_search_queryset(products_qs, q)
+    products_qs, is_relaxed = _smart_search_queryset(products_qs, q)
     products_list = list(products_qs[:60])  # límite razonable para respuesta rápida
+
+    # Log de búsqueda (vista principal de catálogo / buscador global).
+    parsed_engine = parse_engine_query(q)
+    try:
+        SearchLog.objects.create(
+            query=q,
+            cc=parsed_engine.cc,
+            fuel=parsed_engine.fuel,
+            year=parsed_engine.year,
+            results_count=len(products_list),
+            is_relaxed=is_relaxed,
+        )
+    except Exception:
+        # Nunca afectar UX por un error de logging.
+        pass
     products_list = order_products_for_display(products_list, cat_slug, sort_param)
 
     results = []
@@ -361,17 +442,16 @@ def product_list(request):
                 e.children_list = []
             root_categories = root_categories + extra
             root_categories.sort(key=lambda x: x.name)
-        # Una sola entrada "Silenciadores de Alto Flujo": si existen varias variantes, mostrar solo la canónica.
-        slugs_present = {r.slug for r in root_categories}
-        silenciadores_slugs = {"silenciadores", "silenciadores-alto-flujo", "silenciadores-de-alto-flujo"}
-        if len(slugs_present & silenciadores_slugs) > 1:
-            root_categories = [
-                r for r in root_categories
-                if r.slug != "silenciadores" and r.slug != "silenciadores-de-alto-flujo"
-            ]
-        # Una sola entrada "Flexibles Reforzados": ocultar raíz "flexibles-reforzados"; la raíz "flexibles" se muestra como "Flexibles Reforzados".
-        # Ocultar "Por clasificar" del menú público.
-        root_categories = [r for r in root_categories if r.slug not in ("flexibles-reforzados", "por-clasificar")]
+        # Excluir categorías antiguas reemplazadas por silenciador-linea-dw, silenciador-alto-flujo-lt, resonador-deportivo-alto-flujo-ltm
+        exclude_old_slugs = (
+            "flexibles-reforzados",
+            "por-clasificar",
+            "silenciadores",
+            "silenciadores-alto-flujo",
+            "silenciadores-de-alto-flujo",
+            "resonadores",
+        )
+        root_categories = [r for r in root_categories if r.slug not in exclude_old_slugs]
 
 
     # Orden: Resonadores primero, luego Silenciadores Alto Flujo, luego resto; después por nombre
@@ -398,7 +478,7 @@ def product_list(request):
         .order_by("_category_order", "category__slug", "name")
     )
 
-    products_qs = _smart_search_queryset(products_qs, q)
+    products_qs, is_relaxed = _smart_search_queryset(products_qs, q)
 
     current_category = None
     expanded_root_ids = set()
@@ -681,6 +761,7 @@ def product_list(request):
             "wizard_tipo": wizard_tipo,
             "wizard_anno": wizard_anno,
             "wizard_euro_display": wizard_euro_display,
+            "is_relaxed": is_relaxed,
             "cataliticos_filter_options": cataliticos_filter_options,
             "filter_enorm_list": filter_enorm_list,
             "filter_enorm": filter_enorm,
@@ -762,9 +843,9 @@ def product_detail(request, slug):
             ),
             Prefetch(
                 "compatibilities",
-                queryset=ProductCompatibility.objects.filter(is_active=True).select_related(
-                    "brand", "model", "engine"
-                ),
+                queryset=ProductCompatibility.objects.filter(is_active=True)
+                .select_related("brand", "model", "engine")
+                .order_by("brand__name", "model__name", "year_from", "year_to"),
             ),
         ),
         slug=slug,
@@ -788,10 +869,60 @@ def product_detail(request, slug):
         .prefetch_related("images")
         .order_by("name")[:8]
     )
-    compat = product.compatibilities.all()[:50]
+
+    # Compatibilidades: lista plana + agrupada por marca para el template
+    compat_qs = list(product.compatibilities.all())
+    compat_by_brand = OrderedDict()
+    for c in compat_qs:
+        brand_name = c.brand.name if c.brand else "Sin marca"
+        compat_by_brand.setdefault(brand_name, []).append(c)
+
+    # SEO meta: lista única (evitar "Chevrolet Cruze, Chevrolet Cruze, ...")
+    compat_seen = set()
+    seo_vehicle_compatibility_list = []
+    for c in compat_qs:
+        if c.brand:
+            key = f"{c.brand.name} {c.model.name if c.model else 'todos los modelos'}"
+            if key not in compat_seen:
+                compat_seen.add(key)
+                seo_vehicle_compatibility_list.append(key)
+    seo_vehicle_compatibility = ", ".join(seo_vehicle_compatibility_list)
+
+    # Schema.org: vehículos únicos para isAccessoryOrSparePartFor
+    schema_vehicles_seen = set()
+    schema_vehicles = []
+    for c in compat_qs:
+        if c.brand:
+            key = (c.brand.name, c.model.name if c.model else "Todos los modelos")
+            if key not in schema_vehicles_seen:
+                schema_vehicles_seen.add(key)
+                schema_vehicles.append({"brand": c.brand.name, "model": key[1]})
+
+    # Tabla limitada a 100 filas; si hay más, mostramos aviso + enlace a lista completa
+    compat_table_limit = 100
+    compat = compat_qs[:compat_table_limit]
+    compat_count_total = len(compat_qs)
+
+    # Resumen para buybox (primeras 3 marcas, 4 aplicaciones por marca) sin depender de slice en template
+    compat_preview = []
+    for i, (bname, blist) in enumerate(compat_by_brand.items()):
+        if i >= 3:
+            break
+        compat_preview.append((bname, blist[:4], len(blist)))
 
     from apps.catalog.flexibles_nomenclature import get_flexible_dimensions_display
     flexible_dims = get_flexible_dimensions_display(product.sku) or ""
+
+    # Mejora 2: enlace "Ver todos los 2x6" cuando el producto tiene diámetro y largo
+    busqueda_medidas_url = None
+    busqueda_medidas_label = None
+    if product.largo_mm and (product.diametro_entrada is not None or product.diametro_salida is not None):
+        d = product.diametro_entrada if product.diametro_entrada is not None else product.diametro_salida
+        d_label = str(int(d)) if d == int(d) else str(d)
+        largo_pulg = round(product.largo_mm / 25.4, 1)
+        label_largo = str(int(largo_pulg)) if largo_pulg == int(largo_pulg) else str(largo_pulg)
+        busqueda_medidas_url = reverse("catalog:buscar_escape") + f"?diametro={d_label}&largo={product.largo_mm}"
+        busqueda_medidas_label = f"Ver todos los {d_label}x{label_largo}"
 
     # Ficha técnica industrial para catalíticos (TWG/CLF)
     cat_slug = (product.category.slug if product.category_id else "") or ""
@@ -800,6 +931,24 @@ def product_detail(request, slug):
         or cat_slug.startswith("cataliticos-twc")
         or cat_slug in ("cataliticos-clf", "cataliticos-ensamble-directo")
     )
+
+    # Ensamble directo (CLF): aplicaciones para buybox y bloque destacado (todos los SKUs de la categoría)
+    _direct_fit_slugs = ("cataliticos-clf", "cataliticos-ensamble-directo")
+    is_direct_fit_clf = cat_slug in _direct_fit_slugs
+    direct_fit_application_rows = []
+    if is_direct_fit_clf and compat_qs:
+        for c in compat_qs[:60]:
+            direct_fit_application_rows.append(
+                {
+                    "brand": c.brand.name if c.brand_id else "—",
+                    "model": c.model.name if c.model_id else "Todos los modelos",
+                    "years": (
+                        "consultar aplicación"
+                        if c.year_from == 1900 and c.year_to == 2100
+                        else f"{c.year_from}–{c.year_to}"
+                    ),
+                }
+            )
 
     # Reseñas aprobadas
     from apps.reviews.models import Review
@@ -822,15 +971,281 @@ def product_detail(request, slug):
         {
             "product": product,
             "compat": compat,
+            "compatibilities": compat_qs,
+            "compatibilities_by_brand": list(compat_by_brand.items()),
+            "seo_vehicle_compatibility": seo_vehicle_compatibility,
+            "schema_vehicles": schema_vehicles,
+            "compat_count_total": compat_count_total,
+            "compat_table_limit": compat_table_limit,
+            "compat_preview": compat_preview,
             "related_products": related_products,
             "flexible_dims": flexible_dims,
+            "busqueda_medidas_url": busqueda_medidas_url,
+            "busqueda_medidas_label": busqueda_medidas_label,
             "is_catalitico": is_catalitico,
+            "is_direct_fit_clf": is_direct_fit_clf,
+            "direct_fit_application_rows": direct_fit_application_rows,
             "approved_reviews": approved_reviews,
             "can_review": can_review,
             "user_review": user_review,
             "review_stats": review_stats,
         },
     )
+
+
+def lista_precios(request):
+    """Listado de precios para imprimir o llevar. Productos activos ordenados por categoría y SKU."""
+    products = (
+        Product.objects.filter(is_active=True, deleted_at__isnull=True)
+        .select_related("category")
+        .order_by("category__name", "sku")
+    )
+    return render(
+        request,
+        "catalog/lista_precios.html",
+        {
+            "products": products,
+        },
+    )
+
+
+# Opciones para buscador por medidas (diámetro en pulgadas, largo en mm)
+DIAMETRO_OPCIONES = [
+    ("1.5", "1.5 pulgadas"),
+    ("1.75", "1.75 pulgadas"),
+    ("2", "2 pulgadas"),
+    ("2.25", "2.25 pulgadas"),
+    ("2.5", "2.5 pulgadas"),
+    ("3", "3 pulgadas"),
+    ("3.5", "3.5 pulgadas"),
+]
+LARGO_MM_OPCIONES = [
+    ("102", "4 pulgadas (102 mm)"),
+    ("152", "6 pulgadas (152 mm)"),
+    ("203", "8 pulgadas (203 mm)"),
+    ("254", "10 pulgadas (254 mm)"),
+    ("305", "12 pulgadas (305 mm)"),
+]
+
+
+def _parse_q_medidas(q):
+    """Interpreta búsquedas tipo 2x6, 2 x 6, 2*6, 2,5x8. Retorna (diametro_str, largo_str) o (None, None)."""
+    from decimal import Decimal, InvalidOperation
+    if not q or ("x" not in q.lower() and "*" not in q):
+        return None, None
+    q = q.strip().lower().replace("*", "x")
+    parts = q.split("x", 1)
+    if len(parts) != 2:
+        return None, None
+    try:
+        raw_d = parts[0].strip().replace(",", ".")
+        raw_l = parts[1].strip().replace(",", ".")
+        d = Decimal(raw_d)
+        l_inch = float(raw_l)
+        l_mm = int(round(l_inch * 25.4))
+        return str(d), str(l_mm)
+    except (InvalidOperation, ValueError, TypeError):
+        return None, None
+
+
+def buscar_escape(request):
+    """Búsqueda por diámetro y/o largo. Soporta q=2x6. Muy usada por talleres."""
+    from decimal import Decimal, InvalidOperation
+    from django.db.models import Case, Value, When
+
+    diametro = request.GET.get("diametro", "").strip()
+    largo = request.GET.get("largo", "").strip()
+    q = request.GET.get("q", "").strip()
+
+    # Mejora 1: interpretar 2x6, 2 x 6, 2*6
+    if q:
+        parsed_d, parsed_l = _parse_q_medidas(q)
+        if parsed_d:
+            diametro = parsed_d
+        if parsed_l:
+            largo = parsed_l
+
+    base = Product.objects.filter(is_active=True, deleted_at__isnull=True).select_related("category")
+    products = base.order_by("category__name", "name")
+
+    diametro_dec = None
+    largo_int = None
+
+    if diametro:
+        try:
+            diametro_dec = Decimal(diametro)
+            products = products.filter(
+                Q(diametro_entrada=diametro_dec) | Q(diametro_salida=diametro_dec)
+            )
+        except (InvalidOperation, ValueError):
+            pass
+
+    if largo:
+        try:
+            largo_int = int(largo)
+            products = products.filter(largo_mm=largo_int)
+        except ValueError:
+            pass
+
+    # Mejora 5: orden inteligente — exactos primero, luego compatibles (solo diámetro), luego resto
+    if diametro_dec is not None or largo_int is not None:
+        whens = []
+        if diametro_dec is not None and largo_int is not None:
+            whens.append(
+                When(
+                    (Q(diametro_entrada=diametro_dec) | Q(diametro_salida=diametro_dec))
+                    & Q(largo_mm=largo_int),
+                    then=Value(2),
+                )
+            )
+        if diametro_dec is not None:
+            whens.append(
+                When(
+                    Q(diametro_entrada=diametro_dec) | Q(diametro_salida=diametro_dec),
+                    then=Value(1),
+                )
+            )
+        if whens:
+            products = products.annotate(
+                _match_score=Case(*whens, default=Value(0), output_field=IntegerField())
+            ).order_by("-_match_score", "category__name", "name")
+
+    products = list(products[:50])
+
+    # Mejora 3: opciones dinámicas (solo medidas que existen en productos activos)
+    diametro_entrada_set = set(
+        base.exclude(diametro_entrada__isnull=True)
+        .values_list("diametro_entrada", flat=True)
+        .distinct()
+    )
+    diametro_salida_set = set(
+        base.exclude(diametro_salida__isnull=True)
+        .values_list("diametro_salida", flat=True)
+        .distinct()
+    )
+    def _d_str(d):
+        return str(int(d)) if d == int(d) else str(d)
+    all_diametros = sorted({_d_str(d) for d in (diametro_entrada_set | diametro_salida_set)})
+    largo_values = sorted(
+        base.exclude(largo_mm__isnull=True).values_list("largo_mm", flat=True).distinct()
+    )
+    diametro_opciones = [(v, f"{v} pulgadas") for v in all_diametros] if all_diametros else DIAMETRO_OPCIONES
+    largo_opciones = (
+        [(str(l), f"{round(l / 25.4, 1)} pulgadas ({l} mm)") for l in largo_values]
+        if largo_values
+        else LARGO_MM_OPCIONES
+    )
+
+    # Mejora 7: agrupar por categoría para mostrar "Flexibles 2\"", "Silenciadores 2\"", etc.
+    products_by_category = OrderedDict()
+    for p in products:
+        name = p.category.name if p.category else "Productos"
+        products_by_category.setdefault(name, []).append(p)
+
+    return render(
+        request,
+        "catalog/buscar_escape.html",
+        {
+            "products": products,
+            "products_by_category": list(products_by_category.items()),
+            "diametro": diametro,
+            "largo": largo,
+            "q": q,
+            "diametro_opciones": diametro_opciones,
+            "largo_opciones": largo_opciones,
+        },
+    )
+
+
+@require_GET
+def smart_search_suggestions_api(request):
+    """API de sugerencias para autocomplete del buscador global. GET q -> JSON { results: [...] }."""
+    from .utils.smart_search_suggestions import get_smart_search_suggestions
+
+    q = request.GET.get("q", "").strip()
+    results = get_smart_search_suggestions(q, total_limit=8)
+    return JsonResponse({"results": results})
+
+
+def smart_search_redirect(request):
+    """
+    Buscador inteligente: interpreta GET q y redirige a buscar-escape, vehicle_search o product_list.
+    """
+    from django.utils.http import urlencode
+
+    from .utils.smart_search import parse_smart_search
+
+    q = (request.GET.get("q") or "").strip()
+    parsed = parse_smart_search(q)
+
+    if parsed["type"] == "empty":
+        return redirect(reverse("catalog:product_list"))
+
+    if parsed["type"] == "measure":
+        url = reverse("catalog:buscar_escape")
+        params = urlencode({"q": parsed["original_query"]})
+        return redirect(f"{url}?{params}")
+
+    if parsed["type"] == "vehicle":
+        # Resolver vehículo: si tenemos marca, modelo y año, podemos intentar ir directo al flujo core,
+        # que es el validador principal y SEO-friendly. Si falta información clave (p. ej. año),
+        # o si en el futuro se detecta ambigüedad relevante de motor, usamos el buscador de vehículo
+        # en catálogo como paso intermedio para que el usuario complete datos.
+        brand_id = parsed.get("brand_id")
+        model_id = parsed.get("model_id")
+        year = parsed.get("year")
+
+        if brand_id and model_id and year:
+            core_url = reverse("core:vehicle_search")
+            core_params = {"brand": brand_id, "model": model_id, "year": year}
+            return redirect(f"{core_url}?{urlencode(core_params)}")
+
+        # Fallback: mantener flujo actual /productos/buscador-vehiculo/ como paso intermedio
+        url = reverse("catalog:vehicle_search")
+        params_dict = {"q": parsed["original_query"]}
+        if brand_id:
+            params_dict["brand_id"] = brand_id
+        if model_id:
+            params_dict["model_id"] = model_id
+        if year:
+            params_dict["year"] = year
+        return redirect(f"{url}?{urlencode(params_dict)}")
+
+    # type == "product"
+    url = reverse("catalog:product_list")
+    params = urlencode({"q": parsed["original_query"]})
+    return redirect(f"{url}?{params}")
+
+
+def escape_seo_redirect(request, diametro_slug, largo_slug=None):
+    """URLs indexables tipo /escape/2-pulgadas/ y /escape/2-pulgadas/6-pulgadas/ → redirige al buscador."""
+    # Parse "2-pulgadas" -> 2, "2-5-pulgadas" -> 2.5
+    def parse_pulgadas(slug):
+        if not slug or not slug.endswith("-pulgadas"):
+            return None
+        raw = slug[:-9].rstrip("-").replace("-", ".")  # "2-5-pulgadas" -> "2.5"
+        if not raw:
+            return None
+        try:
+            return float(raw)
+        except ValueError:
+            return None
+
+    d = parse_pulgadas(diametro_slug)
+    if d is None:
+        from django.http import HttpResponseNotFound
+        return HttpResponseNotFound()
+    diametro = str(int(d)) if d == int(d) else str(d)
+    largo_mm = None
+    if largo_slug:
+        l_inch = parse_pulgadas(largo_slug)
+        if l_inch is not None:
+            largo_mm = str(int(round(l_inch * 25.4)))
+    url = reverse("catalog:buscar_escape")
+    params = ["diametro=" + diametro]
+    if largo_mm:
+        params.append("largo=" + largo_mm)
+    return redirect(url + "?" + "&".join(params))
 
 
 def review_submit(request, slug):

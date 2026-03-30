@@ -14,6 +14,9 @@
 {% endwith %}
 
 {% block extra_head %}
+{% if seo_vehicle_compatibility %}
+<meta name="vehicle-compatibility" content="{{ seo_vehicle_compatibility }}">
+{% endif %}
 <style>
   .product-gallery-main { aspect-ratio: 1; }
   @media (min-width: 768px) { .product-gallery-main { max-height: 480px; aspect-ratio: auto; } }
@@ -48,10 +51,24 @@
       {"@type": "ListItem", "position": 1, "name": "Inicio", "item": "{{ SITE_URL|default:'https://monteazulspa.cl' }}/"},
       {"@type": "ListItem", "position": 2, "name": "Productos", "item": "{{ SITE_URL|default:'https://monteazulspa.cl' }}/productos/"},
       {"@type": "ListItem", "position": 3, "name": "{{ product.name|escapejs }}", "item": "{% canonical_url %}"}
-
     ]
   }
   </script>
+  {% if schema_vehicles %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "{{ product.name|escapejs }}",
+    "brand": {"@type": "Brand", "name": "MonteAzul"},
+    "isAccessoryOrSparePartFor": [
+      {% for v in schema_vehicles %}
+      {"@type": "Car", "brand": "{{ v.brand|escapejs }}", "model": "{{ v.model|escapejs }}"}{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+  </script>
+  {% endif %}
 
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
     <!-- Galería / imagen -->
@@ -80,6 +97,11 @@
         <div><span class="opacity-60">SKU:</span> {{ product.sku|default:"—" }}</div>
         <div><span class="opacity-60">Categoría:</span> {{ product.category.name|default:"—" }}</div>
       </div>
+      {% if busqueda_medidas_url and busqueda_medidas_label %}
+      <a href="{{ busqueda_medidas_url }}" class="mt-4 inline-block px-4 py-2 rounded-xl bg-[#00f0ff]/10 border border-[#00f0ff]/30 text-[#00f0ff] text-sm font-semibold hover:bg-[#00f0ff]/20 transition-colors">
+        {{ busqueda_medidas_label }}
+      </a>
+      {% endif %}
     </section>
 
     <!-- Buybox -->
@@ -123,6 +145,62 @@
           <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-white/10 border border-white/20 text-white/90 text-xs font-semibold">{{ product.celdas }} CPSI</span>
         {% endif %}
       </div>
+
+      {% if compatibilities or product.compatibility_notes or product.sku == 'CLF02' or product.sku == 'CLF04' or product.sku == 'CLF005' %}
+      <div class="mt-4 rounded-xl border border-white/10 bg-white/5 p-4">
+        <h2 class="text-sm font-semibold text-white/90 mb-2">Compatible con</h2>
+        {% if compatibilities %}
+        {% for brand_name, brand_list, total in compat_preview %}
+        <div class="mb-2 last:mb-0">
+          <span class="font-semibold text-white/90">{{ brand_name }}</span>
+          <div class="mt-1 space-y-0.5 text-sm text-white/80">
+            {% for c in brand_list %}
+            <div>
+              {% if c.model %}{{ c.model.name }}{% else %}Todos los modelos{% endif %}
+              {% if c.year_from and c.year_to %}<span class="text-white/55"> {% if c.year_from == 1900 and c.year_to == 2100 %}consultar aplicación{% else %}{{ c.year_from }}-{{ c.year_to }}{% endif %}</span>{% endif %}
+            </div>
+            {% endfor %}
+            {% if total > 4 %}<div class="text-white/55 text-xs">… y más</div>{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+        {% if compatibilities_by_brand|length > 3 %}<div class="text-white/55 text-xs mt-1">… y más marcas</div>{% endif %}
+        {% endif %}
+        {% if product.compatibility_notes %}
+        <div class="mt-3 pt-3 border-t border-white/10 text-sm text-white/85 whitespace-pre-line">{{ product.compatibility_notes|linebreaksbr }}</div>
+        {% elif product.sku == 'CLF02' %}
+        <div class="mt-3 pt-3 border-t border-white/10 text-sm text-white/85">
+          <div class="font-medium text-[#00f0ff] mb-1">Aplicaciones de referencia (BMW)</div>
+          <div class="whitespace-pre-line text-xs">1.6–2.0 L (4 en línea): 116i, 118i, 120i, 318i, 320i, X1 sDrive18i
+2.5–3.0 L (6 en línea): 325i, 330i, 523i, 525i, 530i, Z4, X3</div>
+        </div>
+        {% elif product.sku == 'CLF04' %}
+        <div class="mt-3 pt-3 border-t border-white/10 text-sm text-white/85">
+          <div class="font-medium text-[#00f0ff] mb-1">Cruze y otros (plataforma Delta II)</div>
+          <div class="whitespace-pre-line text-xs">Cruze 1ª gen (J300) 2010–2016 · 1.8 L / 1.4 T
+Sonic, Tracker, Orlando (gasolina) — mismos rangos de años. Ver nota 2016.</div>
+        </div>
+        {% elif product.sku == 'CLF005' %}
+        <div class="mt-3 pt-3 border-t border-white/10 text-sm text-white/85">
+          <div class="font-medium text-[#00f0ff] mb-1">Honda Accord 6ª gen. (1998–2002)</div>
+          <div class="whitespace-pre-line text-xs">DX, LX, EX, SE · sedán/coupé · motores 2.3 L (F23) y 3.0 L V6 (J30)
+Mismo diseño: Odyssey (1999–2004), Acura CL (2001–2003), TL (2002–2003)
+OEM: 18160-PAA-305 · No Accord 2003 en adelante</div>
+        </div>
+        {% elif direct_fit_application_rows and not product.compatibility_notes and product.sku != 'CLF02' and product.sku != 'CLF04' and product.sku != 'CLF005' %}
+        <div class="mt-3 pt-3 border-t border-white/10 text-sm text-white/85">
+          <div class="font-medium text-[#00f0ff] mb-1">Aplicaciones registradas</div>
+          <ul class="text-xs space-y-1 list-none pl-0 m-0">
+            {% for row in direct_fit_application_rows %}
+              {% if forloop.counter <= 8 %}<li>{{ row.brand }} · {{ row.model }} · {{ row.years }}</li>{% endif %}
+            {% endfor %}
+            {% if direct_fit_application_rows|length > 8 %}<li class="text-white/50">… tabla completa más abajo</li>{% endif %}
+          </ul>
+        </div>
+        {% endif %}
+        <a href="#compat-heading" class="mt-3 inline-block text-sm font-semibold text-[#00f0ff] hover:underline">Ver lista completa</a>
+      </div>
+      {% endif %}
 
       <div class="mt-4 flex flex-wrap items-end gap-3">
         {% if product.compare_at_price and product.compare_at_price > product.price %}
@@ -266,12 +344,20 @@
         </ul>
       </div>
       <div class="mt-4 rounded-xl bg-[#00f0ff]/10 border border-[#00f0ff]/25 p-4">
+        {% if product.category.slug == 'cataliticos-twc-diesel' or product.combustible == 'DIESEL' %}
+        <h4 class="font-semibold text-[#00f0ff] mb-2">Normativa</h4>
+        <ul class="text-sm text-white/80 space-y-1">
+          <li>✔ cumple norma Euro correspondiente</li>
+          <li>✔ Homologado para revisión técnica</li>
+        </ul>
+        {% else %}
         <h4 class="font-semibold text-[#00f0ff] mb-2">Certificación y normativa</h4>
         <ul class="text-sm text-white/80 space-y-1">
           <li>✔ Cumple normativa MTT Chile</li>
           <li>✔ Norma Euro correspondiente</li>
           <li>✔ Homologado para revisión técnica</li>
         </ul>
+        {% endif %}
       </div>
     </div>
     {% if product.ficha_tecnica %}
@@ -309,12 +395,115 @@
   </section>
   {% endif %}
 
-  <!-- Compatibilidad -->
+  <!-- Compatibilidad vehicular (agrupada por marca) -->
+  {% if compatibilities or product.compatibility_notes or product.sku == 'CLF02' or product.sku == 'CLF04' or product.sku == 'CLF005' %}
+  <section class="mt-10 rounded-2xl border border-white/10 bg-white/5 p-6" aria-labelledby="compat-heading">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+      <div>
+        <h2 id="compat-heading" class="text-xl font-bold text-white/95">Compatibilidad vehicular</h2>
+        <p class="text-sm text-white/60 mt-1">
+          Revisa las aplicaciones compatibles registradas para este producto.
+        </p>
+      </div>
+    </div>
+
+    {% if product.compatibility_notes %}
+    <div class="mb-6 rounded-xl bg-[#00f0ff]/10 border border-[#00f0ff]/25 p-4 text-sm text-white/90">
+      <h3 class="font-semibold text-[#00f0ff] mb-2">Años, generación y otros modelos compatibles</h3>
+      <div class="prose prose-invert prose-sm max-w-none whitespace-pre-line">{{ product.compatibility_notes|linebreaksbr }}</div>
+    </div>
+    {% elif product.sku == 'CLF02' %}
+    <div class="mb-6 rounded-xl bg-[#00f0ff]/10 border border-[#00f0ff]/25 p-4 text-sm text-white/90">
+      <h3 class="font-semibold text-[#00f0ff] mb-2">Aplicaciones de referencia (BMW)</h3>
+      <p class="text-white/80 mb-3">Por desplazamiento y configuración del motor.</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border-collapse text-left">
+          <thead>
+            <tr class="text-white/70 border-b border-white/20">
+              <th class="py-2 pr-4 font-semibold">Desplazamiento</th>
+              <th class="py-2 pr-4 font-semibold">Configuración</th>
+              <th class="py-2 font-semibold">Modelos</th>
+            </tr>
+          </thead>
+          <tbody class="text-white/90">
+            <tr class="border-b border-white/10"><td class="py-2 pr-4">1.6 – 2.0 L</td><td class="py-2 pr-4">4 en línea</td><td class="py-2">116i, 118i, 120i, 318i, 320i, X1 sDrive18i</td></tr>
+            <tr class="border-b border-white/10"><td class="py-2 pr-4">2.5 – 3.0 L</td><td class="py-2 pr-4">6 en línea</td><td class="py-2">325i, 330i, 523i, 525i, 530i, Z4, X3</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-white/70 text-xs mt-3">Compatibilidad orientativa. Confirmar código de pieza o aplicación exacta antes de comprar.</p>
+    </div>
+    {% elif product.sku == 'CLF04' %}
+    <div class="mb-6 rounded-xl bg-[#00f0ff]/10 border border-[#00f0ff]/25 p-4 text-sm text-white/90">
+      <h3 class="font-semibold text-[#00f0ff] mb-2">Años, generación y otros modelos compatibles</h3>
+      <div class="prose prose-invert prose-sm max-w-none whitespace-pre-line">Años y modelo principal (Chevrolet Cruze)
+Este diseño corresponde principalmente a la primera generación del Chevrolet Cruze (J300).
+• Años: aproximadamente 2010 hasta 2016.
+• Motores: más común en versiones 1.8 L (atmosférico) y en algunas variantes 1.4 L Turbo.
+• Nota: En 2016 hubo transición en Chile (Cruze Limited vs. modelo nuevo); si el vehículo es de ese año, conviene verificar si es carrocería antigua o nueva.
+
+Otros modelos que usan el mismo convertidor
+Por plataforma Delta II y motorización compartida con General Motors, este catalítico suele ser compatible con:
+• Chevrolet Sonic (2012–2017), especialmente con motor 1.8 L.
+• Chevrolet Tracker (2013–2016), muchas versiones con la misma configuración de escape frontal.
+• Chevrolet Orlando (2011–2015), en versiones a gasolina.</div>
+    </div>
+    {% elif product.sku == 'CLF005' %}
+    <div class="mb-6 rounded-xl bg-[#00f0ff]/10 border border-[#00f0ff]/25 p-4 text-sm text-white/90">
+      <h3 class="font-semibold text-[#00f0ff] mb-2">Aplicaciones de referencia (Honda / Acura)</h3>
+      <p class="text-white/80 mb-3">Catalítico principal bajo el piso (tras el downpipe, antes del silenciador). No es el tipo integrado en colector de generaciones posteriores.</p>
+      <ul class="list-disc list-inside space-y-2 text-white/90 mb-4">
+        <li><strong>Honda Accord</strong> (6ª generación) <strong>1998–2002</strong> — todas las versiones (DX, LX, EX, SE), sedán y coupé. Motores 2.3 L 4 cil. (F23) y 3.0 L V6 (J30).</li>
+        <li><strong>Honda Odyssey</strong> <strong>1999–2004</strong> (V6 3.5 L) — mismo diseño físico, bridas y montajes.</li>
+        <li><strong>Acura CL</strong> <strong>2001–2003</strong> (V6 3.2 L) · <strong>Acura TL</strong> <strong>2002–2003</strong> (V6 3.2 L).</li>
+      </ul>
+      <p class="text-amber-200/90 text-sm mb-3"><strong>No intercambiable</strong> con Accord 2003–2007, 2008–2017 ni posteriores (diseño distinto, bridas y a menudo catalítico en colector).</p>
+      <p class="text-white/80 text-sm"><strong>Referencia OEM frecuente:</strong> 18160-PAA-305 (reemplaza 18160-PAA-L10, L11, PAB-L00, etc.). Suele estar estampado en el cuerpo (18160-PAA-xxx).</p>
+      <p class="text-white/70 text-xs mt-3">ULEV vs. estándar puede variar el sustrato interno; cuerpo y montajes son los mismos. Compatibilidad orientativa: confirmar código y medidas antes de comprar.</p>
+    </div>
+    {% endif %}
+
+    <div class="space-y-5">
+      {% for brand_name, brand_compatibilities in compatibilities_by_brand %}
+      <div class="rounded-xl bg-black/20 border border-white/10 p-4">
+        <h3 class="text-base font-semibold text-white/95 mb-3">{{ brand_name }}</h3>
+        <div class="flex flex-wrap gap-2">
+          {% for c in brand_compatibilities %}
+          <span class="inline-flex items-center px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-sm font-medium text-white/90">
+            {% if c.model %}{{ c.model.name }}{% else %}Todos los modelos{% endif %}
+            {% if c.year_from and c.year_to %}<span class="text-white/55 ml-1">({% if c.year_from == 1900 and c.year_to == 2100 %}consultar aplicación{% else %}{{ c.year_from }}-{{ c.year_to }}{% endif %})</span>{% endif %}
+          </span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <p class="mt-5 text-xs text-white/50">
+      Compatibilidad orientativa. Confirmar con foto, código, medidas o aplicación exacta antes de comprar.
+    </p>
+
+    <div class="mt-6 rounded-xl border border-[#00f0ff]/20 bg-[#00f0ff]/5 p-4">
+      <p class="text-sm font-semibold text-white/90 mb-2">¿Tu vehículo está en esta lista?</p>
+      <a href="{% url 'core:vehicle_search' %}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#00f0ff]/20 border border-[#00f0ff]/40 text-[#00f0ff] font-semibold hover:bg-[#00f0ff]/30 transition-colors">
+        Buscar por vehículo
+      </a>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Tabla detallada (búsqueda) -->
   <section class="mt-8 rounded-2xl border border-white/10 bg-white/5 p-5">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <h2 class="text-xl font-semibold">Modelos compatibles</h2>
       <input id="compat-search" class="h-10 px-3 rounded-xl bg-black/30 border border-white/10 text-white placeholder-white/40 focus:border-[#00f0ff]/50 focus:outline-none text-sm" placeholder="Buscar marca / modelo / año" type="search">
     </div>
+    {% if compat_count_total > compat_table_limit %}
+    <p class="mt-2 text-sm text-white/60">
+      Mostrando {{ compat_table_limit }} de {{ compat_count_total }}.
+      <a href="#compat-heading" class="text-[#00f0ff] hover:underline font-medium">Ver lista completa por marca</a>
+    </p>
+    {% endif %}
     <div class="mt-4 overflow-x-auto">
       <table class="w-full text-sm">
         <thead class="opacity-70 text-left">
@@ -331,7 +520,7 @@
           <tr class="compat-row border-t border-white/10">
             <td class="py-2 pr-4">{{ f.brand.name }}</td>
             <td class="py-2 pr-4">{{ f.model.name }}</td>
-            <td class="py-2 pr-4">{{ f.year_from }} – {{ f.year_to }}</td>
+            <td class="py-2 pr-4">{% if f.year_from == 1900 and f.year_to == 2100 %}Consultar aplicación{% else %}{{ f.year_from }} – {{ f.year_to }}{% endif %}</td>
             <td class="py-2 pr-4 text-white/70">{% if f.engine %}{{ f.engine.name }}{% endif %}{% if f.fuel_type %} · {{ f.get_fuel_type_display }}{% endif %}</td>
             <td class="py-2 text-white/60 text-xs">{% if f.notes %}{{ f.notes }}{% endif %}{% if f.notes and f.confidence %} · {% endif %}{% if f.confidence %}{{ f.get_confidence_display }}{% endif %}</td>
           </tr>

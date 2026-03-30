@@ -78,8 +78,8 @@ class ProductAdmin(admin.ModelAdmin):
         (
             "Ficha técnica",
             {
-                "fields": ("ficha_tecnica",),
-                "description": "Texto con certificaciones y especificaciones. Si está vacío, en la ficha del producto se muestran solo los campos estándar (peso, largo, norma Euro, etc.).",
+                "fields": ("ficha_tecnica", "compatibility_notes"),
+                "description": "Ficha técnica y notas de compatibilidad (años, generaciones, otros modelos). Las notas de compatibilidad se muestran en la sección Compatibilidad vehicular.",
             },
         ),
         (

@@ -1,0 +1,64 @@
+{% comment %}
+  Menú vertical lateral izquierdo. Toggle para mostrar/ocultar.
+{% endcomment %}
+<button type="button" class="nav-sidebar-toggle" id="nav-sidebar-toggle" aria-expanded="{% if request.path == '/' or request.path == '/inicio/' %}true{% else %}false{% endif %}" aria-controls="nav-sidebar" aria-label="Ver productos y categorías">
+  <i class="fa-solid fa-layer-group"></i>
+  <span class="nav-sidebar-toggle-label">Ver productos</span>
+</button>
+<div class="nav-sidebar-overlay{% if request.path == '/' or request.path == '/inicio/' %} is-open{% endif %}" id="nav-sidebar-overlay" aria-hidden="{% if request.path == '/' or request.path == '/inicio/' %}false{% else %}true{% endif %}"></div>
+<aside class="nav-sidebar{% if request.path == '/' or request.path == '/inicio/' %} is-open{% endif %}" id="nav-sidebar" role="navigation" aria-label="Menú de categorías">
+  <div class="nav-sidebar-header">
+    <span class="nav-sidebar-title">Menú</span>
+    <button type="button" class="nav-sidebar-close" id="nav-sidebar-close" aria-label="Cerrar menú">
+      <i class="fa-solid fa-times"></i>
+    </button>
+  </div>
+  <nav class="nav-sidebar-body">
+    <a href="{% url 'core:home' %}" class="nav-sidebar-link{% if request.path == '/' or request.path == '/inicio/' %} active{% endif %}">
+      <i class="fa-solid fa-house"></i>
+      <span>Inicio</span>
+    </a>
+    <span class="nav-sidebar-divider">Categorías</span>
+    <a href="{% url 'catalog:product_list' %}?cat=cataliticos" class="nav-sidebar-link{% if request.GET.cat == 'cataliticos' or request.GET.cat|slice:':11' == 'cataliticos-' %} active{% endif %}">
+      <i class="fa-solid fa-bolt"></i>
+      <span>Catalíticos</span>
+    </a>
+    <a href="{% url 'catalog:product_list' %}?cat=flexibles" class="nav-sidebar-link{% if request.GET.cat == 'flexibles' or request.GET.cat|slice:':9' == 'flexibles' %} active{% endif %}">
+      <i class="fa-solid fa-arrows-left-right"></i>
+      <span>Flexibles</span>
+    </a>
+    <a href="{% url 'catalog:product_list' %}?cat=resonador-deportivo-alto-flujo-ltm" class="nav-sidebar-link{% if request.GET.cat == 'resonador-deportivo-alto-flujo-ltm' %} active{% endif %}">
+      <i class="fa-solid fa-wave-square"></i>
+      <span>Resonadores</span>
+    </a>
+    <a href="{% url 'catalog:product_list' %}?cat=silenciador-linea-dw" class="nav-sidebar-link{% if request.GET.cat == 'silenciador-linea-dw' %} active{% endif %}">
+      <i class="fa-solid fa-volume-low"></i>
+      <span>Silenciadores</span>
+    </a>
+    <a href="{% url 'catalog:product_list' %}?cat=colas-de-escape" class="nav-sidebar-link{% if request.GET.cat == 'colas-de-escape' %} active{% endif %}">
+      <i class="fa-solid fa-road"></i>
+      <span>Colas escape</span>
+    </a>
+    <span class="nav-sidebar-divider">Más</span>
+    <a href="{% url 'core:vehicle_search' %}" class="nav-sidebar-link">
+      <i class="fa-solid fa-car-side"></i>
+      <span>Por vehículo</span>
+    </a>
+    <a href="{% url 'catalog:escape_search' %}" class="nav-sidebar-link{% if request.resolver_match.url_name == 'escape_search' %} active{% endif %}">
+      <i class="fa-solid fa-ruler-combined"></i>
+      <span>Por medidas</span>
+    </a>
+    <a href="{% url 'core:home' %}#punto-retiro" class="nav-sidebar-link">
+      <i class="fa-solid fa-location-dot"></i>
+      <span>Retiro Macul</span>
+    </a>
+    <a href="#contacto" class="nav-sidebar-link">
+      <i class="fa-solid fa-comment-dots"></i>
+      <span>Contacto</span>
+    </a>
+    <a href="{% url 'cart:view' %}" class="nav-sidebar-link nav-sidebar-link-cart">
+      <i class="fa-solid fa-cart-shopping"></i>
+      <span>Carrito</span>
+    </a>
+  </nav>
+</aside>

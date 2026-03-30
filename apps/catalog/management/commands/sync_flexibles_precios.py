@@ -126,6 +126,13 @@ class Command(BaseCommand):
                 if not prod.is_active:
                     prod.is_active = True
                     needs_save.append("is_active")
+                # IMPORTANTE: si existia soft-deleted / no publicable, revivirlo
+                if prod.deleted_at is not None:
+                    prod.deleted_at = None
+                    needs_save.append("deleted_at")
+                if not prod.is_publishable:
+                    prod.is_publishable = True
+                    needs_save.append("is_publishable")
                 if needs_save and not dry_run:
                     prod.save(update_fields=needs_save)
             else:
@@ -160,7 +167,9 @@ class Command(BaseCommand):
                             prod.category = cat_normales
                             prod.name = name[:255]
                             prod.is_active = True
-                            prod.save(update_fields=["price", "category", "name", "is_active"])
+                            prod.deleted_at = None
+                            prod.is_publishable = True
+                            prod.save(update_fields=["price", "category", "name", "is_active", "deleted_at", "is_publishable"])
                             self.stdout.write(self.style.WARNING(f"  {prod.sku}: actualizado (SKU existente con formato distinto)"))
                             updated += 1
                         else:
@@ -176,6 +185,19 @@ class Command(BaseCommand):
             name = FLEXIBLES_NIPPLES_NOMENCLATURE.get(sku) or f"Flex reforzado con extensión {sku.replace('EXT-REF', '').replace('X', ' x ')}"[:255]
             prod = qs_ext.filter(sku__iexact=sku).first()
             if prod:
+                # Blindaje: revivir si existia soft-deleted / no publicable
+                revive_fields = []
+                if prod.deleted_at is not None:
+                    prod.deleted_at = None
+                    revive_fields.append("deleted_at")
+                if not prod.is_publishable:
+                    prod.is_publishable = True
+                    revive_fields.append("is_publishable")
+                if not prod.is_active:
+                    prod.is_active = True
+                    revive_fields.append("is_active")
+                if revive_fields and not dry_run:
+                    prod.save(update_fields=revive_fields)
                 changed = False
                 if prod.price != Decimal(str(price)):
                     if not dry_run:
@@ -224,7 +246,9 @@ class Command(BaseCommand):
                             prod.category = cat_ext
                             prod.name = name[:255]
                             prod.is_active = True
-                            prod.save(update_fields=["price", "category", "name", "is_active"])
+                            prod.deleted_at = None
+                            prod.is_publishable = True
+                            prod.save(update_fields=["price", "category", "name", "is_active", "deleted_at", "is_publishable"])
                             self.stdout.write(self.style.WARNING(f"  {prod.sku}: actualizado (existente)"))
                             updated += 1
                         else:

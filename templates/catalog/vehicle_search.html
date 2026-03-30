@@ -1,0 +1,326 @@
+{% extends "base_public.html" %}
+
+{% block content %}
+<style>
+  /* Ajustes locales para hacer el formulario más compacto y con buen contraste,
+     sin depender de utilidades externas. */
+  #vehicle-search-root {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1.75rem 1rem 2rem;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  #vehicle-search-root h1 {
+    font-size: 1.35rem;
+    font-weight: 650;
+    margin-bottom: 0.15rem;
+  }
+  #vehicle-search-root .vs-subtitle {
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+  #vehicle-search-panel {
+    background: #050816;
+    border-radius: 14px;
+    border: 1px solid #111827;
+    padding: 1rem 1rem 1.1rem;
+    margin-top: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  #vehicle-search-panel .vs-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0.6rem;
+    align-items: end;
+  }
+  #vehicle-search-panel .vs-col-2 {
+    grid-column: span 2 / span 2;
+  }
+  #vehicle-search-panel .vs-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #e5e7eb;
+  }
+  #vehicle-search-panel select,
+  #vehicle-search-panel input {
+    width: 100%;
+    padding: 0.45rem 0.6rem;
+    border-radius: 8px;
+    border: 1px solid #1f2937;
+    background: #020617;
+    color: #f9fafb;
+    font-size: 0.82rem;
+    outline: none;
+  }
+  #vehicle-search-panel select::placeholder,
+  #vehicle-search-panel input::placeholder {
+    color: #6b7280;
+  }
+  #vehicle-search-panel select:focus,
+  #vehicle-search-panel input:focus {
+    border-color: #22d3ee;
+    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35);
+  }
+  #vehicle-search-panel button#searchBtn {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    border: none;
+    background: #22d3ee;
+    color: #020617;
+    font-size: 0.8rem;
+    font-weight: 650;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  #vehicle-search-panel button#searchBtn:hover {
+    background: #06b6d4;
+  }
+  #vehicle-search-panel .vs-hint {
+    font-size: 0.7rem;
+    color: #9ca3af;
+    margin-top: 0.35rem;
+  }
+  #results .vs-card {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    padding: 0.9rem 0.95rem;
+  }
+  #results .vs-card h3 {
+    font-size: 0.96rem;
+    font-weight: 600;
+  }
+  #results .vs-card p {
+    font-size: 0.8rem;
+    color: #4b5563;
+  }
+  @media (max-width: 768px) {
+    #vehicle-search-root {
+      padding-inline: 0.75rem;
+    }
+    #vehicle-search-panel .vs-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    #vehicle-search-panel .vs-col-2 {
+      grid-column: span 2 / span 2;
+    }
+  }
+</style>
+<section id="vehicle-search-root">
+    <div class="mb-3">
+        <h1>Buscador por vehículo</h1>
+        <p class="vs-subtitle">
+            Valida rápidamente compatibilidad por año, marca y modelo. Si quieres, afina con motor, combustible y cilindrada.
+        </p>
+        {% if initial_q %}
+        <p class="text-xs text-slate-500 mt-1 uppercase tracking-wide">Resultados para: <strong>{{ initial_q }}</strong></p>
+        {% endif %}
+    </div>
+
+    <div id="vehicle-search-panel">
+        <div class="vs-grid">
+            <div class="vs-col-2">
+                <label class="vs-label">Marca</label>
+                <select id="brand">
+                    <option value="">Selecciona marca</option>
+                    {% for brand in brands %}
+                        <option value="{{ brand.id }}" {% if selected_brand_id == brand.id|stringformat:"d" %}selected{% endif %}>{{ brand.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="vs-col-2">
+                <label class="vs-label">Modelo</label>
+                <select id="model">
+                    <option value="">Selecciona modelo</option>
+                    {% for m in initial_models %}
+                        <option value="{{ m.id }}" {% if selected_model_id == m.id|stringformat:"d" %}selected{% endif %}>{{ m.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="vs-label">Año</label>
+                <input id="year" type="number" min="1900" max="2100" placeholder="Ej: 2016" value="{{ selected_year }}">
+            </div>
+
+            <div>
+                <label class="vs-label">Motor (opcional)</label>
+                <select id="engine">
+                    <option value="">No sé / No aparece</option>
+                    {% for e in initial_engines %}
+                        <option value="{{ e.id }}" {% if selected_engine_id == e.id|stringformat:"d" %}selected{% endif %}>
+                            {{ e.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="vs-label">Combustible</label>
+                <select id="fuel_type">
+                    <option value="">Selecciona</option>
+                    <option value="gasolina">Gasolina</option>
+                    <option value="diesel">Diésel</option>
+                    <option value="hibrido">Híbrido</option>
+                    <option value="electrico">Eléctrico</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="vs-label">Cilindrada (cc)</label>
+                <input id="displacement" type="number" placeholder="Ej: 1600">
+            </div>
+
+            <div>
+                <button id="searchBtn">
+                    Ver repuestos compatibles
+                </button>
+            </div>
+        </div>
+        <p class="vs-hint">
+            Si no encuentras tu motor, puedes ingresar manualmente el combustible y cilindrada para que te sugiramos catalíticos y flexibles compatibles.
+        </p>
+    </div>
+
+    <div id="results" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5"></div>
+</section>
+
+<script>
+const URL_VEHICLE_MODELS = "{% url 'catalog:vehicle_models_api' %}";
+const URL_VEHICLE_ENGINES = "{% url 'catalog:vehicle_engines_api' %}";
+const URL_VEHICLE_PRODUCTS = "{% url 'catalog:vehicle_products_api' %}";
+const HAS_PRELOAD = Boolean("{{ selected_brand_id }}{{ selected_model_id }}{{ selected_year }}{{ selected_engine_id }}".trim());
+
+document.addEventListener("DOMContentLoaded", function () {
+    const brandSelect = document.getElementById("brand");
+    const modelSelect = document.getElementById("model");
+    const engineSelect = document.getElementById("engine");
+    const fuelTypeSelect = document.getElementById("fuel_type");
+    const displacementInput = document.getElementById("displacement");
+    const yearInput = document.getElementById("year");
+    const searchBtn = document.getElementById("searchBtn");
+    const resultsBox = document.getElementById("results");
+
+    function resetEngineSelect() {
+        engineSelect.innerHTML = '<option value="">Selecciona motor</option>';
+    }
+
+    brandSelect.addEventListener("change", async function () {
+        const brandId = this.value;
+        modelSelect.innerHTML = '<option value="">Selecciona modelo</option>';
+        resetEngineSelect();
+
+        if (!brandId) return;
+
+        const res = await fetch(URL_VEHICLE_MODELS + "?brand_id=" + encodeURIComponent(brandId));
+        const data = await res.json();
+
+        data.results.forEach(item => {
+            const opt = document.createElement("option");
+            opt.value = item.id;
+            opt.textContent = item.name;
+            modelSelect.appendChild(opt);
+        });
+    });
+
+    modelSelect.addEventListener("change", async function () {
+        const modelId = this.value;
+        resetEngineSelect();
+
+        if (!modelId) return;
+
+        const res = await fetch(URL_VEHICLE_ENGINES + "?model_id=" + encodeURIComponent(modelId));
+        const data = await res.json();
+
+        data.results.forEach(item => {
+            const opt = document.createElement("option");
+            opt.value = item.id;
+            opt.textContent = item.name;
+            engineSelect.appendChild(opt);
+        });
+    });
+
+    async function doSearch() {
+        const brandId = brandSelect.value;
+        const modelId = modelSelect.value;
+        const engineId = engineSelect.value;
+        const year = yearInput.value;
+        const fuelType = fuelTypeSelect.value;
+        const displacement = displacementInput.value;
+
+        const params = new URLSearchParams();
+        if (brandId) params.append("brand_id", brandId);
+        if (modelId) params.append("model_id", modelId);
+        if (engineId) params.append("engine_id", engineId);
+        if (year) params.append("year", year);
+        if (fuelType) params.append("fuel_type", fuelType);
+        if (displacement) params.append("displacement_cc", displacement);
+
+        const res = await fetch(URL_VEHICLE_PRODUCTS + "?" + params.toString());
+        const data = await res.json();
+
+        const verified = data.verified || [];
+        const suggested = data.suggested || [];
+        const hasAny = verified.length > 0 || suggested.length > 0;
+
+        resultsBox.innerHTML = "";
+
+        if (!hasAny) {
+            resultsBox.innerHTML = `
+                <div class="col-span-full bg-white rounded-2xl shadow p-6 text-center text-gray-500">
+                    No encontramos productos compatibles para esa selección.
+                </div>
+            `;
+            return;
+        }
+
+        function renderCard(item) {
+            return `
+                <div class="bg-white rounded-2xl shadow p-5 vs-card">
+                    <div class="text-xs uppercase text-gray-500 mb-2">${item.category || ""}</div>
+                    <h3 class="text-lg font-bold mb-2">${item.name}</h3>
+                    <p class="text-sm text-gray-600 mb-4">SKU: ${item.sku}</p>
+                    ${item.url ? `<a href="${item.url}" class="inline-block px-4 py-2 rounded-xl bg-black text-white">Ver producto</a>` : ""}
+                </div>
+            `;
+        }
+
+        if (verified.length > 0) {
+            resultsBox.insertAdjacentHTML("beforeend", `
+                <div class="col-span-full mt-2 mb-2">
+                    <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-600">Compatibles verificados</h2>
+                    <p class="text-xs text-gray-500 mb-3">Productos confirmados en nuestra base para este vehículo.</p>
+                </div>
+            `);
+            verified.forEach(item => {
+                resultsBox.insertAdjacentHTML("beforeend", renderCard(item));
+            });
+        }
+        if (suggested.length > 0) {
+            resultsBox.insertAdjacentHTML("beforeend", `
+                <div class="col-span-full mt-6 mb-2">
+                    <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-600">Opciones compatibles por marca (requieren validación técnica)</h2>
+                    <p class="text-xs text-gray-500 mb-3">Indicados para la marca en varios modelos. Confirma con tu mecánico o con nuestro equipo.</p>
+                </div>
+            `);
+            suggested.forEach(item => {
+                resultsBox.insertAdjacentHTML("beforeend", renderCard(item));
+            });
+        }
+    }
+
+    searchBtn.addEventListener("click", doSearch);
+
+    if (HAS_PRELOAD) {
+        doSearch();
+    }
+});
+</script>
+{% endblock %}

@@ -7,15 +7,15 @@
     <title>{{ page_title|default:"Catalíticos compatibles con tu vehículo | Monteazul SPA" }}</title>
     {% if meta_description %}<meta name="description" content="{{ meta_description }}">{% endif %}
     {% if canonical_url %}<link rel="canonical" href="{{ canonical_url }}">{% endif %}
-    {% if products %}
+    {% if products_verified %}
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "ItemList",
       "name": "Catalíticos y repuestos compatibles con {{ fitment.brand }} {{ fitment.model }} {{ fitment.year }}",
-      "numberOfItems": {{ products|length }},
+      "numberOfItems": {{ products_verified|length }},
       "itemListElement": [
-        {% for product in products %}
+        {% for product in products_verified %}
         {
           "@type": "ListItem",
           "position": {{ forloop.counter }},
@@ -315,24 +315,38 @@
             </a>
             
             <div class="fitment-badge">
-                <strong>Vehículo validado:</strong> 
+                <strong>Vehículo validado:</strong>
                 {{ fitment.brand }} {{ fitment.model }} {{ fitment.year }}
-                {% if fitment.engine %} - {{ fitment.engine }}{% endif %}
+                {% if fitment.engine %} • {{ fitment.engine }}{% endif %}
+                {% if fitment.fuel_type or fitment.displacement_cc %}
+                    <span style="display:block; font-size:0.9rem; margin-top:4px; color: var(--color-text-muted);">
+                        {% if fitment.fuel_type %}Combustible: {{ fitment.fuel_type }}{% endif %}
+                        {% if fitment.fuel_type and fitment.displacement_cc %} · {% endif %}
+                        {% if fitment.displacement_cc %}Cilindrada aprox.: {{ fitment.displacement_cc }} cc{% endif %}
+                    </span>
+                {% endif %}
             </div>
             
             <div class="results-header">
                 <h1 class="results-title">Catalíticos para {{ fitment.brand }} {{ fitment.model }} {{ fitment.year }}{% if fitment.engine %} ({{ fitment.engine }}){% endif %}</h1>
                 <p class="results-count">
-                    Encontramos <strong>{{ count }}</strong> producto{{ count|pluralize }} compatible{{ count|pluralize }} con tu vehículo
+                    Encontramos <strong>{{ count }}</strong> producto{{ count|pluralize }} compatible{{ count|pluralize }} con tu vehículo.
+                    Son repuestos con compatibilidad cargada específicamente para esta combinación de marca, modelo, año{% if fitment.engine %} y motor{% endif %}.
                 </p>
             </div>
         </div>
     </header>
     
     <div class="container">
-        {% if products %}
+        {% if products_verified %}
+            <section class="verified-block" aria-label="Compatibles verificados">
+                <h2 class="results-title" style="font-size:1.2rem; margin-bottom:8px;">Compatibles verificados</h2>
+                <p class="results-count" style="margin-bottom:16px;">
+                    Productos confirmados en nuestra base de compatibilidades para este vehículo.
+                    Son la opción principal cuando existen coincidencias exactas.
+                </p>
             <div class="products-grid">
-                {% for product in products %}
+                {% for product in products_verified %}
                     <a href="{% url 'catalog:product_detail' product.slug %}" class="product-card">
                         <div class="product-image">
                             {% if product.images.first and product.images.first.image %}
@@ -344,9 +358,11 @@
                         <div class="product-info">
                             <h3 class="product-name">{{ product.name }}</h3>
                             <div class="product-sku">SKU: {{ product.sku }}</div>
-                            {% if product.euro_norm %}
-                                <div style="margin-bottom: 10px;">
-                                    <span class="compatibility-badge">{{ product.get_euro_norm_display }}</span>
+                            {% if product.euro_norm or product.combustible or product.recommended_cc_min or product.recommended_cc_max %}
+                                <div class="product-tech-badge" style="margin-bottom: 8px; font-size: 0.75rem; color: var(--color-text-muted, #6b7280);">
+                                    {% if product.euro_norm %}{{ product.get_euro_norm_display }}{% endif %}
+                                    {% if product.combustible %}{% if product.euro_norm %} • {% endif %}{{ product.get_combustible_display }}{% endif %}
+                                    {% if product.recommended_cc_min or product.recommended_cc_max %}{% if product.euro_norm or product.combustible %} • {% endif %}{{ product.recommended_cc_min|default:"—" }}-{{ product.recommended_cc_max|default:"—" }} cc{% endif %}
                                 </div>
                             {% endif %}
                             <div class="product-footer">
@@ -356,7 +372,88 @@
                     </a>
                 {% endfor %}
             </div>
-        {% else %}
+            </section>
+        {% endif %}
+        {% if products_suggested_brand_wide %}
+        <section class="suggested-block brand-wide-block" aria-label="Compatibilidad amplia por marca" style="margin-top:48px;">
+            <div class="results-header">
+                <h2 class="results-title" style="font-size:1.2rem;">Opciones compatibles por marca (requieren validación técnica)</h2>
+                <p class="results-count">
+                    Productos indicados para la marca {{ fitment.brand }} en varios modelos. Confirma con tu mecánico o con nuestro equipo que apliquen a tu modelo y año.
+                </p>
+            </div>
+            <div class="products-grid">
+                {% for product in products_suggested_brand_wide %}
+                    <a href="{% url 'catalog:product_detail' product.slug %}" class="product-card">
+                        <div class="product-image">
+                            {% if product.images.first and product.images.first.image %}
+                                <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" loading="lazy">
+                            {% else %}
+                                <img src="{% static 'img/placeholder-product.svg' %}" alt="{{ product.name }}" loading="lazy">
+                            {% endif %}
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-name">{{ product.name }}</h3>
+                            <div class="product-sku">SKU: {{ product.sku }}</div>
+                            {% if product.euro_norm or product.combustible or product.recommended_cc_min or product.recommended_cc_max %}
+                                <div class="product-tech-badge" style="margin-bottom: 8px; font-size: 0.75rem; color: var(--color-text-muted, #6b7280);">
+                                    {% if product.euro_norm %}{{ product.get_euro_norm_display }}{% endif %}
+                                    {% if product.combustible %}{% if product.euro_norm %} • {% endif %}{{ product.get_combustible_display }}{% endif %}
+                                    {% if product.recommended_cc_min or product.recommended_cc_max %}{% if product.euro_norm or product.combustible %} • {% endif %}{{ product.recommended_cc_min|default:"—" }}-{{ product.recommended_cc_max|default:"—" }} cc{% endif %}
+                                </div>
+                            {% endif %}
+                            <div class="product-footer">
+                                <div class="product-price">{{ product.price|pesos_cl }} <span class="product-price-iva">IVA incluido</span></div>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+        {% if products_suggested_other %}
+        {% with suggested_list=products_suggested_other count_sug=products_suggested_other|length %}
+        <section class="suggested-block" aria-label="Otras opciones sugeridas" style="margin-top:48px;">
+            <div class="results-header">
+                <h2 class="results-title" style="font-size:1.4rem;">Otras opciones sugeridas para confirmar con asesor</h2>
+                <p class="results-count">
+                    Encontramos <strong>{{ count_sug }}</strong> producto{{ count_sug|pluralize }} sugerido{{ count_sug|pluralize }}
+                    (catalíticos, flexibles, silenciadores, colas) según reglas técnicas (año, norma Euro, combustible y cilindrada).
+                    Revisa con tu mecánico o con nuestro equipo antes de instalar.
+                </p>
+            </div>
+            <div class="products-grid">
+                {% for product in suggested_list %}
+                    <a href="{% url 'catalog:product_detail' product.slug %}" class="product-card">
+                        <div class="product-image">
+                            {% if product.images.first and product.images.first.image %}
+                                <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" loading="lazy">
+                            {% else %}
+                                <img src="{% static 'img/placeholder-product.svg' %}" alt="{{ product.name }}" loading="lazy">
+                            {% endif %}
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-name">{{ product.name }}</h3>
+                            <div class="product-sku">SKU: {{ product.sku }}</div>
+                            {% if product.euro_norm or product.combustible or product.recommended_cc_min or product.recommended_cc_max %}
+                                <div class="product-tech-badge" style="margin-bottom: 8px; font-size: 0.75rem; color: var(--color-text-muted, #6b7280);">
+                                    {% if product.euro_norm %}{{ product.get_euro_norm_display }}{% endif %}
+                                    {% if product.combustible %}{% if product.euro_norm %} • {% endif %}{{ product.get_combustible_display }}{% endif %}
+                                    {% if product.recommended_cc_min or product.recommended_cc_max %}{% if product.euro_norm or product.combustible %} • {% endif %}{{ product.recommended_cc_min|default:"—" }}-{{ product.recommended_cc_max|default:"—" }} cc{% endif %}
+                                </div>
+                            {% endif %}
+                            <div class="product-footer">
+                                <div class="product-price">{{ product.price|pesos_cl }} <span class="product-price-iva">IVA incluido</span></div>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </section>
+        {% endwith %}
+        {% endif %}
+
+        {% if not products_verified and count_suggested == 0 %}
             <div class="no-results">
                 <div class="no-results-icon">🔍</div>
                 <h2 class="no-results-title">No encontramos repuestos compatibles</h2>

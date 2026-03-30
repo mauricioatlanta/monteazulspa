@@ -22,6 +22,45 @@ PRODUCTOS_ENSAMBLE_DIRECTO = [
     ("CLF08", "CLF08 Chevrolet Aveo"),
 ]
 
+# Texto de ficha técnica específico para algunos SKUs de ensamble directo
+FICHA_TECNICA_ENSAMBLE_DIRECTO = {
+    "CLF01": (
+        "Convertidor catalítico ensamble directo (CLF01) para sistemas Euro 3. "
+        "Carcasa cerámica, instalación plug & play sin sensor O2, diámetro 1,75\".\n\n"
+        "Listado de vehículos clasificados (referencial)\n\n"
+        "Año / Marca / Modelo / Motor\n\n"
+        "- Peugeot 206 · 1.4 / 1.6 · 8 válvulas / 16 válvulas\n"
+        "- Peugeot 307 · 1.6\n"
+        "- Citroën C4 · 1.6\n"
+        "- 2003 · Peugeot 306 · 1.6\n"
+        "- 2002–2004 · Citroën Xsara · 1.6\n"
+        "- Citroën Xsara Picasso · 1.6 · 8 válvulas / 16 válvulas\n"
+        "- 2002 · Peugeot Partner · 1.4\n"
+        "- 2003 · Peugeot 106 · 1.1 / 1.4\n\n"
+        "Resumen de modelos compatibles (rango de años referencial)\n\n"
+        "Marca    Modelo         Años (rango real)   Notas / Confianza\n"
+        "Peugeot  2008           2013 – 2026         Alta\n"
+        "Peugeot  206            1999 – 2012         Alta\n"
+        "Peugeot  207            2006 – 2015         Alta\n"
+        "Peugeot  208            2012 – 2026         Alta\n"
+        "Peugeot  3008           2009 – 2026         Alta\n"
+        "Peugeot  307            2001 – 2008         Alta\n"
+        "Peugeot  308            2007 – 2021         Alta\n"
+        "Peugeot  407            2004 – 2011         Alta\n"
+        "Peugeot  408            2010 – 2026         Alta\n"
+        "Peugeot  5008           2009 – 2026         Alta\n"
+        "Peugeot  508            2011 – 2026         Alta\n"
+        "Peugeot  Boxer          1994 – 2026         Alta\n"
+        "Peugeot  Expert         1995 – 2026         Alta\n"
+        "Peugeot  Partner        1996 – 2018         Alta\n"
+        "Peugeot  Partner Tepee  2008 – 2018         Alta\n"
+        "Peugeot  RCZ            2010 – 2015         Alta\n"
+        "Peugeot  Rifter         2018 – 2026         Alta\n\n"
+        "Compatibilidad referencial. Verificar siempre con código de pieza original, "
+        "foto y normativa vigente antes de instalar."
+    ),
+}
+
 PRECIO_DEFAULT = Decimal("170000")  # Actualizar en admin o Excel si aplica
 
 
@@ -75,6 +114,10 @@ class Command(BaseCommand):
                 "is_active": True,
                 "deleted_at": None,
             }
+
+            ficha = FICHA_TECNICA_ENSAMBLE_DIRECTO.get(sku)
+            if ficha:
+                defaults["ficha_tecnica"] = ficha
             if dry_run:
                 exists = Product.objects.filter(sku=sku).exists()
                 self.stdout.write(f"  {'Actualizar' if exists else 'Crear'}: {sku} - {name}")

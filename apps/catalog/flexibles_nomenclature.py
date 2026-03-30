@@ -92,6 +92,9 @@ def parse_flexible_measure_from_sku(sku):
     try:
         d_raw = parts[0].strip()
         l_raw = parts[1].strip()
+        # Corrección: 25X29 es error de datos, debe ser 2.5" x 6" (typo 29->6)
+        if key == "25X29":
+            return (2.5, 6.0)
         # Quitar sufijos no numéricos (ej. 6EXT-REF -> 6)
         l_raw = re.sub(r"[^0-9.,].*$", "", l_raw)
         if not l_raw:

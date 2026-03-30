@@ -7,7 +7,8 @@ from .chile_regiones_comunas import get_regiones, get_comunas_por_region
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db.models import Prefetch, Count
-from apps.catalog.models import Category, Product, ProductImage, VehicleBrand, VehicleModel, VehicleEngine, ProductCompatibility
+from apps.catalog.models import Category, Product, ProductImage, VehicleBrand, VehicleModel, VehicleEngine
+from apps.catalog.services.vehicle_search_result_builder import build_vehicle_result_context
 
 
 def home(request):
@@ -87,55 +88,6 @@ def home(request):
     })
 
 
-def _vehicle_results_context(brand_id, model_id, year, engine_id=None):
-    """
-    Obtiene productos compatibles para un vehículo. Devuelve dict con products, fitment, brand, model, engine
-    o None si los IDs/año son inválidos o no hay marca/modelo.
-    """
-    if not all([brand_id, model_id, year]):
-        return None
-    try:
-        year = int(year)
-    except (ValueError, TypeError):
-        return None
-    compatibilities = ProductCompatibility.objects.filter(
-        brand_id=brand_id,
-        model_id=model_id,
-        year_from__lte=year,
-        year_to__gte=year,
-        is_active=True,
-    )
-    if engine_id:
-        compatibilities = compatibilities.filter(engine_id=engine_id)
-    product_ids = compatibilities.values_list('product_id', flat=True).distinct()
-    products = Product.objects.filter(
-        id__in=product_ids,
-        is_publishable=True,
-        is_active=True,
-        deleted_at__isnull=True,
-    ).select_related('category').prefetch_related('images', 'compatibilities')
-    try:
-        brand = VehicleBrand.objects.get(id=brand_id)
-        model = VehicleModel.objects.get(id=model_id)
-        engine = VehicleEngine.objects.get(id=engine_id) if engine_id else None
-    except (VehicleBrand.DoesNotExist, VehicleModel.DoesNotExist, VehicleEngine.DoesNotExist):
-        return None
-    fitment = {
-        'brand': brand.name,
-        'model': model.name,
-        'year': year,
-        'engine': engine.name if engine else None,
-    }
-    return {
-        'products': products,
-        'fitment': fitment,
-        'count': products.count(),
-        'brand': brand,
-        'model': model,
-        'engine': engine,
-    }
-
-
 def vehicle_search(request):
     """
     Página de búsqueda por vehículo (formulario) y landing de resultados por GET.
@@ -146,8 +98,17 @@ def vehicle_search(request):
     model_id = request.GET.get('model')
     year = request.GET.get('year')
     engine_id = request.GET.get('engine') or None
+    fuel_type = request.GET.get('fuel_type') or None
+    displacement_raw = request.GET.get('displacement_cc') or None
+    displacement_cc = None
+    if displacement_raw:
+        try:
+            displacement_cc = int(displacement_raw)
+        except (ValueError, TypeError):
+            displacement_cc = None
+
     if brand_id and model_id and year:
-        ctx = _vehicle_results_context(brand_id, model_id, year, engine_id)
+        ctx = build_vehicle_result_context(brand_id, model_id, year, engine_id, fuel_type, displacement_cc)
         if ctx is not None:
             fitment = ctx['fitment']
             # Título y descripción por vehículo para SEO
@@ -208,7 +169,15 @@ def api_vehicle_engines(request):
         return JsonResponse({'error': 'model_id requerido'}, status=400)
     
     engines = VehicleEngine.objects.filter(model_id=model_id).order_by('name')
-    data = [{'id': e.id, 'name': e.name, 'fuel_type': e.fuel_type or ''} for e in engines]
+    data = [
+        {
+            'id': e.id,
+            'name': e.name,
+            'fuel_type': e.fuel_type or '',
+            'displacement_cc': e.displacement_cc,
+        }
+        for e in engines
+    ]
     return JsonResponse({'engines': data})
 
 
@@ -223,14 +192,24 @@ def validate_vehicle(request):
     model_id = request.POST.get('model')
     year = request.POST.get('year')
     engine_id = request.POST.get('engine') or None
+    fuel_type = (request.POST.get('fuel_type') or "").strip() or None
+    displacement_raw = (request.POST.get('displacement_cc') or "").strip() or None
+    # Flujo híbrido: exigimos año+marca+modelo; motor es opcional y se complementa con combustible/cilindrada.
     if not all([brand_id, model_id, year]):
         return redirect('core:vehicle_search')
     try:
         year = int(year)
     except (ValueError, TypeError):
         return redirect('core:vehicle_search')
-    # Verificar que existan marca/modelo (y motor si se envió)
-    ctx = _vehicle_results_context(brand_id, model_id, year, engine_id)
+    displacement_cc = None
+    if displacement_raw:
+        try:
+            displacement_cc = int(displacement_raw)
+        except (ValueError, TypeError):
+            displacement_cc = None
+
+    # Verificar que existan marca/modelo y obtener contexto de resultados (motor opcional)
+    ctx = build_vehicle_result_context(brand_id, model_id, year, engine_id, fuel_type, displacement_cc)
     if ctx is None:
         return redirect('core:vehicle_search')
     # Guardar en sesión para "modo validado" (carrito, etc.)
@@ -239,11 +218,17 @@ def validate_vehicle(request):
         'model_id': int(model_id),
         'year': year,
         'engine_id': int(engine_id) if engine_id else None,
+        'fuel_type': fuel_type,
+        'displacement_cc': displacement_cc,
     }
     # Redirigir a GET para que la página de resultados sea indexable y compartible
     params = {'brand': brand_id, 'model': model_id, 'year': year}
     if engine_id:
         params['engine'] = engine_id
+    if fuel_type:
+        params['fuel_type'] = fuel_type
+    if displacement_cc is not None:
+        params['displacement_cc'] = displacement_cc
     url = reverse('core:vehicle_search') + '?' + urlencode(params)
     return redirect(url)
 

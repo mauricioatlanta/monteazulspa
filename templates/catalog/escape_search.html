@@ -1,0 +1,294 @@
+{% extends "base_public.html" %}
+{% load catalog_filters %}{% load static %}
+{% block meta_title %}{% if q %}Buscar por medidas "{{ q }}" | MonteAzul SPA{% else %}Búsqueda por medidas de escape | MonteAzul SPA{% endif %}{% endblock %}
+{% block meta_description %}Busca flexibles, silenciadores, colas y resonadores por diámetro y largo. Ej: 2x6, 2.5x8, flexible 2x6, cola 2. MonteAzul SPA - Repuestos de escape.{% endblock %}
+{% block extra_head %}
+<style>
+    :root {
+        --navy: #0c1322;
+        --navy-mid: #121c2e;
+        --navy-light: #1a2742;
+        --navy-surface: rgba(255,255,255,0.04);
+        --navy-border: rgba(255,255,255,0.08);
+        --cyan: #00d4ff;
+        --cyan-soft: rgba(0,212,255,0.15);
+        --cyan-glow: rgba(0,212,255,0.25);
+        --text: #e8ecf4;
+        --text-muted: rgba(255,255,255,0.55);
+    }
+    .escape-search-page { font-family: 'Outfit', system-ui, sans-serif; color: var(--text); line-height: 1.5; max-width: 1200px; margin: 0 auto; padding: 32px 24px 64px; }
+    .escape-search-hero {
+        text-align: center;
+        margin-bottom: 32px;
+        padding: 28px 24px;
+        background: var(--navy-surface);
+        border: 1px solid var(--navy-border);
+        border-radius: 14px;
+        backdrop-filter: blur(12px);
+    }
+    .escape-search-hero h1 {
+        font-weight: 800;
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        letter-spacing: -0.02em;
+        color: var(--text);
+        margin-bottom: 8px;
+    }
+    .escape-search-hero p { color: var(--text-muted); font-size: 1rem; margin-bottom: 24px; }
+    .escape-search-form {
+        display: flex;
+        gap: 12px;
+        max-width: 520px;
+        margin: 0 auto 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .escape-search-form input[type="search"] {
+        flex: 1;
+        min-width: 200px;
+        padding: 14px 20px;
+        border: 1px solid var(--navy-border);
+        border-radius: 10px;
+        background: var(--navy-mid);
+        color: var(--text);
+        font-size: 1rem;
+    }
+    .escape-search-form input[type="search"]::placeholder { color: var(--text-muted); }
+    .escape-search-form input[type="search"]:focus {
+        outline: none;
+        border-color: var(--cyan);
+        box-shadow: 0 0 0 2px var(--cyan-soft);
+    }
+    .escape-search-form button {
+        padding: 14px 28px;
+        background: var(--cyan-soft);
+        color: var(--cyan);
+        border: 1px solid rgba(0,212,255,0.3);
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: background 0.2s, box-shadow 0.2s;
+    }
+    .escape-search-form button:hover {
+        background: rgba(0,212,255,0.25);
+        box-shadow: 0 0 20px var(--cyan-glow);
+    }
+    .escape-examples {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin-top: 12px;
+    }
+    .escape-examples strong { color: var(--cyan); }
+    .escape-examples a {
+        color: var(--cyan);
+        text-decoration: none;
+        margin: 0 6px;
+    }
+    .escape-examples a:hover { text-decoration: underline; }
+    .breadcrumb-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+    }
+    .breadcrumb-bar a { color: var(--text-muted); text-decoration: none; }
+    .breadcrumb-bar a:hover { color: var(--cyan); }
+    .breadcrumb-bar .sep { opacity: 0.6; }
+    .parsed-badge-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 24px;
+        padding: 14px 18px;
+        background: var(--navy-surface);
+        border: 1px solid var(--navy-border);
+        border-radius: 10px;
+    }
+    .parsed-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+    }
+    .parsed-badge.tipo { background: rgba(0,212,255,0.15); border: 1px solid rgba(0,212,255,0.35); color: var(--cyan); }
+    .parsed-badge.diam { background: rgba(0,230,118,0.12); border: 1px solid rgba(0,230,118,0.35); color: #00e676; }
+    .parsed-badge.largo { background: rgba(255,180,0,0.15); border: 1px solid rgba(255,180,0,0.4); color: #ffb400; }
+    .section-title {
+        font-weight: 800;
+        font-size: 1.35rem;
+        margin-bottom: 20px;
+        color: var(--text);
+    }
+    .section-title .product-count { font-weight: 500; font-size: 0.85em; color: var(--text-muted); margin-left: 8px; }
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 22px;
+    }
+    .product-card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        background: var(--navy-surface);
+        border: 1px solid var(--navy-border);
+        border-radius: 14px;
+        overflow: hidden;
+        backdrop-filter: blur(8px);
+        transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+    }
+    .product-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(0,212,255,0.3);
+        box-shadow: 0 12px 40px rgba(0,212,255,0.12);
+    }
+    .product-card-img {
+        width: 100%;
+        aspect-ratio: 1.05;
+        background: var(--navy-light);
+        position: relative;
+        overflow: hidden;
+    }
+    .product-card-img img { width: 100%; height: 100%; object-fit: contain; object-position: center; }
+    .product-card-img .no-img {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+    .product-card-body { padding: 20px; }
+    .product-card-cat { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cyan); margin-bottom: 6px; }
+    .product-card-name { font-weight: 600; font-size: 1rem; line-height: 1.35; margin-bottom: 8px; color: var(--text); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .product-card-sku { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace; }
+    .product-card-tech { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; }
+    .product-card-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .product-card-price { font-weight: 800; font-size: 1.4rem; color: var(--cyan); }
+    .product-card-iva { font-weight: 500; font-size: 0.75rem; color: var(--cyan); opacity: 0.85; }
+    .product-card-cta { padding: 10px 18px; background: var(--cyan-soft); color: var(--cyan); font-weight: 700; font-size: 0.8rem; letter-spacing: 0.04em; border-radius: 8px; border: 1px solid rgba(0,212,255,0.25); transition: background 0.2s, box-shadow 0.2s; }
+    .product-card:hover .product-card-cta { background: rgba(0,212,255,0.25); box-shadow: 0 0 16px var(--cyan-glow); }
+    .empty {
+        text-align: center;
+        padding: 48px 24px;
+        background: var(--navy-surface);
+        border: 1px solid var(--navy-border);
+        border-radius: 14px;
+    }
+    .empty h3 { font-size: 1.25rem; margin-bottom: 8px; color: var(--text); }
+    .empty p { color: var(--text-muted); margin-bottom: 16px; }
+    .empty a { color: var(--cyan); text-decoration: none; font-weight: 600; }
+    .empty a:hover { text-decoration: underline; }
+    .link-vehicle { display: inline-block; margin-top: 20px; padding: 12px 24px; background: var(--navy-surface); border: 1px solid var(--navy-border); border-radius: 10px; color: var(--cyan); text-decoration: none; font-weight: 600; }
+    .link-vehicle:hover { background: var(--cyan-soft); }
+</style>
+{% endblock %}
+{% block content %}
+<div class="escape-search-page">
+    <div class="breadcrumb-bar">
+        <a href="{% url 'catalog:product_list' %}">Catálogo</a>
+        <span class="sep">›</span>
+        <span>Búsqueda por medidas</span>
+    </div>
+
+    <div class="escape-search-hero">
+        <h1>Búsqueda por medidas de escape</h1>
+        <p>Escribe diámetro, largo o tipo de pieza. Ej: <strong>2x6</strong>, <strong>flexible 2.5x8</strong>, <strong>silenciador 2</strong>, <strong>cola 2</strong>.</p>
+        <form method="get" action="{% url 'catalog:escape_search' %}" class="escape-search-form" role="search">
+            <label for="escape-q" class="sr-only">Buscar por medidas</label>
+            <input type="search" id="escape-q" name="q" value="{{ q }}" placeholder="Ej: 2x6, flexible 2x8, cola 2..." autofocus>
+            <button type="submit">Buscar</button>
+        </form>
+        <p class="escape-examples">
+            <strong>Ejemplos:</strong>
+            <a href="{% url 'catalog:escape_search' %}?q=2x6">2x6</a>
+            <a href="{% url 'catalog:escape_search' %}?q=2.5x8">2.5x8</a>
+            <a href="{% url 'catalog:escape_search' %}?q=flexible+2x6">flexible 2x6</a>
+            <a href="{% url 'catalog:escape_search' %}?q=silenciador+2">silenciador 2</a>
+            <a href="{% url 'catalog:escape_search' %}?q=cola+2">cola 2</a>
+        </p>
+    </div>
+
+    {% if q %}
+        {% if parsed %}
+        <div class="parsed-badge-wrap" aria-label="Interpretación de la búsqueda">
+            {% if parsed.product_kind %}
+            <span class="parsed-badge tipo">Tipo: {{ parsed.product_kind|title }}</span>
+            {% endif %}
+            {% if parsed.diameter_in is not None %}
+            <span class="parsed-badge diam">Diámetro: {{ parsed.diameter_in }}"</span>
+            {% endif %}
+            {% if parsed.length_in is not None %}
+            <span class="parsed-badge largo">Largo: {{ parsed.length_in }}" ({{ parsed.length_mm }} mm)</span>
+            {% endif %}
+            {% if parsed.search_type %}
+            <span class="parsed-badge tipo">Modo: {{ parsed.search_type }}</span>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <h2 class="section-title">
+            Resultados <span class="product-count">({{ total }})</span>
+        </h2>
+
+        {% if results %}
+        <div class="products-grid">
+            {% for product in results %}
+            <a href="{% url 'catalog:product_detail' product.slug %}" class="product-card{% if not product.is_active %} product-card-inactive{% endif %}">
+                <div class="product-card-img">
+                    {% if product.images.first and product.images.first.image %}
+                    <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" loading="lazy" width="400" height="300">
+                    {% else %}
+                    <div class="no-img">Foto próximamente</div>
+                    {% endif %}
+                </div>
+                <div class="product-card-body">
+                    <div class="product-card-cat">
+                        {% if product.category.parent %}{{ product.category.parent.name }} › {% endif %}{{ product.category.name }}
+                    </div>
+                    <h3 class="product-card-name">{{ product.name }}</h3>
+                    <div class="product-card-sku">{{ product.sku }}</div>
+                    {% if product.diametro_entrada or product.diametro_salida or product.largo_mm %}
+                    <div class="product-card-tech">
+                        {% if product.diametro_entrada %}Entrada {{ product.diametro_entrada }}"{% endif %}
+                        {% if product.diametro_salida %} · Salida {{ product.diametro_salida }}"{% endif %}
+                        {% if product.largo_mm %} · {{ product.largo_mm }} mm{% endif %}
+                    </div>
+                    {% endif %}
+                    <div class="product-card-footer">
+                        <span class="product-card-price">{{ product.price|pesos_cl }} <span class="product-card-iva">IVA incl.</span></span>
+                        <span class="product-card-cta">Ver más</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty">
+            <h3>No hay resultados para "{{ q }}"</h3>
+            <p>Prueba con otras medidas o palabras, por ejemplo: <strong>2x6</strong>, <strong>flexible 2x8</strong>, <strong>silenciador 2</strong>, <strong>cola 2</strong>.</p>
+            <a href="{% url 'catalog:escape_search' %}">Nueva búsqueda por medidas</a>
+            <br>
+            <a href="{% url 'catalog:product_list' %}?q={{ q|urlencode }}" class="link-vehicle">Buscar "{{ q }}" en todo el catálogo</a>
+            <br>
+            <a href="{% url 'core:vehicle_search' %}" class="link-vehicle">Buscar por vehículo</a>
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="empty">
+            <h3>¿Qué puedes buscar?</h3>
+            <p><strong>Por medidas:</strong> 2x6, 2.5x8, 2 x 6 (diámetro x largo en pulgadas).</p>
+            <p><strong>Por tipo y medida:</strong> flexible 2x6, silenciador 2, resonador 2.5, cola 2 (colas son 2 pulgadas).</p>
+            <p>Escribe en el cuadro de arriba y pulsa Buscar.</p>
+            <a href="{% url 'catalog:product_list' %}">Ver todo el catálogo</a>
+            <br>
+            <a href="{% url 'core:vehicle_search' %}" class="link-vehicle">Buscar por vehículo</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

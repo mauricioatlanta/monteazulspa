@@ -492,14 +492,16 @@
   <main class="hero">
     <div class="hero-badge">Mercado Chile • Desde 1980</div>
     <h1>Repuestos que calzan en tu vehículo</h1>
-    <p>Elige año, marca, modelo y motor. Te mostramos solo productos compatibles.</p>
-    {% if brands %}
-    <p class="hero-marcas" style="margin-top:0.5rem; font-size:0.9rem; color:var(--muted);">Marcas disponibles: {% for b in brands %}{{ b.name }}{% if not forloop.last %}, {% endif %}{% endfor %}.</p>
-    {% endif %}
+    <p style="max-width: 620px; margin-top: 0.75rem; color: var(--muted); font-size: 0.98rem;">
+      Valida compatibilidad por año, marca, modelo y motor exacto en un solo flujo, diseñado para catalíticos y flexibles.
+    </p>
+    <p style="max-width: 620px; margin-top: 0.35rem; color: var(--muted); font-size: 0.9rem;">
+      El motor que eliges (combustible y cilindrada reales) alimenta un motor de reglas técnicas que prioriza coincidencias exactas y sugiere alternativas seguras cuando no hay match directo.
+    </p>
 
     <div class="validator-wrap" id="buscador">
       <div class="validator-card">
-        <div class="validator-title" id="validator-legend">Validador de compatibilidad</div>
+        <div class="validator-title" id="validator-legend">Validador de compatibilidad por vehículo</div>
         <div class="steps-line" aria-label="Progreso">
           <div class="step-pill active" id="st1"><span class="num">1</span> Año</div>
           <span class="step-conn"></span>
@@ -541,12 +543,42 @@
               <span class="hint" id="model-hint">Paso 3: modelo según la marca elegida</span>
             </div>
             <div class="field">
-              <label for="engine">Motor (opcional)</label>
-              <select id="engine" name="engine" disabled aria-describedby="engine-hint">
-                <option value="">Motor</option>
+              <label for="fuel_type">Combustible</label>
+              <select id="fuel_type" name="fuel_type" aria-describedby="fuel-hint">
+                <option value="">Selecciona</option>
+                <option value="GASOLINA">Gasolina</option>
+                <option value="DIESEL">Diésel</option>
+                <option value="HIBRIDO">Híbrido</option>
+                <option value="EV">Eléctrico</option>
               </select>
-              <span class="hint" id="engine-hint">Paso 4: motor si aplica</span>
+              <span class="hint" id="fuel-hint">Usamos el combustible para afinar compatibilidades de catalíticos y flexibles.</span>
             </div>
+            <div class="field">
+              <label for="displacement">Cilindrada (cc)</label>
+              <select id="displacement" name="displacement_cc" aria-describedby="cc-hint">
+                <option value="">No sé / Aproximado</option>
+                <option value="1000">1.0 · 1000 cc aprox.</option>
+                <option value="1200">1.2 · 1200 cc aprox.</option>
+                <option value="1400">1.4 · 1400 cc aprox.</option>
+                <option value="1600">1.6 · 1600 cc aprox.</option>
+                <option value="1800">1.8 · 1800 cc aprox.</option>
+                <option value="2000">2.0 · 2000 cc aprox.</option>
+                <option value="2200">2.2 · 2200 cc aprox.</option>
+                <option value="2400">2.4 · 2400 cc aprox.</option>
+                <option value="2500">2.5 · 2500 cc aprox.</option>
+                <option value="2700">2.7 · 2700 cc aprox.</option>
+                <option value="3000">3.0 · 3000 cc aprox.</option>
+              </select>
+              <span class="hint" id="cc-hint">Si no sabes la cilindrada exacta, puedes elegir un aproximado o dejarlo vacío.</span>
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:18px;">
+            <span class="hint">
+              Usamos el motor (cuando existe) y, si no, el combustible y cilindrada que ingreses para calcular compatibilidades exactas
+              y, cuando no hay match directo, sugerir opciones técnicas seguras.
+            </span>
+            <span class="hint" id="engine-tech-summary" style="display:none; margin-top:6px;"></span>
           </div>
 
           <div class="actions">
@@ -614,7 +646,9 @@
     const yearSelect = document.getElementById('year');
     const brandSelect = document.getElementById('brand');
     const modelSelect = document.getElementById('model');
-    const engineSelect = document.getElementById('engine');
+    const engineSelect = document.getElementById('engine');  // puede ser null si no renderizamos el campo
+    const fuelTypeSelect = document.getElementById('fuel_type');
+    const displacementSelect = document.getElementById('displacement');
     const btnSearch = document.getElementById('btnSearch');
     const btnClear = document.getElementById('btnClear');
     const st1 = document.getElementById('st1');
@@ -624,6 +658,7 @@
     const toast = document.getElementById('toast');
     const toastTitle = document.getElementById('toastTitle');
     const toastMsg = document.getElementById('toastMsg');
+    const engineTechSummary = document.getElementById('engine-tech-summary');
     let toastT = null;
 
     function showToast(title, msg) {
@@ -644,6 +679,7 @@
     function unDone(el) { el.classList.remove('done'); }
 
     function canSearch() {
+      // Flujo híbrido: podemos buscar con año+marca+modelo, motor es opcional.
       return yearSelect.value && brandSelect.value && modelSelect.value;
     }
 
@@ -652,8 +688,10 @@
       brandSelect.disabled = true;
       modelSelect.innerHTML = '<option value="">Modelo</option>';
       modelSelect.disabled = true;
-      engineSelect.innerHTML = '<option value="">Motor</option>';
-      engineSelect.disabled = true;
+      if (engineSelect) {
+        engineSelect.innerHTML = '<option value="">No sé / No aparece</option>';
+        engineSelect.disabled = true;
+      }
       unDone(st2); unDone(st3); unDone(st4);
       setStep(1);
       btnSearch.disabled = true;
@@ -661,16 +699,20 @@
     function resetAfterBrand() {
       modelSelect.innerHTML = '<option value="">Modelo</option>';
       modelSelect.disabled = true;
-      engineSelect.innerHTML = '<option value="">Motor</option>';
-      engineSelect.disabled = true;
+      if (engineSelect) {
+        engineSelect.innerHTML = '<option value="">No sé / No aparece</option>';
+        engineSelect.disabled = true;
+      }
       unDone(st3); unDone(st4);
       setStep(2);
       btnSearch.disabled = true;
     }
     function resetAfterModel() {
-      engineSelect.innerHTML = '<option value="">Motor</option>';
-      engineSelect.disabled = true;
-      unDone(st4);
+      if (engineSelect) {
+        engineSelect.innerHTML = '<option value="">No sé / No aparece</option>';
+        engineSelect.disabled = true;
+        unDone(st4);
+      }
       setStep(3);
       btnSearch.disabled = true;
     }
@@ -712,8 +754,10 @@
         modelSelect.innerHTML = '<option value="">Error</option>';
         showToast('Error', 'No se pudieron cargar modelos.');
       }
-      engineSelect.innerHTML = '<option value="">Motor</option>';
-      engineSelect.disabled = true;
+      if (engineSelect) {
+        engineSelect.innerHTML = '<option value="">No sé / No aparece</option>';
+        engineSelect.disabled = true;
+      }
       btnSearch.disabled = !canSearch();
     });
 
@@ -722,35 +766,78 @@
         resetAfterModel();
         return;
       }
-      engineSelect.disabled = true;
-      engineSelect.innerHTML = '<option value="">Cargando...</option>';
+      if (engineSelect) {
+        engineSelect.disabled = true;
+        engineSelect.innerHTML = '<option value="">Cargando...</option>';
+      }
       try {
         const res = await fetch(urlMotores + (urlMotores.includes('?') ? '&' : '?') + 'model_id=' + encodeURIComponent(modelSelect.value));
         const data = await res.json();
-        engineSelect.innerHTML = '<option value="">Motor (opcional)</option>';
-        (data.engines || []).forEach(e => {
-          const o = document.createElement('option');
-          o.value = e.id;
-          o.textContent = e.name + (e.fuel_type ? ' (' + e.fuel_type + ')' : '');
-          engineSelect.appendChild(o);
-        });
-        engineSelect.disabled = false;
-        markDone(st3);
-        setStep(4);
-        showToast('Motores listos', 'Opcional: elige motor.');
+        if (engineSelect) {
+          engineSelect.innerHTML = '<option value="">No sé / No aparece</option>';
+          (data.engines || []).forEach(e => {
+            const o = document.createElement('option');
+            o.value = e.id;
+            o.textContent = e.name + (e.fuel_type ? ' (' + e.fuel_type + ')' : '');
+            if (typeof e.displacement_cc !== 'undefined' && e.displacement_cc !== null) {
+              o.setAttribute('data-cc', e.displacement_cc);
+            }
+            if (e.fuel_type) {
+              o.setAttribute('data-fuel', e.fuel_type);
+            }
+            engineSelect.appendChild(o);
+          });
+          engineSelect.disabled = false;
+          markDone(st3);
+          setStep(4);
+          showToast('Motores listos', 'Opcional: elige motor.');
+        } else {
+          markDone(st3);
+          setStep(3);
+        }
       } catch (e) {
-        engineSelect.innerHTML = '<option value="">Motor (opcional)</option>';
-        engineSelect.disabled = false;
-        setStep(4);
+        if (engineSelect) {
+          engineSelect.innerHTML = '<option value="">Motor</option>';
+          engineSelect.disabled = false;
+          setStep(4);
+        } else {
+          setStep(3);
+        }
       }
       btnSearch.disabled = !canSearch();
     });
 
-    engineSelect.addEventListener('change', () => {
-      if (engineSelect.value) markDone(st4); else unDone(st4);
-      btnSearch.disabled = !canSearch();
-      if (canSearch()) showToast('Listo', 'Puedes ver repuestos compatibles.');
-    });
+    if (engineSelect) {
+      engineSelect.addEventListener('change', () => {
+        if (engineSelect.value) {
+          markDone(st4);
+          try {
+            const selected = engineSelect.options[engineSelect.selectedIndex];
+            const fuel = selected.getAttribute('data-fuel') || '';
+            const cc = selected.getAttribute('data-cc') || '';
+            if (fuel || cc) {
+              const parts = [];
+              if (fuel) parts.push(`Combustible: ${fuel}`);
+              if (cc) parts.push(`Cilindrada aprox.: ${cc} cc`);
+              engineTechSummary.textContent = parts.join(' · ');
+              engineTechSummary.style.display = 'inline';
+            } else {
+              engineTechSummary.textContent = '';
+              engineTechSummary.style.display = 'none';
+            }
+          } catch (e) {
+            engineTechSummary.textContent = '';
+            engineTechSummary.style.display = 'none';
+          }
+        } else {
+          unDone(st4);
+          engineTechSummary.textContent = '';
+          engineTechSummary.style.display = 'none';
+        }
+        btnSearch.disabled = !canSearch();
+        if (canSearch()) showToast('Listo', 'Puedes ver repuestos compatibles con tu motor específico.');
+      });
+    }
 
     btnClear.addEventListener('click', () => {
       yearSelect.value = '';
@@ -758,11 +845,17 @@
       brandSelect.disabled = true;
       modelSelect.innerHTML = '<option value="">Modelo</option>';
       modelSelect.disabled = true;
-      engineSelect.innerHTML = '<option value="">Motor</option>';
-      engineSelect.disabled = true;
+      if (engineSelect) {
+        engineSelect.innerHTML = '<option value="">No sé / No aparece</option>';
+        engineSelect.disabled = true;
+      }
+      if (fuelTypeSelect) fuelTypeSelect.value = '';
+      if (displacementSelect) displacementSelect.value = '';
       setStep(1);
       btnSearch.disabled = true;
       showToast('Limpio', 'Elige año para comenzar.');
+      engineTechSummary.textContent = '';
+      engineTechSummary.style.display = 'none';
     });
 
     if (yearSelect.value) {

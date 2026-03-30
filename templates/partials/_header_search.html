@@ -1,9 +1,9 @@
 {% load static %}
 {% comment %}
   Header con logo, buscador central y iconos (carrito, ubicación, usuario).
-  Buscador: formulario GET a listado con ?q=; opcional autocompletado vía API.
+  Buscador: GET a catalog:smart_search (interpreta medidas, vehículo o producto).
 {% endcomment %}
-<header class="backdrop-blur-xl bg-[#0a0c10]/80 border-b border-white/10">
+<header class="header-space-overlay backdrop-blur-xl bg-[#0a0c10]/80 border-b border-white/10">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-wrap items-center justify-between gap-3 py-3 sm:py-4">
     <a href="{% url 'core:home' %}" class="flex items-center gap-3 text-white font-extrabold tracking-wide hover:text-[#00f0ff] transition-colors group" aria-label="Monteazul SPA - Inicio">
       <img src="/media/logomonteazul.png" alt="MonteAzul SPA" class="h-12 sm:h-14 w-auto object-contain block" width="auto" height="56">
@@ -13,23 +13,26 @@
       </span>
     </a>
 
-    <form action="{% url 'catalog:product_list' %}" method="get" class="flex-1 max-w-xl mx-4 order-last sm:order-none w-full sm:w-auto" role="search" id="header-search-form">
-      {% if cat_slug %}<input type="hidden" name="cat" value="{{ cat_slug }}">{% endif %}
-      <label for="header-search" class="sr-only">Buscar productos</label>
-      <div class="relative">
+    <form action="{% url 'catalog:smart_search' %}" method="get" class="flex-1 max-w-xl mx-4 order-last sm:order-none w-full sm:w-auto" role="search" id="header-search-form">
+      <label for="header-search" class="sr-only">Buscar productos, medidas o por vehículo</label>
+      <div class="relative" id="header-search-wrap">
         <input
           type="search"
           id="header-search"
           name="q"
-          placeholder="Buscar por nombre o SKU..."
+          placeholder="Buscar catalítico, escape, 2x6, Toyota Yaris 2015"
           value="{{ request.GET.q|default:'' }}"
           class="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-4 pr-10 text-white placeholder-white/40 focus:border-[#00f0ff]/50 focus:ring-1 focus:ring-[#00f0ff]/30 focus:outline-none transition-all"
           autocomplete="off"
           aria-label="Buscar productos"
+          aria-autocomplete="list"
+          aria-controls="header-search-dropdown"
+          aria-expanded="false"
         />
         <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-white/50 hover:text-[#00f0ff] rounded-lg transition-colors" aria-label="Buscar">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         </button>
+        <div id="header-search-dropdown" class="absolute left-0 right-0 top-full mt-1 rounded-xl border border-white/10 bg-[#0a0c10]/95 backdrop-blur-xl shadow-xl z-50 py-2 max-h-72 overflow-y-auto hidden" role="listbox" aria-label="Sugerencias de búsqueda"></div>
       </div>
     </form>
 
@@ -39,7 +42,8 @@
         <span class="opacity-70">Ubicación:</span>
         <span id="shipping-label" class="font-semibold">{{ shipping_display|default:"Agregar ubicación" }}</span>
       </button>
-      <a href="{% url 'core:vehicle_search' %}" class="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-lg text-white/70 hover:text-[#00f0ff] hover:bg-white/5 transition-colors text-sm font-medium">Buscar por vehículo</a>
+      <a href="{% url 'core:home' %}#hero-smart-search" class="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-lg text-white/70 hover:text-[#00f0ff] hover:bg-white/5 transition-colors text-sm font-medium">Buscar repuesto</a>
+      <a href="{% url 'catalog:escape_search' %}" class="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-lg text-white/70 hover:text-[#00f0ff] hover:bg-white/5 transition-colors text-sm font-medium">Por medidas</a>
       <a href="{% url 'catalog:product_list' %}" class="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-lg text-white/70 hover:text-[#00f0ff] hover:bg-white/5 transition-colors text-sm font-medium">Productos</a>
       <a href="{% url 'cart:view' %}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-white/70 hover:text-[#00f0ff] hover:bg-white/5 transition-colors text-sm font-medium relative">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
@@ -49,3 +53,161 @@
     </nav>
   </div>
 </header>
+
+<script>
+(function () {
+  var suggestionsUrl = "{% url 'catalog:smart_search_suggestions_api' %}";
+  var debounceMs = 250;
+
+  function badgeText(type) {
+    if (type === "vehicle") return "Vehículo";
+    if (type === "measure") return "Medida";
+    if (type === "product") return "Producto";
+    return "";
+  }
+
+  function escapeHtml(s) {
+    if (!s) return "";
+    var div = document.createElement("div");
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
+  function attachSmartSearchAutocomplete(config) {
+    var form = document.getElementById(config.formId);
+    var input = document.getElementById(config.inputId);
+    var wrap = document.getElementById(config.wrapId);
+    var dropdown = document.getElementById(config.dropdownId);
+    if (!input || !dropdown || !wrap || !form) return;
+
+    var debounceTimer = null;
+    var currentSuggestions = [];
+    var activeIndex = -1;
+
+    function showDropdown(items) {
+      currentSuggestions = items || [];
+      activeIndex = -1;
+      dropdown.innerHTML = "";
+      if (!items || items.length === 0) {
+        dropdown.classList.add("hidden");
+        input.setAttribute("aria-expanded", "false");
+        return;
+      }
+      items.forEach(function (item, i) {
+        var a = document.createElement("a");
+        a.href = item.url;
+        a.setAttribute("role", "option");
+        a.setAttribute("data-index", i);
+        a.className = "flex items-center justify-between gap-2 px-4 py-2.5 text-left text-white hover:bg-white/10 focus:bg-white/10 focus:outline-none transition-colors";
+        a.innerHTML = "<span class=\"truncate\">" + escapeHtml(item.label) + "</span><span class=\"shrink-0 text-xs px-2 py-0.5 rounded bg-white/10 text-white/70\">" + escapeHtml(badgeText(item.type)) + "</span>";
+        a.addEventListener("click", function (e) {
+          e.preventDefault();
+          window.location.href = item.url;
+        });
+        dropdown.appendChild(a);
+      });
+      dropdown.classList.remove("hidden");
+      input.setAttribute("aria-expanded", "true");
+    }
+
+    function hideDropdown() {
+      dropdown.classList.add("hidden");
+      dropdown.innerHTML = "";
+      currentSuggestions = [];
+      activeIndex = -1;
+      input.setAttribute("aria-expanded", "false");
+    }
+
+    function fetchSuggestions() {
+      var q = (input.value || "").trim();
+      if (q.length < 2) {
+        hideDropdown();
+        return;
+      }
+      var url = suggestionsUrl + "?q=" + encodeURIComponent(q);
+      fetch(url).then(function (res) {
+        if (!res.ok) return [];
+        return res.json();
+      }).then(function (data) {
+        if (data && Array.isArray(data.results)) {
+          showDropdown(data.results);
+        } else {
+          hideDropdown();
+        }
+      }).catch(function () {
+        hideDropdown();
+      });
+    }
+
+    function onInput() {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(fetchSuggestions, debounceMs);
+    }
+
+    function setActiveIndex(idx) {
+      var opts = dropdown.querySelectorAll("[role=option]");
+      activeIndex = idx;
+      if (activeIndex < 0) activeIndex = -1;
+      if (activeIndex >= opts.length) activeIndex = opts.length - 1;
+      opts.forEach(function (el, i) {
+        el.classList.toggle("bg-white/10", i === activeIndex);
+      });
+    }
+
+    function onKeydown(e) {
+      var opts = dropdown.querySelectorAll("[role=option]");
+      if (e.key === "Escape") {
+        hideDropdown();
+        input.blur();
+        e.preventDefault();
+        return;
+      }
+      if (!dropdown.classList.contains("hidden") && opts.length > 0) {
+        if (e.key === "ArrowDown") {
+          setActiveIndex(activeIndex + 1);
+          e.preventDefault();
+          return;
+        }
+        if (e.key === "ArrowUp") {
+          setActiveIndex(activeIndex - 1);
+          e.preventDefault();
+          return;
+        }
+        if (e.key === "Enter" && activeIndex >= 0 && currentSuggestions[activeIndex]) {
+          e.preventDefault();
+          window.location.href = currentSuggestions[activeIndex].url;
+          return;
+        }
+      }
+      if (e.key === "Enter") {
+        form.submit();
+      }
+    }
+
+    input.addEventListener("input", onInput);
+    input.addEventListener("focus", function () {
+      if ((input.value || "").trim().length >= 2) fetchSuggestions();
+    });
+    input.addEventListener("keydown", onKeydown);
+
+    document.addEventListener("click", function (e) {
+      if (wrap && !wrap.contains(e.target)) hideDropdown();
+    });
+  }
+
+  attachSmartSearchAutocomplete({
+    formId: "header-search-form",
+    inputId: "header-search",
+    wrapId: "header-search-wrap",
+    dropdownId: "header-search-dropdown"
+  });
+
+  attachSmartSearchAutocomplete({
+    formId: "hero-smart-search-form",
+    inputId: "hero-smart-search",
+    wrapId: "hero-smart-search-form", // usamos el propio form como wrap para el click-outside
+    dropdownId: "header-search-dropdown" // reutilizamos el mismo dropdown en desktop
+  });
+})();
+// Validación manual: ya, toy, 2, 2x, sil, cat
+</script>

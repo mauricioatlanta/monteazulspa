@@ -1,3 +1,4 @@
-# Dependencias para los comandos de catálogo (load_precios_xlsx, update_precios_from_xlsx)
-# En el servidor (desde monteazulspa/monteazulspa): pip install -r requirements-catalog.txt
+# Dependencias para los comandos de catálogo (load_precios_xlsx, update_precios_from_xlsx, import_muffler_specs_from_excel)
+# En el servidor (desde monteazulspa): pip install -r requirements-catalog.txt
 openpyxl>=3.1.0
+pandas>=2.0.0

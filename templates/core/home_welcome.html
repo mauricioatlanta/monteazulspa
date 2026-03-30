@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
   <style>
     :root {
       --bg: #0a0c10;
@@ -32,6 +33,17 @@
       --radius-sm: 12px;
       --radius-lg: 24px;
       --section-padding: clamp(48px, 8vw, 80px);
+      /* Monteazul marca dominante — hero premium */
+      --mz-bg: #070A0F;
+      --mz-panel: rgba(255,255,255,.03);
+      --mz-panel2: rgba(255,255,255,.06);
+      --mz-stroke: rgba(255,255,255,.10);
+      --mz-text: rgba(255,255,255,.92);
+      --mz-muted: rgba(255,255,255,.72);
+      --mz-accent: #16E0FF;
+      --mz-accent2: #3B82F6;
+      --mz-success: #22C55E;
+      --mz-shadow: 0 30px 80px rgba(0,0,0,.55);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
@@ -140,6 +152,366 @@
     .nav-bar-sticky .nav-bar-link:hover { color: var(--accent); background: var(--surface-hover); }
     .nav-bar-sticky .nav-bar-link.here { color: var(--accent); background: var(--accent-soft); }
 
+    /* === Space Industrial Nav (mismo estilo que base_public) === */
+    .nav-space {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+      max-width: 72rem;
+      margin: 0 auto;
+      padding: 0.5rem 1rem;
+    }
+    .nav-space .nav-link {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .7px;
+      text-transform: uppercase;
+      color: rgba(230, 250, 255, .92);
+      text-decoration: none;
+      background: rgba(0, 30, 45, .35);
+      border: 1px solid rgba(0, 255, 255, .22);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: transform .25s ease, box-shadow .25s ease, background .25s ease, border-color .25s ease;
+      overflow: hidden;
+    }
+    .nav-space .nav-link::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      background: radial-gradient(circle at 20% 20%, rgba(0,255,255,.18), transparent 55%),
+                  radial-gradient(circle at 80% 30%, rgba(0,140,255,.18), transparent 60%);
+      opacity: 0;
+      transition: opacity .25s ease;
+      pointer-events: none;
+    }
+    .nav-space .nav-link:hover {
+      transform: translateY(-2px);
+      background: rgba(0, 50, 70, .40);
+      border-color: rgba(0,255,255,.55);
+      box-shadow: 0 0 14px rgba(0,255,255,.35);
+    }
+    .nav-space .nav-link:hover::before { opacity: 1; }
+    .nav-space .nav-link::after {
+      content: "";
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 6px;
+      height: 2px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, transparent, rgba(0,255,255,.85), transparent);
+      transform: scaleX(0);
+      transform-origin: center;
+      transition: transform .25s ease;
+      opacity: .9;
+    }
+    .nav-space .nav-link:hover::after { transform: scaleX(1); }
+    .nav-space .nav-link.active {
+      border-color: rgba(0,255,255,.8);
+      box-shadow: 0 0 18px rgba(0,255,255,.45);
+      background: rgba(0, 60, 80, .45);
+    }
+    .nav-space .nav-link.cart {
+      border: 0;
+      color: #fff;
+      background: linear-gradient(90deg, rgba(0,207,255,.95), rgba(0,119,255,.95));
+      box-shadow: 0 0 14px rgba(0,207,255,.35);
+    }
+    .nav-space .nav-link.cart:hover { box-shadow: 0 0 22px rgba(0,207,255,.55); }
+    .nav-space .nav-link i { font-size: 14px; opacity: .9; }
+    .nav-space .nav-link .nav-chevron { font-size: 10px; opacity: .75; margin-left: 2px; }
+    @media (max-width: 768px) {
+      .nav-space { padding: 0.5rem; gap: 8px; }
+      .nav-space .nav-link { padding: 8px 12px; font-size: 12px; }
+    }
+    /* Navegación móvil: hamburguesa + drawer */
+    .nav-toggle-mobile,
+    .nav-link-mobile-only { display: none; }
+    .nav-bar-inner-wrap { position: relative; }
+    @media (max-width: 768px) {
+      .nav-menu-desk { display: none !important; }
+      .nav-space { justify-content: space-between; flex-wrap: nowrap; padding: 0.5rem 1rem; }
+      .nav-toggle-mobile {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border: none;
+        border-radius: 10px;
+        background: rgba(0, 30, 45, .4);
+        border: 1px solid rgba(0, 212, 230, .25);
+        color: rgba(230, 250, 255, .95);
+        cursor: pointer;
+        transition: background .2s, border-color .2s;
+      }
+      .nav-toggle-mobile:hover { background: rgba(0, 50, 70, .5); border-color: rgba(0, 212, 230, .5); }
+      .nav-toggle-mobile[aria-expanded="true"] .nav-toggle-bar:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+      .nav-toggle-mobile[aria-expanded="true"] .nav-toggle-bar:nth-child(2) { opacity: 0; }
+      .nav-toggle-mobile[aria-expanded="true"] .nav-toggle-bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+      .nav-toggle-bar {
+        display: block;
+        width: 20px;
+        height: 2px;
+        background: currentColor;
+        border-radius: 1px;
+        transition: transform .25s, opacity .2s;
+      }
+      .nav-link-mobile-only {
+        display: inline-flex !important;
+        padding: 8px 14px;
+        font-size: 13px;
+        text-transform: none;
+        letter-spacing: 0;
+      }
+    }
+    .nav-drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 60;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .25s, visibility .25s;
+    }
+    .nav-drawer-overlay.is-open { opacity: 1; visibility: visible; }
+    .nav-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(300px, 85vw);
+      max-width: 300px;
+      height: 100vh;
+      z-index: 70;
+      background: rgba(10, 14, 20, 0.98);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform .3s ease;
+      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.4);
+    }
+    .nav-drawer.is-open { transform: translateX(0); }
+    .nav-drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .nav-drawer-title { font-size: 1.1rem; font-weight: 700; color: rgba(255, 255, 255, 0.95); }
+    .nav-drawer-close {
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      border: none; border-radius: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      transition: background .2s, color .2s;
+    }
+    .nav-drawer-close:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+    .nav-drawer-body { flex: 1; overflow-y: auto; padding: 0.75rem 0; }
+    .nav-drawer-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 1.25rem;
+      color: rgba(230, 250, 255, 0.9);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: background .2s, color .2s;
+      border: none;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .nav-drawer-link:hover { background: rgba(0, 212, 230, 0.08); color: var(--accent); }
+    .nav-drawer-link.active { background: rgba(0, 212, 230, 0.12); color: var(--accent); }
+    .nav-drawer-link i { width: 20px; text-align: center; opacity: .9; }
+    .nav-drawer-divider {
+      display: block;
+      padding: 0.5rem 1.25rem 0.25rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.4);
+    }
+    .nav-drawer-link-cart {
+      margin-top: 0.5rem;
+      background: linear-gradient(90deg, rgba(0,207,255,.2), rgba(0,119,255,.2));
+      border: 1px solid rgba(0,207,255,.4);
+      margin-left: 1.25rem;
+      margin-right: 1.25rem;
+      border-radius: 10px;
+      justify-content: center;
+    }
+    .nav-drawer-link-cart:hover { background: linear-gradient(90deg, rgba(0,207,255,.35), rgba(0,119,255,.35)); }
+    @media (min-width: 769px) {
+      .nav-drawer-overlay,
+      .nav-drawer { display: none !important; }
+    }
+    /* Menú vertical lateral izquierdo */
+    .nav-sidebar-toggle {
+      position: fixed;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 45;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px 12px 10px;
+      border: none;
+      border-radius: 0 14px 14px 0;
+      background: linear-gradient(135deg, rgba(0,50,70,.95), rgba(0,30,50,.95));
+      border: 1px solid rgba(0,212,230,.4);
+      border-left: 0;
+      color: rgba(230, 250, 255, .98);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 0.03em;
+      box-shadow: 2px 0 20px rgba(0,212,230,.25);
+      transition: background .2s, border-color .2s, box-shadow .2s, transform .2s;
+    }
+    .nav-sidebar-toggle i {
+      font-size: 1.1rem;
+      opacity: .95;
+    }
+    .nav-sidebar-toggle-label {
+      white-space: nowrap;
+    }
+    .nav-sidebar-toggle:hover {
+      background: linear-gradient(135deg, rgba(0,70,95,.98), rgba(0,45,70,.98));
+      box-shadow: 4px 0 24px rgba(0,212,230,.4);
+      transform: translateY(-50%) translateX(2px);
+    }
+    .nav-sidebar-toggle[aria-expanded="true"] {
+      opacity: 0;
+      pointer-events: none;
+      left: -200px;
+    }
+    .nav-sidebar-overlay { display: none; }
+    body.nav-sidebar-open #page-content {
+      margin-left: 260px;
+      transition: margin-left .3s ease;
+    }
+    .nav-sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 260px;
+      z-index: 50;
+      background: rgba(6, 12, 18, .97);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(0,212,230,.2);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(-100%);
+      transition: transform .3s ease;
+      box-shadow: 4px 0 24px rgba(0,0,0,.4);
+    }
+    .nav-sidebar.is-open { transform: translateX(0); }
+    .nav-sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .nav-sidebar-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: rgba(255,255,255,.95);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .nav-sidebar-close {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.8);
+      cursor: pointer;
+      transition: background .2s, color .2s;
+    }
+    .nav-sidebar-close:hover { background: rgba(255,255,255,.12); color: #fff; }
+    .nav-sidebar-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.75rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .nav-sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 1.25rem;
+      color: rgba(230, 250, 255, .9);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: background .2s, color .2s, border-color .2s;
+      border-left: 3px solid transparent;
+    }
+    .nav-sidebar-link:hover {
+      background: rgba(0, 212, 230, .08);
+      color: var(--accent);
+      border-left-color: rgba(0,212,230,.5);
+    }
+    .nav-sidebar-link.active {
+      background: rgba(0, 212, 230, .12);
+      color: var(--accent);
+      border-left-color: var(--accent);
+    }
+    .nav-sidebar-link i { width: 20px; text-align: center; opacity: .9; }
+    .nav-sidebar-divider {
+      display: block;
+      padding: 0.5rem 1.25rem 0.25rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,.4);
+    }
+    .nav-sidebar-link-cart {
+      margin-top: 0.5rem;
+      background: linear-gradient(90deg, rgba(0,207,255,.2), rgba(0,119,255,.2));
+      border: 1px solid rgba(0,207,255,.4);
+      margin-left: 1rem;
+      margin-right: 1rem;
+      border-radius: 10px;
+      justify-content: center;
+    }
+    .nav-sidebar-link-cart:hover { background: linear-gradient(90deg, rgba(0,207,255,.35), rgba(0,119,255,.35)); }
+
+    .header-space-overlay {
+      background: linear-gradient(180deg, rgba(6,10,16,.78), rgba(6,10,16,.35));
+      border-bottom: 1px solid rgba(0,255,255,.12);
+    }
+
     /* ----- Acceso equipo (credenciales admin) ----- */
     .team-access {
       display: flex;
@@ -236,109 +608,430 @@
       display: block;
     }
 
-    /* ----- Hero ----- */
-    .hero {
+    /* ----- Hero MZ: marca dominante (metal + glow industrial) ----- */
+    .mz-hero {
       position: relative;
       z-index: 1;
-      padding: clamp(56px, 10vw, 88px) 24px clamp(64px, 12vw, 96px);
-      text-align: center;
-      max-width: 900px;
+      overflow: hidden;
+      padding: clamp(28px, 5vw, 42px) 16px clamp(40px, 8vw, 56px);
+      background: radial-gradient(1200px 600px at 18% 20%, rgba(22,224,255,.14), transparent 55%),
+                  radial-gradient(900px 500px at 80% 18%, rgba(59,130,246,.14), transparent 60%),
+                  linear-gradient(180deg, #06070B 0%, var(--mz-bg) 55%, #05070C 100%);
+    }
+    .mz-hero::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      background: linear-gradient(115deg, rgba(255,255,255,.06), transparent 35%),
+                  repeating-linear-gradient(90deg, rgba(255,255,255,.02) 0 1px, transparent 1px 8px);
+      mix-blend-mode: overlay;
+      opacity: .35;
+      pointer-events: none;
+    }
+    .mz-hero::after {
+      content: "";
+      position: absolute;
+      inset: -60px;
+      background: radial-gradient(420px 260px at 35% 40%, rgba(22,224,255,.18), transparent 65%),
+                  radial-gradient(520px 320px at 75% 55%, rgba(59,130,246,.16), transparent 70%);
+      filter: blur(18px);
+      opacity: .7;
+      pointer-events: none;
+    }
+    .mz-hero-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 1100px;
       margin: 0 auto;
     }
-    .hero-brand { position: relative; display: inline-block; margin-bottom: 8px; }
-    .hero .hero-logo-wrap {
+    .mz-hero-search-wrap {
+      margin-top: 18px;
+      max-width: 640px;
+    }
+    .mz-hero-search-form {
       position: relative;
-      display: inline-block;
+      display: flex;
+      align-items: center;
+    }
+    .mz-hero-search-input {
+      width: 100%;
+      padding: 18px 18px;
+      padding-right: 140px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(3,10,18,0.9);
+      color: var(--mz-text);
+      font-size: 1.05rem;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.55);
+    }
+    .mz-hero-search-input::placeholder {
+      color: rgba(255,255,255,0.6);
+    }
+    .mz-hero-search-input:focus {
+      outline: none;
+      border-color: rgba(22,224,255,0.7);
+      box-shadow: 0 0 0 1px rgba(22,224,255,0.5), 0 20px 55px rgba(0,0,0,0.7);
+    }
+    .mz-hero-search-button {
+      position: absolute;
+      right: 4px;
+      top: 4px;
+      bottom: 4px;
+      padding: 0 24px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(90deg, var(--mz-accent) 0%, #7CF2FF 45%, #B9FAFF 100%);
+      color: #041016;
+      font-weight: 800;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      box-shadow: 0 14px 40px rgba(22,224,255,0.3);
+      transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+    }
+    .mz-hero-search-button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+      box-shadow: 0 20px 55px rgba(22,224,255,0.45);
+    }
+    .mz-hero-search-helper {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.72);
+    }
+    .mz-hero-search-helper strong {
+      color: var(--mz-accent);
+      font-weight: 600;
+    }
+    .mz-hero-guided {
+      margin-top: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.78);
+    }
+    .mz-hero-guided-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: rgba(255,255,255,0.6);
+    }
+    .mz-hero-guided-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .mz-hero-guided-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: rgba(3,14,22,0.9);
+      border: 1px solid rgba(22,224,255,0.35);
+      color: var(--mz-accent);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: background .18s ease, border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+    }
+    .mz-hero-guided-link:hover {
+      background: rgba(4,24,36,1);
+      border-color: rgba(22,224,255,0.8);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 26px rgba(0,0,0,0.6);
+    }
+    .mz-hero-card {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 22px;
+      padding: 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 22px;
+      box-shadow: var(--mz-shadow);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    @media (min-width: 900px) {
+      .mz-hero-card {
+        grid-template-columns: 1fr 1fr;
+        padding: 28px 32px;
+        align-items: center;
+      }
+      .mz-hero-card .mz-hero-product { order: 2; }
+      .mz-hero-card .mz-hero-copy { order: 1; text-align: left; }
+      .mz-hero-card .mz-hero-ctas { justify-content: flex-start; }
+    }
+    @media (max-width: 899px) {
+      .mz-hero-card .mz-hero-product { order: -1; }
+      .mz-hero-card .mz-hero-copy { text-align: center; }
+      .mz-hero-card .mz-hero-ctas { flex-direction: column; width: 100%; }
+      .mz-hero-card .mz-btn-primary { width: 100%; }
+    }
+    .mz-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .5rem .75rem;
+      border-radius: 999px;
+      background: rgba(22,224,255,.10);
+      border: 1px solid rgba(22,224,255,.22);
+      color: var(--mz-text);
+      font-weight: 700;
+      font-size: .8rem;
+      letter-spacing: .2px;
+    }
+    .mz-title {
+      color: var(--mz-text);
+      font-weight: 800;
+      line-height: 1.02;
+      letter-spacing: -0.02em;
+      font-size: clamp(1.75rem, 4.2vw, 2.75rem);
+      margin: 14px 0 10px;
+      text-shadow: 0 12px 70px rgba(22,224,255,.22);
+    }
+    .mz-title .mz-grad {
+      background: linear-gradient(90deg, #EAFBFF 0%, #A9F3FF 25%, var(--mz-accent) 55%, #D5F7FF 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .mz-subtitle {
+      color: var(--mz-muted);
+      font-size: clamp(0.875rem, 1.7vw, 1.125rem);
+      line-height: 1.4;
+      max-width: 58ch;
+    }
+    .mz-hero-copy .mz-subtitle { margin: 0 auto; }
+    @media (min-width: 900px) {
+      .mz-hero-copy .mz-subtitle { margin: 0; }
+    }
+    .mz-hero-ctas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+      justify-content: center;
+    }
+    .mz-btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .6rem;
+      padding: .95rem 1.15rem;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: .95rem;
+      color: #041016;
+      background: linear-gradient(90deg, var(--mz-accent) 0%, #7CF2FF 55%, #B9FAFF 100%);
+      border: 1px solid rgba(255,255,255,.20);
+      box-shadow: 0 18px 50px rgba(22,224,255,.18);
+      text-decoration: none;
+      transform: translateZ(0);
+      transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+    }
+    .mz-btn-primary:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+      box-shadow: 0 22px 60px rgba(22,224,255,.24);
+    }
+    .mz-btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .6rem;
+      padding: .95rem 1.15rem;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: .95rem;
+      color: var(--mz-text);
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.14);
+      text-decoration: none;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
+    }
+    .mz-btn-secondary:hover {
+      transform: translateY(-2px);
+      background: rgba(255,255,255,.06);
+      border-color: rgba(22,224,255,.22);
+    }
+    .mz-trust {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .55rem .85rem;
+      margin-top: 1rem;
+      color: rgba(255,255,255,.80);
+      font-weight: 650;
+      font-size: .8rem;
+    }
+    .mz-trust span {
+      display: flex;
+      gap: .55rem;
+      align-items: center;
+      padding: .55rem .7rem;
+      border-radius: 14px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    @media (min-width: 900px) {
+      .mz-trust { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+    .mz-product {
+      position: relative;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.10);
+      overflow: hidden;
+      min-height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .mz-product::before {
+      content: "";
+      position: absolute;
+      inset: -40px;
+      background: radial-gradient(260px 260px at 50% 40%, rgba(22,224,255,.22), transparent 70%);
+      filter: blur(18px);
+      opacity: .9;
+      pointer-events: none;
+    }
+    .mz-product img {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 520px;
+      max-height: 280px;
+      object-fit: contain;
+      filter: drop-shadow(0 20px 40px rgba(0,0,0,.4));
+    }
+    .mz-fade-up {
+      animation: mzFadeUp .55s ease both;
+    }
+    .mz-fade-up-1 { animation-delay: .08s; }
+    .mz-fade-up-2 { animation-delay: .16s; }
+    .mz-fade-up-3 { animation-delay: .24s; }
+    .mz-fade-up-4 { animation-delay: .32s; }
+    .mz-fade-up-5 { animation-delay: .4s; }
+    @keyframes mzFadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .mz-hero-scroll {
+      display: block;
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 28px;
+      height: 44px;
+      border: 2px solid rgba(255,255,255,.2);
+      border-radius: 999px;
+      opacity: .6;
+    }
+    .mz-hero-scroll::before {
+      content: "";
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 8px;
+      background: var(--mz-accent);
+      border-radius: 2px;
+      animation: mzScrollDot 2s ease-in-out infinite;
+    }
+    @keyframes mzScrollDot {
+      0%, 100% { opacity: .4; transform: translateX(-50%) translateY(0); }
+      50% { opacity: 1; transform: translateX(-50%) translateY(12px); }
+    }
+    /* === QUICK ACTIONS PREMIUM === */
+    .mz-quick-actions {
+      padding-top: 28px;
+      padding-bottom: 10px;
+    }
+    .mz-quick-grid {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+    @media (max-width: 900px) {
+      .mz-quick-grid { grid-template-columns: 1fr; }
+    }
+    .mz-quick-card {
+      display: block;
+      padding: 22px 20px;
+      border-radius: 18px;
+      text-decoration: none;
+      background: linear-gradient(160deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(14px);
+      transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+      text-align: left;
+    }
+    .mz-quick-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(22,224,255,.45);
+      box-shadow: 0 18px 50px rgba(0,0,0,.4);
+    }
+    .mz-quick-icon {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+    .mz-quick-title {
+      font-weight: 800;
+      font-size: 1rem;
+      color: #fff;
       margin-bottom: 6px;
     }
-    .hero .hero-logo {
-      display: block;
-      height: clamp(80px, 18vw, 140px);
-      width: auto;
-      margin: 0 auto;
-      object-fit: contain;
+    .mz-quick-sub {
+      font-size: .85rem;
+      color: rgba(255,255,255,.65);
     }
-    .hero .hero-logo-reflection {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%) scaleY(-1);
-      top: 100%;
-      margin-top: 4px;
-      height: 42%;
-      width: auto;
-      max-width: 100%;
-      object-fit: contain;
-      object-position: top;
-      opacity: 0.45;
-      filter: blur(2px);
-      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 75%);
-      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 75%);
-      pointer-events: none;
+    .mz-quick-card-primary {
+      border-color: rgba(22,224,255,.6);
+      box-shadow: 0 0 18px rgba(22,224,255,.25);
     }
-    .hero .hero-title-wrap { position: relative; }
-    .hero h1 {
-      font-weight: 800;
-      font-size: clamp(2.2rem, 5.5vw, 3.5rem);
-      letter-spacing: -0.03em;
-      line-height: 1.1;
-      margin-bottom: 16px;
+    .mz-hero-selector {
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255,255,255,.08);
     }
-    .hero .hero-title-reflection {
-      display: block;
-      position: relative;
-      top: -0.15em;
-      transform: scaleY(-1);
-      font-weight: 800;
-      font-size: clamp(2.2rem, 5.5vw, 3.5rem);
-      letter-spacing: -0.03em;
-      line-height: 0.5;
-      opacity: 0.35;
-      filter: blur(1px);
-      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 70%);
-      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 70%);
-      pointer-events: none;
-      color: var(--text);
+    .mz-selector-pill {
+      display: inline-block;
+      padding: .4rem .75rem;
+      border-radius: 999px;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--mz-accent);
+      background: rgba(22,224,255,.08);
+      border: 1px solid rgba(22,224,255,.2);
+      text-decoration: none;
+      transition: background .2s, border-color .2s;
     }
-    .hero .hero-promise {
-      color: var(--accent);
-      font-size: clamp(1.1rem, 2vw, 1.35rem);
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-    .hero .hero-sub {
-      color: var(--text-secondary);
-      font-size: clamp(0.95rem, 1.5vw, 1.1rem);
-      line-height: 1.6;
-      margin-bottom: 12px;
-    }
-    .hero .hero-sub-retiro {
-      font-size: 0.9rem;
-      opacity: 0.8;
-      margin-bottom: 20px;
-    }
-    .hero-authority {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1.5rem;
-      margin-bottom: 32px;
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      opacity: 0.7;
-    }
-    .hero-ctas {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      justify-content: center;
-      margin-bottom: 40px;
+    .mz-selector-pill:hover {
+      background: rgba(22,224,255,.14);
+      border-color: rgba(22,224,255,.35);
     }
     .btn-primary {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      padding: 18px 32px;
+      padding: 16px 28px;
       border-radius: var(--radius-sm);
       border: none;
       background: var(--cta-primary);
@@ -346,7 +1039,7 @@
       text-decoration: none;
       font-family: inherit;
       font-weight: 800;
-      font-size: 1rem;
+      font-size: 0.95rem;
       letter-spacing: 0.03em;
       transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
       box-shadow: 0 4px 20px rgba(245,196,0,0.25);
@@ -361,7 +1054,7 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      padding: 18px 32px;
+      padding: 16px 28px;
       border-radius: var(--radius-sm);
       border: 2px solid var(--border);
       background: var(--surface-glass);
@@ -369,9 +1062,9 @@
       text-decoration: none;
       font-family: inherit;
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 0.95rem;
       backdrop-filter: blur(8px);
-      transition: border-color 0.2s, color 0.2s, background 0.2s;
+      transition: border-color 0.2s, color 0.2s, background 0.2s, box-shadow 0.2s;
     }
     .btn-secondary:hover {
       border-color: var(--accent);
@@ -686,6 +1379,23 @@
       transition: background 0.2s, color 0.2s;
     }
     .product-card .btn-consult:hover { background: var(--accent-soft); color: var(--text); }
+    .product-card .product-card-btn-primary {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: rgba(22,224,255,.2);
+      color: var(--accent);
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-align: center;
+      text-decoration: none;
+      margin-bottom: 8px;
+      transition: background .2s, color .2s;
+    }
+    .product-card .product-card-btn-primary:hover { background: rgba(22,224,255,.3); color: #fff; }
 
     /* ----- Footer ----- */
     .site-footer {
@@ -737,7 +1447,8 @@
       color: var(--muted);
       line-height: 1.7;
     }
-    .footer-credits { display: block; margin-top: 8px; font-size: 0.8rem; opacity: 0.85; }
+    .footer-address { margin-top: 8px; font-size: 0.85rem; color: rgba(255,255,255,.55); }
+.footer-credits { display: block; margin-top: 10px; font-size: 0.72rem; color: rgba(255,255,255,.4); }
 
     /* ----- Sección SEO texto indexable ----- */
     .seo-texto { max-width: 900px; margin-left: auto; margin-right: auto; }
@@ -805,13 +1516,130 @@
     .delay-1 { animation-delay: 0.1s; }
     .delay-2 { animation-delay: 0.2s; }
     .delay-3 { animation-delay: 0.3s; }
+
+    /* ----- Reseñas de clientes ----- */
+    .reviews-section {
+      position: relative;
+      overflow: hidden;
+    }
+    .reviews-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,212,230,0.2), rgba(0,212,230,0.4), rgba(0,212,230,0.2), transparent);
+      opacity: 0.8;
+    }
+    .reviews-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(0,212,230,0.3);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .reviews-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    @media (max-width: 900px) { .reviews-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .reviews-grid { grid-template-columns: 1fr; } }
+    .review-card {
+      position: relative;
+      background: linear-gradient(160deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+      overflow: hidden;
+    }
+    .review-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--accent), transparent);
+      opacity: 0.8;
+    }
+    .review-card:hover {
+      border-color: rgba(0,212,230,0.35);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px -12px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,212,230,0.08);
+    }
+    .review-card .review-quote-icon {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 36px;
+      height: 36px;
+      opacity: 0.15;
+    }
+    .review-card .review-quote-icon svg {
+      width: 100%;
+      height: 100%;
+      color: var(--accent);
+    }
+    .review-card .review-text {
+      font-size: 0.98rem;
+      line-height: 1.65;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      padding-right: 8px;
+      font-style: italic;
+    }
+    .review-card .review-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .review-card .review-author {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+    .review-card .review-location {
+      font-size: 0.8rem;
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.03em;
+    }
   </style>
 </head>
-<body>
+<body class="nav-sidebar-open">
   <div class="bg-mesh" aria-hidden="true"></div>
   <div class="grid-overlay" aria-hidden="true"></div>
 
-  <header class="header">
+  {% include "partials/_nav_sidebar.html" %}
+
+  <div id="page-content">
+  <header class="header header-space-overlay">
     <div class="header-inner">
       <a class="logo-link" href="{% url 'core:home' %}">
         <img src="/media/logomonteazul.png" alt="Monteazul SPA">
@@ -856,82 +1684,95 @@
     {% endif %}
   </header>
 
-  <nav class="nav-bar-sticky" aria-label="Navegación principal">
-    <div class="nav-bar-inner">
-      <a href="{% url 'core:home' %}" class="nav-bar-link here">Inicio</a>
-      <a href="{% url 'catalog:product_list' %}" class="nav-bar-link">Productos</a>
-      <a href="{% url 'core:vehicle_search' %}" class="nav-bar-link">Buscar por vehículo</a>
-      {% for cat in header_categories %}
-      <a href="{% url 'catalog:product_list' %}?cat={{ cat.slug }}" class="nav-bar-link">
-        {% if cat.slug == "cataliticos" %}Convertidores Catalíticos
-        {% elif cat.slug == "flexibles" %}Flexibles
-        {% elif cat.slug == "resonadores" %}Resonadores
-        {% elif cat.slug == "silenciadores" or cat.slug == "silenciadores-alto-flujo" %}Silenciadores de Alto Flujo
-        {% else %}{{ cat.name }}{% endif %}
-      </a>
-      {% endfor %}
-      <a href="#contacto" class="nav-bar-link">Contacto</a>
-    </div>
-  </nav>
-
   <main>
-    <!-- 1) HERO -->
-    <section class="hero">
-      <div class="hero-brand fade-in">
-        <div class="hero-logo-wrap">
-          <img src="/media/logomonteazul.png" alt="Monteazul SPA" class="hero-logo" width="280" height="140">
-          <img src="/media/logomonteazul.png" alt="Reflejo logo MonteAzul" class="hero-logo-reflection" aria-hidden="true" width="280" height="140">
+    <!-- 1) HERO MZ — Marca dominante / Especialistas en Sistemas de Escape -->
+    <section class="mz-hero" aria-label="Presentación Monteazul">
+      <div class="mz-hero-inner">
+        <div class="mz-hero-card mz-fade-up">
+          <div class="mz-hero-copy">
+            <div style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:10px;">Euro 3 • Euro 4 • Euro 5 • Diesel • Bencina • Alto Flujo</div>
+            <div class="mz-badge mz-fade-up mz-fade-up-1">🔧 Especialistas en Sistemas de Escape Automotriz en Chile</div>
+            <h1 class="mz-title mz-fade-up mz-fade-up-2">
+              Especialistas en Catalíticos y Sistemas de Escape en Chile
+            </h1>
+            <p class="mz-subtitle mz-fade-up mz-fade-up-3">
+              En MonteAzul SPA ofrecemos venta de catalíticos universales, catalíticos diesel Euro 4 y Euro 5, flexibles de escape y componentes de alto flujo para vehículos livianos y comerciales.
+              Trabajamos con modelos compatibles para distintas marcas y motores, asegurando rendimiento, reducción de emisiones y cumplimiento normativo.
+            </p>
+            <p class="mz-subtitle mz-fade-up mz-fade-up-3">
+              Realizamos envíos a todo Chile y contamos con stock permanente de catalíticos TWG, CLF y soluciones para bencina y diesel.
+            </p>
+            <div class="mz-hero-search-wrap mz-fade-up mz-fade-up-4">
+              <div class="mz-hero-guided" style="margin-top:0;">
+                <span class="mz-hero-guided-label">Buscar repuesto</span>
+                <div class="mz-hero-guided-links">
+                  <a class="mz-hero-guided-link" href="{% url 'core:vehicle_search' %}">
+                    <span>Por vehículo</span>
+                  </a>
+                  <a class="mz-hero-guided-link" href="{% url 'catalog:escape_search' %}">
+                    <span>Por medidas</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="mz-trust mz-fade-up mz-fade-up-5">
+              <span>⭐ +3.000 vendidos</span>
+              <span>🚚 Envíos a todo Chile</span>
+              <span>🏪 Retiro en Macul</span>
+              <span>🔒 Pago seguro</span>
+            </div>
+            <div style="margin-top:14px;font-size:.8rem;color:rgba(255,255,255,.65);">
+              Confían en nosotros talleres y clientes de Santiago, Viña del Mar, Temuco y todo Chile.
+            </div>
+            <div class="mz-hero-selector">
+              <span style="font-size:.75rem;color:rgba(255,255,255,.5);margin-bottom:8px;display:block;">Selector rápido</span>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+                <a class="mz-selector-pill" href="{% url 'catalog:product_list' %}?cat=cataliticos-twc-diesel">Diesel</a>
+                <a class="mz-selector-pill" href="{% url 'catalog:product_list' %}?cat=cataliticos-twc">Bencina</a>
+                <span style="color:rgba(255,255,255,.3);font-size:.8rem;">•</span>
+                <a class="mz-selector-pill" href="{% url 'catalog:product_list' %}?cat=cataliticos">Euro 3 / Euro 5</a>
+                <a class="mz-btn-secondary" href="{% url 'core:vehicle_search' %}" style="padding:.5rem .85rem;font-size:.8rem;">Ver recomendaciones</a>
+              </div>
+            </div>
+          </div>
+          <div class="mz-hero-product mz-product">
+            {% if hero_product_images %}
+            <a href="{{ hero_product_images.0.url }}" title="{{ hero_product_images.0.name }}" style="display:flex;align-items:center;justify-content:center;width:100%;">
+              <img src="{{ hero_product_images.0.image_url }}" alt="{{ hero_product_images.0.name }} — {{ hero_product_images.0.sku }}" width="520" height="280" loading="eager">
+            </a>
+            {% else %}
+            <img src="/media/logomonteazul.png" alt="Monteazul SPA — Especialistas en sistemas de escape" width="320" height="180" loading="eager">
+            {% endif %}
+          </div>
         </div>
       </div>
-      <div class="hero-title-wrap fade-in">
-        <h1>Venta de Catalíticos en Chile – Universales y Diesel</h1>
-      </div>
-      <p class="hero-promise fade-in delay-1">Venta de repuestos de escape automotriz. Compra online y retira en bodega en Macul o recibe despacho a todo Chile.</p>
-      <p class="hero-sub hero-sub-retiro fade-in delay-1">📦 Retiro y pago en bodega en Macul • 🚚 Envíos a todo Chile</p>
-      <div class="hero-authority fade-in delay-1">
-        <span>✔ Fundada en 2016</span>
-        <span>✔ Especialistas en sistema de escape</span>
-        <span>✔ Envíos a todo Chile</span>
-      </div>
-      <div class="hero-ctas fade-in delay-2">
-        <a href="https://wa.me/{{ whatsapp_number }}?text=Hola%20Monteazul%2C%20quiero%20cotizar%20repuestos%20de%20escape%20para%20mi%20veh%C3%ADculo" class="btn-primary" target="_blank" rel="noopener">Cotizar por WhatsApp</a>
-        <a href="{% url 'core:vehicle_search' %}" class="btn-secondary">Buscar por vehículo</a>
-      </div>
-      <div class="trust-chips fade-in delay-3">
-        <span class="trust-chip">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          Envío a todo Chile
-        </span>
-        <span class="trust-chip">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          Compatibilidad verificada
-        </span>
-        <span class="trust-chip">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
-          Repuestos premium
-        </span>
-        <span class="trust-chip">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
-          Soporte experto
-        </span>
+      <a href="#categorias" class="mz-hero-scroll" aria-label="Bajar al contenido"></a>
+    </section>
+
+    <!-- QUICK ACTIONS — Marca Automotriz Premium -->
+    <section class="section mz-quick-actions">
+      <div class="mz-quick-grid">
+        <a class="mz-quick-card" href="{% url 'core:vehicle_search' %}">
+          <div class="mz-quick-icon">🚗</div>
+          <div class="mz-quick-title">Buscar por vehículo</div>
+          <div class="mz-quick-sub">Compatibilidad verificada por año, marca y motor</div>
+        </a>
+        <a class="mz-quick-card" href="#mas-vendido">
+          <div class="mz-quick-icon">🔥</div>
+          <div class="mz-quick-title">Top Sellers</div>
+          <div class="mz-quick-sub">Los catalíticos más vendidos esta semana</div>
+        </a>
+        <a class="mz-quick-card mz-quick-card-primary"
+           href="https://wa.me/{{ whatsapp_number }}?text=Hola%20Monteazul%2C%20necesito%20ayuda%20para%20elegir%20un%20catal%C3%ADtico%20por%20mi%20veh%C3%ADculo"
+           target="_blank" rel="noopener">
+          <div class="mz-quick-icon">💬</div>
+          <div class="mz-quick-title">Asesor técnico</div>
+          <div class="mz-quick-sub">Habla directo con un especialista</div>
+        </a>
       </div>
     </section>
 
-    <!-- 2) Sección SEO debajo del hero -->
-    <section class="section seo-texto seo-home" id="seo-home">
-      <h2 class="section-title" style="text-align: center;">Especialistas en Catalíticos y Sistemas de Escape en Chile</h2>
-      <div class="seo-texto-inner">
-        <p>
-          En MonteAzul SPA ofrecemos venta de catalíticos universales, catalíticos diesel Euro 4 y Euro 5, flexibles de escape y componentes de alto flujo para vehículos livianos y comerciales.
-          Trabajamos con modelos compatibles para distintas marcas y motores, asegurando rendimiento, reducción de emisiones y cumplimiento normativo.
-        </p>
-        <p>
-          Realizamos envíos a todo Chile y contamos con stock permanente de catalíticos TWG, CLF y soluciones para bencina y diesel.
-        </p>
-      </div>
-    </section>
-
-    <!-- 3) Categorías principales -->
+    <!-- 2) Categorías principales -->
     <section class="section" id="categorias">
       <h2 class="section-title" style="text-align: center;">Explora por categoría</h2>
       <p class="section-sub" style="text-align: center; margin-bottom: 28px;">Catalíticos universales, diesel y flexibles de escape</p>
@@ -948,6 +1789,73 @@
           <h3>Flexibles de Escape</h3>
           <p>Tubos flexibles reforzados y con extensión. Varias medidas.</p>
         </a>
+      </div>
+    </section>
+
+    <!-- 3b) Reseñas de clientes -->
+    <section class="section reviews-section" id="reseñas">
+      <div style="text-align: center;">
+        <span class="reviews-badge" aria-hidden="true">Reseñas verificadas</span>
+      </div>
+      <h2 class="section-title" style="text-align: center;">Lo que dicen nuestros clientes</h2>
+      <p class="section-sub" style="text-align: center; margin-bottom: 40px;">Comercios y talleres de todo Chile confían en la calidad de nuestros productos</p>
+      <div class="reviews-grid">
+        <article class="review-card">
+          <span class="review-quote-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg></span>
+          <p class="review-text">"Los productos son de excelente factura y se nota la calidad superior de los materiales en cada detalle."</p>
+          <div class="review-meta">
+            <span class="review-author">Víctor</span>
+            <span class="review-location">Santiago Centro</span>
+          </div>
+        </article>
+        <article class="review-card">
+          <span class="review-quote-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg></span>
+          <p class="review-text">"La durabilidad y las terminaciones de los productos son de primer nivel. Superan con creces las expectativas."</p>
+          <div class="review-meta">
+            <span class="review-author">Luis</span>
+            <span class="review-location">10 de Julio</span>
+          </div>
+        </article>
+        <article class="review-card">
+          <span class="review-quote-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg></span>
+          <p class="review-text">"Productos robustos y muy bien fabricados. Se nota el compromiso con la calidad técnica en cada pieza."</p>
+          <div class="review-meta">
+            <span class="review-author">Marcelino</span>
+            <span class="review-location">El Bosque</span>
+          </div>
+        </article>
+        <article class="review-card">
+          <span class="review-quote-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg></span>
+          <p class="review-text">"Materiales sumamente resistentes y de alta calidad. El producto llegó en perfectas condiciones, listo para su uso."</p>
+          <div class="review-meta">
+            <span class="review-author">Mauricio</span>
+            <span class="review-location">Atlanta Reciclajes, Viña del Mar</span>
+          </div>
+        </article>
+        <article class="review-card">
+          <span class="review-quote-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg></span>
+          <p class="review-text">"El producto es impecable, con terminaciones muy finas y exactas. Es justo lo que se requiere para un trabajo serio."</p>
+          <div class="review-meta">
+            <span class="review-author">Mauricio</span>
+            <span class="review-location">Taller Super7, Viña del Mar</span>
+          </div>
+        </article>
+        <article class="review-card">
+          <span class="review-quote-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg></span>
+          <p class="review-text">"Excelente calidad del material recibido en Temuco. Un producto duradero que demuestra gran resistencia."</p>
+          <div class="review-meta">
+            <span class="review-author">Alexis</span>
+            <span class="review-location">Temuco</span>
+          </div>
+        </article>
+        <article class="review-card">
+          <span class="review-quote-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg></span>
+          <p class="review-text">"Productos de ingeniería sólida y gran calidad. La resistencia de los materiales asegura un desempeño excelente."</p>
+          <div class="review-meta">
+            <span class="review-author">Alexis</span>
+            <span class="review-location">Maestranza Cheuque, La Granja</span>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -1068,11 +1976,11 @@
       </div>
     </section>
 
-    <!-- 6) Productos destacados -->
-    <section class="section">
+    <!-- 6) Top Sellers • Repuestos de Escape -->
+    <section class="section" id="mas-vendido">
       <div class="featured-head">
         <div>
-          <h2 class="section-title">Lo más vendido esta semana</h2>
+          <h2 class="section-title">Top Sellers • Repuestos de Escape</h2>
           <p class="section-sub">Repuestos de escape con compatibilidad verificada</p>
         </div>
         <a href="{% url 'catalog:product_list' %}" class="btn-secondary">Ver todo el catálogo</a>
@@ -1086,6 +1994,8 @@
           <div class="body">
             <div class="name">{{ p.name }}</div>
             <div class="sku">{{ p.sku }}</div>
+            <div style="font-size:.82rem;color:rgba(255,255,255,.6);margin-bottom:12px;">Compatibilidad verificada • Alto flujo • Envío a regiones</div>
+            <a href="{{ p.url }}" class="product-card-btn-primary">Ver detalle</a>
             <a href="https://wa.me/{{ whatsapp_number }}?text=Hola%2C%20consulto%20compatibilidad%20del%20producto%20{{ p.sku|urlencode }}%20-%20{{ p.name|urlencode }}" class="btn-consult" target="_blank" rel="noopener">Consultar compatibilidad</a>
           </div>
         </article>
@@ -1115,12 +2025,61 @@
       </div>
       <p class="footer-shipping">Envíos a todo Chile</p>
       <div class="footer-bottom">
-        © {% now "Y" %} Monteazul SPA • Retiro y pago en bodega: <a href="https://www.google.com/maps/search/?api=1&query=Exequiel%20Fern%C3%A1ndez%203663%20Of%206%2C%20Macul%2C%20Santiago%2C%20Chile" target="_blank" rel="noopener" style="color: rgba(255,255,255,0.95); text-decoration: underline;">Exequiel Fernández 3663 Of. 6, Macul, Santiago</a> • Oficina Corporativa: Barros Borgoño 71, Providencia, Santiago • Fundada 07/06/2016
-        <span class="footer-credits">Sitio creado por <strong>Atlanta Global Solutions</strong></span>
+        © {% now "Y" %} Monteazul SPA • Desde 2016 • Ingeniería en sistemas de escape • Envíos a todo Chile
+        <p class="footer-address">Retiro en Macul: <a href="https://www.google.com/maps/search/?api=1&query=Exequiel%20Fern%C3%A1ndez%203663%20Of%206%2C%20Macul%2C%20Santiago%2C%20Chile" target="_blank" rel="noopener" style="color: rgba(255,255,255,0.85); text-decoration: underline;">Exequiel Fernández 3663 Of. 6, Macul</a> · Providencia: Barros Borgoño 71</p>
+        <span class="footer-credits">Desarrollo: Atlanta Global Solutions</span>
       </div>
     </div>
   </footer>
+  </div>
 
   <a class="wa-float" href="https://wa.me/{{ whatsapp_number }}?text=Hola%20Monteazul%2C%20quiero%20contactar%20a%20un%20vendedor" target="_blank" rel="noopener" title="Contactar por WhatsApp">💬 WhatsApp</a>
+
+  <script>
+    (function() {
+      var navToggle = document.getElementById('nav-toggle-mobile');
+      var navDrawer = document.getElementById('nav-drawer');
+      var navOverlay = document.getElementById('nav-drawer-overlay');
+      var navClose = document.getElementById('nav-drawer-close');
+      function openNavDrawer() {
+        if (navDrawer) navDrawer.classList.add('is-open');
+        if (navOverlay) navOverlay.classList.add('is-open');
+        if (navToggle) navToggle.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
+      }
+      function closeNavDrawer() {
+        if (navDrawer) navDrawer.classList.remove('is-open');
+        if (navOverlay) navOverlay.classList.remove('is-open');
+        if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      }
+      if (navToggle) navToggle.addEventListener('click', openNavDrawer);
+      if (navClose) navClose.addEventListener('click', closeNavDrawer);
+      if (navOverlay) navOverlay.addEventListener('click', closeNavDrawer);
+      var drawerLinks = document.querySelectorAll('.nav-drawer-link');
+      drawerLinks.forEach(function(link) { link.addEventListener('click', closeNavDrawer); });
+
+      var sidebarToggle = document.getElementById('nav-sidebar-toggle');
+      var sidebar = document.getElementById('nav-sidebar');
+      var sidebarOverlay = document.getElementById('nav-sidebar-overlay');
+      var sidebarClose = document.getElementById('nav-sidebar-close');
+      function openSidebar() {
+        if (sidebar) sidebar.classList.add('is-open');
+        if (sidebarOverlay) sidebarOverlay.classList.add('is-open');
+        if (sidebarToggle) sidebarToggle.setAttribute('aria-expanded', 'true');
+        document.body.classList.add('nav-sidebar-open');
+      }
+      function closeSidebar() {
+        if (sidebar) sidebar.classList.remove('is-open');
+        if (sidebarOverlay) sidebarOverlay.classList.remove('is-open');
+        if (sidebarToggle) sidebarToggle.setAttribute('aria-expanded', 'false');
+        document.body.classList.remove('nav-sidebar-open');
+      }
+      if (sidebarToggle) sidebarToggle.addEventListener('click', openSidebar);
+      if (sidebarClose) sidebarClose.addEventListener('click', closeSidebar);
+      var sidebarLinks = document.querySelectorAll('.nav-sidebar-link');
+      sidebarLinks.forEach(function(link) { link.addEventListener('click', closeSidebar); });
+    })();
+  </script>
 </body>
 </html>

@@ -1,6 +1,26 @@
 cd /home/atlantareciclajes/monteazulspa
 source /home/atlantareciclajes/venv_monteazul/bin/activate
 
+
+
+
+Flujo completo con cambios sin commitear
+En tu PC (local)
+cd e:\projecto\monteazulspa
+Opción A: Hacer commit y push
+git statusgit add .git commit -m "Unificar catálogo público/ops, ordenar por nombre/precio, Diesel en menú"git push origin main
+Opción B: Guardar cambios temporalmente (stash)
+git stashgit pull origin maingit stash popgit add .git commit -m "Unificar catálogo público/ops, ordenar por nombre/precio, Diesel en menú"git push origin main
+En el servidor (SSH)
+cd /home/atlantareciclajes/monteazulspagit pull origin maintouch /home/atlantareciclajes/monteazulspa/config/wsgi.py
+
+
+
+
+
+
+
+
 # 1. Crear la migración para el campo ficha_tecnica (y cualquier otro cambio en catalog)
 python manage.py makemigrations catalog
 

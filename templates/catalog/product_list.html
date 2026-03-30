@@ -757,7 +757,7 @@
                                 </ul>
                             {% elif root.children_list %}
                                 <div class="cat-row">
-                                    <a href="{% url 'catalog:product_list' %}?cat={{ root.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == root.id %}class="active"{% endif %}>{% if root.name == "Cataliticos" %}Convertidores Cataliticos{% elif root.slug == "flexibles" %}Flexibles Reforzados{% elif root.slug == "silenciadores" or root.slug == "silenciadores-alto-flujo" %}Silenciadores Alto Flujo{% elif root.slug == "resonadores" %}Resonadores{% else %}{{ root.name }}{% endif %}</a>
+                                    <a href="{% url 'catalog:product_list' %}?cat={{ root.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == root.id %}class="active"{% endif %}>{% if root.name == "Cataliticos" %}Convertidores Cataliticos{% elif root.slug == "flexibles" %}Flexibles Reforzados{% elif root.slug == "silenciador-linea-dw" %}Silenciadores{% elif root.slug == "silenciador-alto-flujo-lt" %}Silenciadores Alto Flujo{% elif root.slug == "resonador-deportivo-alto-flujo-ltm" %}Resonadores Deportivo Alto Flujo{% else %}{{ root.name }}{% endif %}</a>
                                     <button type="button" class="toggle-children" aria-expanded="{% if root.id in expanded_root_ids %}true{% else %}false{% endif %}" aria-label="Mostrar u ocultar subcategorías">▼</button>
                                 </div>
                                 <ul class="filter-list subcategory">
@@ -766,27 +766,27 @@
                                         <li class="{% if sub.children_list %}has-children{% endif %}{% if current_category and current_category.parent_id == sub.id %} expanded{% endif %}">
                                             {% if sub.children_list %}
                                                 <div class="cat-row">
-                                                    <a href="{% url 'catalog:product_list' %}?cat={{ sub.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == sub.id %}class="active"{% endif %}>{% if sub.name == "Cataliticos" %}Convertidores Cataliticos{% elif sub.slug == "flexibles-normales" %}Flexibles Reforzados{% elif sub.slug == "flexibles-con-extension" %}Flexibles Reforzados con extensión{% elif sub.slug == "cataliticos-ensamble-directo" %}Ensamble Directo CLF{% elif sub.slug == "silenciadores" or sub.slug == "silenciadores-alto-flujo" %}Silenciadores Alto Flujo{% elif sub.slug == "resonadores" %}Resonadores{% else %}{{ sub.name }}{% endif %}</a>
+                                                    <a href="{% url 'catalog:product_list' %}?cat={{ sub.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == sub.id %}class="active"{% endif %}>{% if sub.name == "Cataliticos" %}Convertidores Cataliticos{% elif sub.slug == "flexibles-normales" %}Flexibles Reforzados{% elif sub.slug == "flexibles-con-extension" %}Flexibles Reforzados con extensión{% elif sub.slug == "cataliticos-ensamble-directo" %}Ensamble Directo CLF{% elif sub.slug == "silenciador-linea-dw" %}Silenciadores{% elif sub.slug == "silenciador-alto-flujo-lt" %}Silenciadores Alto Flujo{% elif sub.slug == "resonador-deportivo-alto-flujo-ltm" %}Resonadores Deportivo Alto Flujo{% elif sub.slug == "resonadores" %}Resonadores{% else %}{{ sub.name }}{% endif %}</a>
                                                     <button type="button" class="toggle-children" aria-expanded="{% if current_category and current_category.parent_id == sub.id %}true{% else %}false{% endif %}" aria-label="Mostrar u ocultar subcategorías">▼</button>
                                                 </div>
                                                 <ul class="filter-list subcategory">
                                                     {% for sub2 in sub.children_list %}
                                                         {% if sub2.slug != "cataliticos-clf" %}
                                                         <li>
-                                                            <a href="{% url 'catalog:product_list' %}?cat={{ sub2.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == sub2.id %}class="active"{% endif %}>{% if sub2.name == "Cataliticos" %}Convertidores Cataliticos{% elif sub2.slug == "cataliticos-ensamble-directo" %}Ensamble Directo CLF{% elif sub2.slug == "silenciadores" or sub2.slug == "silenciadores-alto-flujo" %}Silenciadores Alto Flujo{% elif sub2.slug == "resonadores" %}Resonadores{% else %}{{ sub2.name }}{% endif %}</a>
+                                                            <a href="{% url 'catalog:product_list' %}?cat={{ sub2.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == sub2.id %}class="active"{% endif %}>{% if sub2.name == "Cataliticos" %}Convertidores Cataliticos{% elif sub2.slug == "cataliticos-ensamble-directo" %}Ensamble Directo CLF{% elif sub2.slug == "silenciador-linea-dw" %}Silenciadores{% elif sub2.slug == "silenciador-alto-flujo-lt" %}Silenciadores Alto Flujo{% elif sub2.slug == "resonador-deportivo-alto-flujo-ltm" %}Resonadores Deportivo Alto Flujo{% elif sub2.slug == "resonadores" %}Resonadores{% else %}{{ sub2.name }}{% endif %}</a>
                                                         </li>
                                                         {% endif %}
                                                     {% endfor %}
                                                 </ul>
                                             {% else %}
-                                                <a href="{% url 'catalog:product_list' %}?cat={{ sub.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == sub.id %}class="active"{% endif %}>{% if sub.name == "Cataliticos" %}Convertidores Cataliticos{% elif sub.slug == "flexibles-normales" %}Flexibles Reforzados{% elif sub.slug == "flexibles-con-extension" %}Flexibles Reforzados con extensión{% elif sub.slug == "cataliticos-ensamble-directo" %}Ensamble Directo CLF{% elif sub.slug == "silenciadores" or sub.slug == "silenciadores-alto-flujo" %}Silenciadores Alto Flujo{% elif sub.slug == "resonadores" %}Resonadores{% else %}{{ sub.name }}{% endif %}</a>
+                                                <a href="{% url 'catalog:product_list' %}?cat={{ sub.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == sub.id %}class="active"{% endif %}>{% if sub.name == "Cataliticos" %}Convertidores Cataliticos{% elif sub.slug == "flexibles-normales" %}Flexibles Reforzados{% elif sub.slug == "flexibles-con-extension" %}Flexibles Reforzados con extensión{% elif sub.slug == "cataliticos-ensamble-directo" %}Ensamble Directo CLF{% elif sub.slug == "silenciador-linea-dw" %}Silenciadores{% elif sub.slug == "silenciador-alto-flujo-lt" %}Silenciadores Alto Flujo{% elif sub.slug == "resonador-deportivo-alto-flujo-ltm" %}Resonadores Deportivo Alto Flujo{% elif sub.slug == "resonadores" %}Resonadores{% else %}{{ sub.name }}{% endif %}</a>
                                             {% endif %}
                                         </li>
                                         {% endif %}
                                     {% endfor %}
                                 </ul>
                             {% else %}
-                                <a href="{% url 'catalog:product_list' %}?cat={{ root.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == root.id %}class="active"{% endif %}>{% if root.name == "Cataliticos" %}Convertidores Cataliticos{% elif root.slug == "flexibles" %}Flexibles Reforzados{% elif root.slug == "silenciadores" or root.slug == "silenciadores-alto-flujo" %}Silenciadores Alto Flujo{% elif root.slug == "resonadores" %}Resonadores{% else %}{{ root.name }}{% endif %}</a>
+                                <a href="{% url 'catalog:product_list' %}?cat={{ root.slug }}{% if q %}&q={{ q|urlencode }}{% endif %}" {% if current_category and current_category.id == root.id %}class="active"{% endif %}>{% if root.name == "Cataliticos" %}Convertidores Cataliticos{% elif root.slug == "flexibles" %}Flexibles Reforzados{% elif root.slug == "silenciador-linea-dw" %}Silenciadores{% elif root.slug == "silenciador-alto-flujo-lt" %}Silenciadores Alto Flujo{% elif root.slug == "resonador-deportivo-alto-flujo-ltm" %}Resonadores Deportivo Alto Flujo{% else %}{{ root.name }}{% endif %}</a>
                             {% endif %}
                         </li>
                     {% endfor %}
@@ -912,8 +912,11 @@
             </section>
             {% else %}
             <div class="vehicle-search-block">
-                <p class="vehicle-search-label">¿Sabes el año, marca y modelo de tu vehículo?</p>
-                <a href="{% url 'core:vehicle_search' %}" class="btn-vehicle-search">Buscar repuestos por vehículo</a>
+                <p class="vehicle-search-label">¿Sabes el año, marca y modelo de tu vehículo? ¿O buscas por medida (ej. 2x6, flexible 2x8)?</p>
+                <div class="flex flex-wrap gap-3 justify-center mt-2">
+                    <a href="{% url 'core:vehicle_search' %}" class="btn-vehicle-search">Buscar por vehículo</a>
+                    <a href="{% url 'catalog:escape_search' %}" class="btn-vehicle-search">Buscar por medidas</a>
+                </div>
             </div>
 
             <div class="breadcrumb-bar">
@@ -940,6 +943,11 @@
                 <span class="product-count" id="productCount">({{ products|length }})</span>
             </h2>
 
+            {% if is_relaxed %}
+            <div class="wizard-result-banner" role="status" style="margin-bottom: 12px; background: rgba(250,204,21,0.08); border-color: rgba(250,204,21,0.5); color: #facc15;">
+                ⚠ Mostrando opciones compatibles por cilindrada (sin restringir por año exacto).
+            </div>
+            {% endif %}
             {% if wizard_fuel and wizard_tipo %}
             <div class="wizard-result-banner" role="status">
                 Resultados del asistente: <strong>{% if wizard_fuel == 'diesel' %}Diesel{% else %}Bencina{% endif %}</strong>

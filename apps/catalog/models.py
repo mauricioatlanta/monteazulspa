@@ -59,6 +59,12 @@ class VehicleEngine(models.Model):
         null=True,
         blank=True,
     )
+    displacement_cc = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text="Cilindrada del motor en centímetros cúbicos (cc).",
+    )
 
     class Meta:
         unique_together = ("model", "name")
@@ -204,6 +210,20 @@ class Product(models.Model):
         verbose_name="Celdas (CPSI)",
         help_text="Densidad de celdas (ej. 200 CPSI)",
     )
+    recommended_cc_min = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+        verbose_name="Cilindrada mínima recomendada (cc)",
+        help_text="Rango de cilindrada para catalíticos: el vehículo debe tener cc >= este valor.",
+    )
+    recommended_cc_max = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+        verbose_name="Cilindrada máxima recomendada (cc)",
+        help_text="Rango de cilindrada para catalíticos: el vehículo debe tener cc <= este valor.",
+    )
 
     # Ficha técnica / descripción (texto largo para certificaciones, especificaciones detalladas)
     ficha_tecnica = models.TextField(
@@ -211,6 +231,12 @@ class Product(models.Model):
         default="",
         verbose_name="Ficha técnica / Descripción",
         help_text="Texto con ficha técnica, certificaciones y especificaciones. Si está vacío, se muestran solo los campos técnicos estándar.",
+    )
+    compatibility_notes = models.TextField(
+        blank=True,
+        default="",
+        verbose_name="Notas de compatibilidad (años, generaciones, otros modelos)",
+        help_text="Texto opcional que se muestra en la sección Compatibilidad vehicular: años, generación del modelo, otros vehículos que usan el mismo convertidor, etc.",
     )
 
     # Garantía (jerarquía: producto → categoría → global)
@@ -418,8 +444,20 @@ class ProductCompatibility(models.Model):
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="compatibilities")
     brand = models.ForeignKey(VehicleBrand, on_delete=models.PROTECT)
-    model = models.ForeignKey(VehicleModel, on_delete=models.PROTECT)
+    model = models.ForeignKey(
+        VehicleModel,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        help_text="Si es NULL, compatibilidad amplia por marca (todos los modelos).",
+    )
     engine = models.ForeignKey(VehicleEngine, on_delete=models.PROTECT, null=True, blank=True)
+    displacement_cc = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text="Cilindrada objetivo en centímetros cúbicos (cc). Si está vacío, se usa la del motor.",
+    )
 
     year_from = models.PositiveIntegerField()
     year_to = models.PositiveIntegerField()
@@ -440,11 +478,16 @@ class ProductCompatibility(models.Model):
         indexes = [
             models.Index(fields=["brand", "model", "year_from", "year_to"]),
             models.Index(fields=["product", "is_active"]),
+            models.Index(
+                fields=["brand", "model", "displacement_cc", "year_from", "year_to"],
+                name="cat_pc_brand_model_cc_year_idx",
+            ),
         ]
 
     def __str__(self):
+        model_str = str(self.model) if self.model_id else "(todos)"
         eng = f" / {self.engine}" if self.engine_id else ""
-        return f"{self.product.sku} -> {self.model} {self.year_from}-{self.year_to}{eng}"
+        return f"{self.product.sku} -> {model_str} {self.year_from}-{self.year_to}{eng}"
 
 
 class ProductViewStat(models.Model):
@@ -464,3 +507,23 @@ class ProductViewStat(models.Model):
 
     def __str__(self):
         return f"{self.product.sku}: {self.views} vistas"
+
+
+class SearchLog(models.Model):
+    """
+    Log simple de búsquedas para análisis de demanda y brechas de catálogo.
+    """
+
+    query = models.CharField(max_length=255)
+    cc = models.IntegerField(null=True, blank=True, db_index=True)
+    fuel = models.CharField(max_length=20, null=True, blank=True, db_index=True)
+    year = models.IntegerField(null=True, blank=True, db_index=True)
+    results_count = models.IntegerField()
+    is_relaxed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.query} ({self.results_count} resultados)"

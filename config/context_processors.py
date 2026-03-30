@@ -39,14 +39,25 @@ def company_info(request):
 
 
 def header_categories(request):
-    """Categorías raíz para la barra de navegación (evita import circular en templates)."""
+    """Categorías raíz para la barra de navegación (prioridad: DW/LT/LTM)."""
     try:
         from apps.catalog.models import Category
-        cats = list(
-            Category.objects.filter(is_active=True, parent__isnull=True)
-            .exclude(slug__in=["flexibles-reforzados", "por-clasificar"])
-            .order_by("name")[:8]
-        )
+
+        exclude_slugs = ["por-clasificar", "flexibles"]
+        priority_slugs = [
+            "cataliticos",
+            "flexibles-reforzados",
+            "resonador-deportivo-alto-flujo-ltm",
+            "silenciador-alto-flujo-lt",
+            "silenciador-linea-dw",
+        ]
+
+        base = Category.objects.filter(is_active=True, parent__isnull=True).exclude(slug__in=exclude_slugs)
+        priority = list(base.filter(slug__in=priority_slugs))
+        priority_sorted = [next((c for c in priority if c.slug == s), None) for s in priority_slugs]
+        priority_sorted = [c for c in priority_sorted if c]
+        rest = list(base.exclude(slug__in=priority_slugs).order_by("name")[: max(0, 8 - len(priority_sorted))])
+        cats = priority_sorted + rest
         return {"header_categories": cats}
     except Exception:
         return {"header_categories": []}
