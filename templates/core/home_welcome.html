@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static public_visibility_tags %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1833,6 +1833,7 @@
       <p class="section-sub" style="text-align: center; margin-bottom: 28px;">Ingresa directo a la familia de repuestos que necesitas</p>
       <div class="categories-grid">
         {% for card in solutions_cards %}
+        {% if not card.title|publicly_hidden_term and not card.description|publicly_hidden_term %}
         <div class="category-card" title="{{ card.title }}">
           {% if card.badge %}
             <div class="mz-card-badge {% if 'consulta' in card.badge|lower %}consult{% else %}soon{% endif %}">{{ card.badge }}</div>
@@ -1848,6 +1849,7 @@
             {% endif %}
           </div>
         </div>
+        {% endif %}
         {% endfor %}
       </div>
     </section>
@@ -1974,7 +1976,7 @@
       <div class="footer-top mz-footer-grid">
         <div>
           <h3 class="section-title" style="font-size:1.1rem;margin-bottom:8px;">Contacto</h3>
-          <p class="section-sub" style="margin:0;">Diez de Julio 354, Santiago</p>
+          <p class="section-sub" style="margin:0;">Diez de Julio 354, Macul, Región Metropolitana</p>
           <p class="section-sub" style="margin:0.25rem 0 0.75rem 0;"><a href="https://wsp.cl/Atepara" target="_blank" rel="noopener" style="color:#10B981;text-decoration:underline;">WhatsApp</a></p>
         </div>
         <div>
@@ -1998,7 +2000,7 @@
       </div>
       <div class="footer-bottom" style="margin-top:18px;">
         © {% now "Y" %} Monteazul SPA • Ingeniería en sistemas de escape • Envíos a todo Chile
-        <p class="footer-address">Exhibición y Ventas: <a href="https://www.google.com/maps/search/?api=1&query=Diez%20de%20Julio%20354%2C%20Santiago%2C%20Chile" target="_blank" rel="noopener" style="color: rgba(255,255,255,0.85); text-decoration: underline;">Diez de Julio 354, Santiago</a></p>
+        <p class="footer-address">Exhibición y Ventas: <a href="https://www.google.com/maps/search/?api=1&query=Diez%20de%20Julio%20354%2C%20Macul%2C%20Chile" target="_blank" rel="noopener" style="color: rgba(255,255,255,0.85); text-decoration: underline;">Diez de Julio 354, Macul, Región Metropolitana</a><br>Oficina Corporativa: Barros Borgoño 71, Providencia, Santiago</p>
       </div>
     </div>
   </footer>
@@ -2097,3 +2099,4 @@
   </script>
 </body>
 </html>
+
