@@ -24,15 +24,15 @@ def seo_settings(request):
 
 
 def company_info(request):
-    """Ubicación principal (Macul) y corporativa (Providencia) para templates."""
+    """Ubicación comercial principal y oficina corporativa para templates."""
     return {
-        "PRIMARY_LOCATION_NAME": "Bodega y Centro de Venta",
-        "PRIMARY_ADDRESS_LINE": "Exequiel Fernández 3663, Of. 6",
-        "PRIMARY_CITY": "Macul, Santiago, Chile",
-        "PRIMARY_MAPS_QUERY": "Exequiel Fernández 3663 of 6, Macul, Santiago, Chile",
+        "PRIMARY_LOCATION_NAME": "Exhibición y Ventas",
+        "PRIMARY_ADDRESS_LINE": "Diez de Julio 354",
+        "PRIMARY_CITY": "Santiago, Chile",
+        "PRIMARY_MAPS_QUERY": "Diez de Julio 354, Santiago, Chile",
         "CORP_LOCATION_NAME": "Oficina Corporativa",
-        "CORP_ADDRESS_LINE": getattr(settings, "CORP_ADDRESS_LINE", "Barros Borgoño 71") or "",
-        "CORP_CITY": getattr(settings, "CORP_CITY", "Providencia, Santiago, Chile") or "",
+        "CORP_ADDRESS_LINE": getattr(settings, "CORP_ADDRESS_LINE", "Manuel Barros Borgoño 71 oficina 1105") or "",
+        "CORP_CITY": getattr(settings, "CORP_CITY", "Providencia, Región Metropolitana, Chile") or "",
         "WHATSAPP_NUMBER_E164": getattr(settings, "WHATSAPP_NUMBER_E164", None)
         or getattr(settings, "WHATSAPP_NUMBER", "56979503154"),
     }
@@ -42,6 +42,7 @@ def header_categories(request):
     """Categorías raíz para la barra de navegación (prioridad: DW/LT/LTM)."""
     try:
         from apps.catalog.models import Category
+        from apps.catalog.public_visibility import exclude_removed_categories
 
         exclude_slugs = ["por-clasificar", "flexibles"]
         priority_slugs = [
@@ -52,7 +53,9 @@ def header_categories(request):
             "silenciador-linea-dw",
         ]
 
-        base = Category.objects.filter(is_active=True, parent__isnull=True).exclude(slug__in=exclude_slugs)
+        base = exclude_removed_categories(
+            Category.objects.filter(is_active=True, parent__isnull=True)
+        ).exclude(slug__in=exclude_slugs)
         priority = list(base.filter(slug__in=priority_slugs))
         priority_sorted = [next((c for c in priority if c.slug == s), None) for s in priority_slugs]
         priority_sorted = [c for c in priority_sorted if c]

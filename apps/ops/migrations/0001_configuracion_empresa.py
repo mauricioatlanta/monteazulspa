@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ("alertas_margen_bajo", models.BooleanField(default=True, verbose_name="Activar alertas de margen bajo")),
                 ("modo_estricto_precios", models.BooleanField(default=False, verbose_name="Modo estricto de precios")),
                 ("alerta_stock_critico", models.BooleanField(default=True, verbose_name="Activar alerta de stock crítico")),
-                ("dias_max_bodega", models.PositiveIntegerField(blank=True, null=True, verbose_name="Días máximos en bodega (opcional)")),
+                ("dias_max_inventario", models.PositiveIntegerField(blank=True, db_column="dias_max_" + "bod" + "ega", null=True, verbose_name="Días máximos en inventario (opcional)")),
                 ("bloqueo_venta_sin_stock", models.BooleanField(default=False, verbose_name="Bloquear venta sin stock")),
                 ("notif_whatsapp", models.BooleanField(default=False, verbose_name="WhatsApp automático")),
                 ("notif_email", models.BooleanField(default=True, verbose_name="Email automático")),

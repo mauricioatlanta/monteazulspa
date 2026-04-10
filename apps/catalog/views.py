@@ -8,6 +8,13 @@ from django.urls import reverse
 from django.db.models import Q, Count, Prefetch, Case, When, IntegerField, QuerySet
 from django.views.decorators.http import require_GET
 from .models import Product, Category, ProductCompatibility, ProductImage, ProductViewStat, SearchLog
+from .public_visibility import (
+    REMOVED_CATEGORY_REDIRECT_SLUGS,
+    REMOVED_CATEGORY_SLUGS,
+    exclude_removed_categories,
+    exclude_removed_products,
+    text_contains_removed_terms,
+)
 from apps.catalog.utils.engine_query_parser import parse_engine_query
 from apps.catalog.services.vehicle_recommendation_rules import apply_engine_filter
 
@@ -170,6 +177,8 @@ def _apply_category_filter(products_qs, cat_slug):
     Para Silenciadores Alto Flujo, cat=silenciadores o silenciadores-alto-flujo muestra productos de ambas."""
     if not cat_slug:
         return products_qs
+    if cat_slug in REMOVED_CATEGORY_REDIRECT_SLUGS:
+        return products_qs.none()
     if cat_slug in CLF_ENSAMBLE_SLUGS:
         ids = list(
             Category.objects.filter(slug__in=CLF_ENSAMBLE_SLUGS, is_active=True).values_list("id", flat=True)
@@ -310,7 +319,7 @@ def product_search_api(request):
         output_field=IntegerField(),
     )
     products_qs = (
-        Product.objects.filter(deleted_at__isnull=True)
+        exclude_removed_products(Product.objects.filter(deleted_at__isnull=True))
         .select_related("category", "category__parent")
         .annotate(_category_order=_cat_order)
         .order_by("_category_order", "category__slug", "name")
@@ -371,23 +380,30 @@ def product_list(request):
     """Listado de productos con filtro por categoría y subcategoría."""
     q = request.GET.get("q", "").strip()
     cat_slug = request.GET.get("cat", "").strip()
+    if q and text_contains_removed_terms(q):
+        params = request.GET.copy()
+        if "q" in params:
+            del params["q"]
+        if params.get("cat") in REMOVED_CATEGORY_REDIRECT_SLUGS:
+            del params["cat"]
+        url = reverse("catalog:product_list")
+        if params:
+            url += "?" + params.urlencode()
+        return redirect(url)
     # Unificar flexibles: una sola categoría "Flexibles Reforzados" (canonical slug = flexibles)
     if cat_slug == "flexibles-reforzados":
         params = request.GET.copy()
         params["cat"] = "flexibles"
         return redirect(reverse("catalog:product_list") + "?" + params.urlencode())
-    # Unificar Empaques de Motor: soportar slugs antiguos/alternativos y redirigir al canonical
-    if cat_slug in (
-        "empaques-de-motor",
-        "empaque-de-motor",
-        "empaquetadura-de-motor",
-        "empaquetaduras-motor",
-        "juntas-de-motor",
-        "juntas-motor",
-    ):
+    # Empaques de motor fue descontinuado: enviar cualquier slug legacy/canónico al catálogo general.
+    if cat_slug in REMOVED_CATEGORY_REDIRECT_SLUGS:
         params = request.GET.copy()
-        params["cat"] = "empaquetaduras-de-motor"
-        return redirect(reverse("catalog:product_list") + "?" + params.urlencode())
+        if "cat" in params:
+            del params["cat"]
+        url = reverse("catalog:product_list")
+        if params:
+            url += "?" + params.urlencode()
+        return redirect(url)
     anno = request.GET.get("anno", "").strip()
     wizard_fuel = request.GET.get("fuel", "").strip()
     wizard_tipo = request.GET.get("tipo", "").strip()
@@ -403,7 +419,7 @@ def product_list(request):
 
     # Categorías raíz con sus hijas (para el filtro del sidebar)
     root_categories = (
-        Category.objects.filter(is_active=True, parent__isnull=True)
+        exclude_removed_categories(Category.objects.filter(is_active=True, parent__isnull=True))
         .prefetch_related("children")
         .order_by("name")
     )
@@ -411,7 +427,7 @@ def product_list(request):
     # Si no hay raíces, mostrar como “raíces” las categorías activas que tengan productos (p. ej. tras carga Excel)
     if not root_categories:
         root_categories = list(
-            Category.objects.filter(is_active=True)
+            exclude_removed_categories(Category.objects.filter(is_active=True))
             .annotate(num_products=Count("products", filter=Q(products__deleted_at__isnull=True)))
             .filter(num_products__gt=0)
             .order_by("name")
@@ -443,13 +459,16 @@ def product_list(request):
             for sub in r.children_list:
                 ids_in_tree.update(c.id for c in sub.children_list)
         missing_ids = set(
-            Category.objects.filter(is_active=True)
+            exclude_removed_categories(Category.objects.filter(is_active=True))
             .annotate(num_products=Count("products", filter=Q(products__deleted_at__isnull=True)))
             .filter(num_products__gt=0)
             .values_list("id", flat=True)
         ) - ids_in_tree
         if missing_ids:
-            extra = list(Category.objects.filter(id__in=missing_ids).order_by("name"))
+            extra = list(
+                exclude_removed_categories(Category.objects.filter(id__in=missing_ids))
+                .order_by("name")
+            )
             for e in extra:
                 e.children_list = []
             root_categories = root_categories + extra
@@ -477,7 +496,7 @@ def product_list(request):
         When(category__slug=slug, then=order) for slug, order in CAT_ORDER
     ]
     products_qs = (
-        Product.objects.filter(deleted_at__isnull=True)
+        exclude_removed_products(Product.objects.filter(deleted_at__isnull=True))
         .select_related("category", "category__parent")
         .prefetch_related("images")
         .annotate(
@@ -846,7 +865,7 @@ def cataliticos_twg_opciones(request):
 
 def product_detail(request, slug):
     product = get_object_or_404(
-        Product.objects.filter(deleted_at__isnull=True)
+        exclude_removed_products(Product.objects.filter(deleted_at__isnull=True))
         .select_related("category")
         .prefetch_related(
             Prefetch(
@@ -871,10 +890,12 @@ def product_detail(request, slug):
         request.session[session_key] = True
 
     related_products = (
-        Product.objects.filter(
-            category=product.category,
-            is_active=True,
-            deleted_at__isnull=True,
+        exclude_removed_products(
+            Product.objects.filter(
+                category=product.category,
+                is_active=True,
+                deleted_at__isnull=True,
+            )
         )
         .exclude(pk=product.pk)
         .select_related("category")
@@ -1008,7 +1029,7 @@ def product_detail(request, slug):
 def lista_precios(request):
     """Listado de precios para imprimir o llevar. Productos activos ordenados por categoría y SKU."""
     products = (
-        Product.objects.filter(is_active=True, deleted_at__isnull=True)
+        exclude_removed_products(Product.objects.filter(is_active=True, deleted_at__isnull=True))
         .select_related("category")
         .order_by("category__name", "sku")
     )
@@ -1068,6 +1089,14 @@ def buscar_escape(request):
     diametro = request.GET.get("diametro", "").strip()
     largo = request.GET.get("largo", "").strip()
     q = request.GET.get("q", "").strip()
+    if q and text_contains_removed_terms(q):
+        params = request.GET.copy()
+        if "q" in params:
+            del params["q"]
+        url = reverse("catalog:buscar_escape")
+        if params:
+            url += "?" + params.urlencode()
+        return redirect(url)
 
     # Mejora 1: interpretar 2x6, 2 x 6, 2*6
     if q:
@@ -1077,7 +1106,9 @@ def buscar_escape(request):
         if parsed_l:
             largo = parsed_l
 
-    base = Product.objects.filter(is_active=True, deleted_at__isnull=True).select_related("category")
+    base = exclude_removed_products(
+        Product.objects.filter(is_active=True, deleted_at__isnull=True)
+    ).select_related("category")
     products = base.order_by("category__name", "name")
 
     diametro_dec = None
@@ -1175,6 +1206,8 @@ def smart_search_suggestions_api(request):
     from .utils.smart_search_suggestions import get_smart_search_suggestions
 
     q = request.GET.get("q", "").strip()
+    if text_contains_removed_terms(q):
+        return JsonResponse({"results": []})
     results = get_smart_search_suggestions(q, total_limit=8)
     return JsonResponse({"results": results})
 
@@ -1188,6 +1221,8 @@ def smart_search_redirect(request):
     from .utils.smart_search import parse_smart_search
 
     q = (request.GET.get("q") or "").strip()
+    if text_contains_removed_terms(q):
+        return redirect(reverse("catalog:product_list"))
     parsed = parse_smart_search(q)
 
     if parsed["type"] == "empty":

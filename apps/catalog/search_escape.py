@@ -14,6 +14,7 @@ from typing import Optional, Tuple, List
 from django.db.models import Q
 
 from apps.catalog.models import Product, SearchLog
+from apps.catalog.public_visibility import exclude_removed_products
 from apps.catalog.utils.engine_query_parser import parse_engine_query
 from apps.catalog.services.vehicle_recommendation_rules import apply_engine_filter
 
@@ -180,10 +181,9 @@ def build_escape_queryset(text: str) -> Tuple[ParsedEscapeQuery, "Product.QueryS
     Devuelve (parsed, qs) para que la vista muestre resultados e interpretación.
     """
     parsed = parse_escape_query(text)
-    qs = (
+    qs = exclude_removed_products(
         Product.objects.filter(deleted_at__isnull=True, is_active=True)
-        .select_related("category")
-    )
+    ).select_related("category")
 
     if parsed.search_type == "vehicle":
         vehicle_q = (

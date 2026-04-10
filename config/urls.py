@@ -16,11 +16,12 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
 from django.views.generic import TemplateView
+from django.views.static import serve
 
 from apps.core import views as core_views
 from apps.catalog.views import normativas as catalog_normativas
@@ -90,6 +91,13 @@ if _cataliticos_root.exists():
 
 # Servir archivos media en desarrollo
 if settings.DEBUG:
+    urlpatterns += [
+        re_path(
+            r"^imagenes/(?P<path>.*)$",
+            serve,
+            {"document_root": settings.BASE_DIR / "imagenes"},
+        ),
+    ]
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

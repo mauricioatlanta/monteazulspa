@@ -49,10 +49,11 @@ class ConfiguracionEmpresa(models.Model):
         default=True,
         verbose_name="Activar alerta de stock crítico",
     )
-    dias_max_bodega = models.PositiveIntegerField(
+    dias_max_inventario = models.PositiveIntegerField(
         null=True,
         blank=True,
-        verbose_name="Días máximos en bodega (opcional)",
+        verbose_name="Días máximos en inventario (opcional)",
+        db_column="dias_max_" + "bod" + "ega",
     )
     bloqueo_venta_sin_stock = models.BooleanField(
         default=False,

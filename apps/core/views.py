@@ -8,6 +8,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db.models import Prefetch, Count
 from apps.catalog.models import Category, Product, ProductImage, VehicleBrand, VehicleModel, VehicleEngine
+from apps.catalog.public_visibility import exclude_removed_categories, exclude_removed_products
 from apps.catalog.services.vehicle_search_result_builder import build_vehicle_result_context
 
 
@@ -17,10 +18,12 @@ def home(request):
     # Usar .values() / values_list() para que el SQL solo toque columnas básicas; así la home
     # funciona aunque migraciones 0009/0010/0011 (sku_canonico, combustible, etc.) no estén aplicadas.
     product_ids = list(
-        Product.objects.filter(
-            is_publishable=True,
-            is_active=True,
-            deleted_at__isnull=True,
+        exclude_removed_products(
+            Product.objects.filter(
+                is_publishable=True,
+                is_active=True,
+                deleted_at__isnull=True,
+            )
         )
         .annotate(img_count=Count('images'))
         .filter(img_count__gt=0)
@@ -76,9 +79,13 @@ def home(request):
     # Excluir "flexibles-reforzados" para no duplicar en menú; la raíz "flexibles" lleva a la vista unificada.
     # Excluir "por-clasificar" del menú público.
     header_categories = list(
-        Category.objects.filter(
-            is_active=True, parent__isnull=True
-        ).exclude(slug__in=['flexibles-reforzados', 'por-clasificar']).order_by('name')[:8]
+        exclude_removed_categories(
+            Category.objects.filter(
+                is_active=True, parent__isnull=True
+            )
+        )
+        .exclude(slug__in=("flexibles-reforzados", "por-clasificar"))
+        .order_by('name')[:8]
     )
 
     solutions_specs = [
@@ -106,11 +113,6 @@ def home(request):
             "title": "Resonadores",
             "slug": "resonador-deportivo-alto-flujo-ltm",
             "description": "Alto flujo y control acústico para un sonido equilibrado.",
-        },
-        {
-            "title": "Empaques de Motor",
-            "slug": "empaquetaduras-de-motor",
-            "description": "Sellado perfecto y máxima eficiencia. Soluciones confiables para reparaciones.",
         },
     ]
     solution_slugs = [s["slug"] for s in solutions_specs]
@@ -206,7 +208,9 @@ def vehicle_search(request):
 
     # Formulario de búsqueda (sin params o params inválidos)
     brands = VehicleBrand.objects.all().order_by('name')
-    categories = Category.objects.filter(is_active=True, parent__isnull=True)[:6]
+    categories = exclude_removed_categories(
+        Category.objects.filter(is_active=True, parent__isnull=True)
+    )[:6]
     from datetime import datetime
     current_year = datetime.now().year
     years = list(range(1980, current_year + 2))

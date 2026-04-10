@@ -13,6 +13,11 @@ Todas las secciones usan protocol = "https" para que las URLs del XML sean HTTPS
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 from apps.catalog.models import Product, Category, ProductCompatibility
+from apps.catalog.public_visibility import (
+    exclude_removed_categories,
+    exclude_removed_products,
+    removed_product_q,
+)
 
 
 class StaticViewSitemap(Sitemap):
@@ -45,7 +50,7 @@ class CategorySitemap(Sitemap):
     priority = 0.7
 
     def items(self):
-        return Category.objects.filter(is_active=True).order_by("slug")
+        return exclude_removed_categories(Category.objects.filter(is_active=True)).order_by("slug")
 
     def location(self, obj):
         return reverse("catalog:product_list") + f"?cat={obj.slug}"
@@ -58,8 +63,10 @@ class ProductSitemap(Sitemap):
     priority = 0.9
 
     def items(self):
-        return Product.objects.filter(
-            is_active=True, deleted_at__isnull=True
+        return exclude_removed_products(
+            Product.objects.filter(
+                is_active=True, deleted_at__isnull=True
+            )
         ).order_by("id")
 
     def lastmod(self, obj):
@@ -107,6 +114,7 @@ class VehicleLandingSitemap(Sitemap):
                 product__is_active=True,
                 product__deleted_at__isnull=True,
             )
+            .exclude(removed_product_q("product__"))
             .order_by("brand_id", "model_id", "year_from")
             .values_list("brand_id", "model_id", "year_from")
             .distinct()

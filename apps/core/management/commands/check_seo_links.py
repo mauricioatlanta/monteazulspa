@@ -83,8 +83,9 @@ class Command(BaseCommand):
 
         # 3. Productos (slugs)
         from apps.catalog.models import Product
+        from apps.catalog.public_visibility import exclude_removed_categories, exclude_removed_products
 
-        qs = Product.objects.filter(is_active=True, deleted_at__isnull=True)
+        qs = exclude_removed_products(Product.objects.filter(is_active=True, deleted_at__isnull=True))
         limit = options["products"]
         if limit > 0:
             qs = qs[:limit]
@@ -102,7 +103,7 @@ class Command(BaseCommand):
 
             self.stdout.write("")
             self.stdout.write(self.style.HTTP_INFO("[4] Categorías (/productos/?cat=slug)"))
-            for cat in Category.objects.filter(is_active=True)[:30]:
+            for cat in exclude_removed_categories(Category.objects.filter(is_active=True))[:30]:
                 url = reverse("catalog:product_list") + f"?cat={cat.slug}"
                 resp = self.client.get(url, **self.extra)
                 self._report(url, resp.status_code)

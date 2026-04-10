@@ -5,6 +5,7 @@ Usa BD real (VehicleBrand, VehicleModel, Product, Category); sin listas hardcode
 import re
 from django.urls import reverse
 from django.utils.http import urlencode
+from apps.catalog.public_visibility import exclude_removed_categories, exclude_removed_products
 
 # Misma normalización de acentos que smart_search (evitar dependencia circular)
 _ACCENT_PAIRS = [
@@ -155,9 +156,11 @@ def get_measure_suggestions(q, limit=3):
 
     # Medidas reales desde productos activos (diámetro x largo en pulgadas)
     rows = (
-        Product.objects.filter(
-            is_active=True,
-            deleted_at__isnull=True,
+        exclude_removed_products(
+            Product.objects.filter(
+                is_active=True,
+                deleted_at__isnull=True,
+            )
         )
         .exclude(diametro_entrada__isnull=True)
         .exclude(largo_mm__isnull=True)
@@ -224,7 +227,7 @@ def get_product_suggestions(q, limit=4):
 
     # Categorías activas cuyo nombre coincida (fetch razonable y filtrar por q_norm)
     cats = list(
-        Category.objects.filter(is_active=True).values_list("name", flat=True)[:50]
+        exclude_removed_categories(Category.objects.filter(is_active=True)).values_list("name", flat=True)[:50]
     )
     for name in cats:
         if len(out) >= limit:
@@ -239,9 +242,11 @@ def get_product_suggestions(q, limit=4):
 
     # Productos cuyo nombre coincida
     products = list(
-        Product.objects.filter(
-            is_active=True,
-            deleted_at__isnull=True,
+        exclude_removed_products(
+            Product.objects.filter(
+                is_active=True,
+                deleted_at__isnull=True,
+            )
         )
         .values_list("name", flat=True)[:50]
     )

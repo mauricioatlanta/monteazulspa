@@ -903,14 +903,14 @@ def settings_view(request):
                 setattr(config, field, True)
             else:
                 setattr(config, field, False)
-        dias_bodega = request.POST.get("dias_max_bodega")
-        if dias_bodega is not None and dias_bodega.strip() != "":
+        dias_inventario = request.POST.get("dias_max_inventario")
+        if dias_inventario is not None and dias_inventario.strip() != "":
             try:
-                config.dias_max_bodega = max(1, int(dias_bodega))
+                config.dias_max_inventario = max(1, int(dias_inventario))
             except (ValueError, TypeError):
-                config.dias_max_bodega = None
+                config.dias_max_inventario = None
         else:
-            config.dias_max_bodega = None
+            config.dias_max_inventario = None
         for field, default in (("comision_vendedores_pct", "0"), ("margen_minimo_recomendado", "15")):
             val = request.POST.get(field, default)
             try:

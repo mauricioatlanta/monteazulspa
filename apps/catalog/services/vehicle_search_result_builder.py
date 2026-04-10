@@ -24,6 +24,7 @@ from apps.catalog.models import (
     VehicleEngine,
     VehicleModel,
 )
+from apps.catalog.public_visibility import exclude_removed_products, removed_product_q
 from apps.catalog.services.vehicle_technical_profile import (
     build_vehicle_profile,
     filter_products_by_technical_fit,
@@ -74,9 +75,11 @@ def get_universal_catalysts(
     min_d, max_d = get_diameter_range(cc)
 
     qs = (
-        Product.objects.filter(
-            deleted_at__isnull=True,
-            is_active=True,
+        exclude_removed_products(
+            Product.objects.filter(
+                deleted_at__isnull=True,
+                is_active=True,
+            )
         )
         .filter(
             Q(category__slug__startswith="cataliticos")
@@ -181,7 +184,7 @@ def build_vehicle_result_context(
         year_from__lte=year,
         year_to__gte=year,
         is_active=True,
-    )
+    ).exclude(removed_product_q("product__"))
 
     if engine_id:
         exact_engine = direct_fit_compatibilities.filter(engine_id=engine_id)
@@ -193,10 +196,12 @@ def build_vehicle_result_context(
     direct_fit_ids = list(direct_fit_compatibilities.values_list("product_id", flat=True).distinct())
 
     # Direct fit: no exigir is_publishable para no excluir por calidad/score.
-    products_direct_fit = Product.objects.filter(
-        id__in=direct_fit_ids,
-        is_active=True,
-        deleted_at__isnull=True,
+    products_direct_fit = exclude_removed_products(
+        Product.objects.filter(
+            id__in=direct_fit_ids,
+            is_active=True,
+            deleted_at__isnull=True,
+        )
     ).select_related("category").prefetch_related("images", "compatibilities")
 
     # ========== CARRIL 2: UNIVERSALES (por perfil técnico) ==========
@@ -210,7 +215,7 @@ def build_vehicle_result_context(
         year_from__lte=year,
         year_to__gte=year,
         is_active=True,
-    )
+    ).exclude(removed_product_q("product__"))
 
     # Filtrar por perfil técnico (fuel_type y displacement_cc si están disponibles)
     if fuel_type:
@@ -226,10 +231,12 @@ def build_vehicle_result_context(
     brand_wide_ids_filtered = [pid for pid in brand_wide_ids_raw if pid not in direct_fit_ids]
 
     # Productos universales con compatibilidad amplia por marca
-    qs_brand_wide = Product.objects.filter(
-        id__in=brand_wide_ids_filtered,
-        is_active=True,
-        deleted_at__isnull=True,
+    qs_brand_wide = exclude_removed_products(
+        Product.objects.filter(
+            id__in=brand_wide_ids_filtered,
+            is_active=True,
+            deleted_at__isnull=True,
+        )
     ).select_related("category").prefetch_related("images")
     qs_brand_wide = filter_products_by_technical_fit(qs_brand_wide, profile)
     products_brand_wide: List[Product] = list(qs_brand_wide)
@@ -273,7 +280,7 @@ def build_vehicle_result_context(
                 is_active=True,
                 deleted_at__isnull=True,
             ).select_related("category")
-            diesel_qs = [p for p in diesel_qs if _is_diesel_product(p)]
+            diesel_qs = [p for p in exclude_removed_products(diesel_qs) if _is_diesel_product(p)]
             diesel_qs = sort_products_by_technical_rank(list(diesel_qs), profile)[:20]
             products_universal_all = diesel_qs
 
