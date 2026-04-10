@@ -22,7 +22,7 @@
         <div class="product-card-badges">
             {% if product.category.slug == "resonadores" %}<span class="product-card-badge cat-resonador">Resonador</span>{% endif %}
             {% if product.category.slug == "silenciadores-alto-flujo" or product.category.slug == "silenciadores" %}<span class="product-card-badge cat-alto-flujo">Silenciador Alto Flujo</span>{% endif %}
-            {% if product.euro_norm %}
+            {% if product.euro_norm and product.combustible != 'DIESEL' %}
             <span class="product-card-badge euro {{ product.euro_norm|lower }}">{{ product.get_euro_norm_display }}</span>
             {% endif %}
             {% if product.category.slug|slice:":14" == "cataliticos-twc" %}<span class="product-card-badge marca-twg">TWG</span>{% endif %}

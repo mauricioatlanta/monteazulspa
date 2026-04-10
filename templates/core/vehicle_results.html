@@ -364,8 +364,8 @@
                             <div class="product-sku">SKU: {{ product.sku }}</div>
                             {% if product.euro_norm or product.combustible or product.recommended_cc_min or product.recommended_cc_max %}
                                 <div class="product-tech-badge" style="margin-bottom: 8px; font-size: 0.75rem; color: var(--color-text-muted, #6b7280);">
-                                    {% if product.euro_norm %}{{ product.get_euro_norm_display }}{% endif %}
-                                    {% if product.combustible %}{% if product.euro_norm %} • {% endif %}{{ product.get_combustible_display }}{% endif %}
+                                    {% if product.euro_norm and product.combustible != 'DIESEL' %}{{ product.get_euro_norm_display }}{% endif %}
+                                    {% if product.combustible %}{% if product.euro_norm and product.combustible != 'DIESEL' %} • {% endif %}{{ product.get_combustible_display }}{% endif %}
                                     {% if product.recommended_cc_min or product.recommended_cc_max %}{% if product.euro_norm or product.combustible %} • {% endif %}{{ product.recommended_cc_min|default:"—" }}-{{ product.recommended_cc_max|default:"—" }} cc{% endif %}
                                 </div>
                             {% endif %}
@@ -409,8 +409,8 @@
                             <div class="product-sku">SKU: {{ product.sku }}</div>
                             {% if product.euro_norm or product.combustible or product.recommended_cc_min or product.recommended_cc_max %}
                                 <div class="product-tech-badge" style="margin-bottom: 8px; font-size: 0.75rem; color: var(--color-text-muted, #6b7280);">
-                                    {% if product.euro_norm %}{{ product.get_euro_norm_display }}{% endif %}
-                                    {% if product.combustible %}{% if product.euro_norm %} • {% endif %}{{ product.get_combustible_display }}{% endif %}
+                                    {% if product.euro_norm and product.combustible != 'DIESEL' %}{{ product.get_euro_norm_display }}{% endif %}
+                                    {% if product.combustible %}{% if product.euro_norm and product.combustible != 'DIESEL' %} • {% endif %}{{ product.get_combustible_display }}{% endif %}
                                     {% if product.recommended_cc_min or product.recommended_cc_max %}{% if product.euro_norm or product.combustible %} • {% endif %}{{ product.recommended_cc_min|default:"—" }}-{{ product.recommended_cc_max|default:"—" }} cc{% endif %}
                                 </div>
                             {% endif %}
@@ -460,8 +460,8 @@
                             <div class="product-sku">SKU: {{ product.sku }}</div>
                             {% if product.euro_norm or product.combustible or product.recommended_cc_min or product.recommended_cc_max %}
                                 <div class="product-tech-badge" style="margin-bottom: 8px; font-size: 0.75rem; color: var(--color-text-muted, #6b7280);">
-                                    {% if product.euro_norm %}{{ product.get_euro_norm_display }}{% endif %}
-                                    {% if product.combustible %}{% if product.euro_norm %} • {% endif %}{{ product.get_combustible_display }}{% endif %}
+                                    {% if product.euro_norm and product.combustible != 'DIESEL' %}{{ product.get_euro_norm_display }}{% endif %}
+                                    {% if product.combustible %}{% if product.euro_norm and product.combustible != 'DIESEL' %} • {% endif %}{{ product.get_combustible_display }}{% endif %}
                                     {% if product.recommended_cc_min or product.recommended_cc_max %}{% if product.euro_norm or product.combustible %} • {% endif %}{{ product.recommended_cc_min|default:"—" }}-{{ product.recommended_cc_max|default:"—" }} cc{% endif %}
                                 </div>
                             {% endif %}
