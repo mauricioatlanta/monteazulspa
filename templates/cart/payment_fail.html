@@ -7,18 +7,18 @@
 <div class="mx-auto max-w-3xl px-4 py-12">
   <div class="rounded-2xl bg-[var(--surface)] border border-[var(--border)] p-6">
     <div class="inline-flex items-center gap-2 rounded-full bg-white/5 border border-[var(--border)] px-4 py-2 text-sm text-white/80">
-      ❌ Pago no completado
+      Pago no completado
     </div>
 
     <h1 class="mt-4 text-2xl font-semibold text-white">No se pudo completar el pago</h1>
     <p class="mt-2 text-white/70">
-      Orden {{ order.order_number|default:"MAZ-pendiente" }} • Total: <span class="text-white font-semibold">$ {{ order.total|intcomma }}</span>
+      Orden {{ order.order_number|default:"MAZ-pendiente" }} &bull; Total: <span class="text-white font-semibold">$ {{ order.total|intcomma }}</span>
     </p>
 
     <div class="mt-6 flex flex-col gap-3 sm:flex-row">
-      <a href="{% url 'cart:payment_start' order.id %}"
+      <a href="{% url 'cart:checkout_transfer' order.id %}"
          class="inline-flex items-center justify-center rounded-full bg-[var(--accent)] px-6 py-3 font-semibold text-black hover:opacity-90">
-        Intentar nuevamente →
+        Ver datos para transferencia
       </a>
       <a href="{% url 'cart:checkout_review' order.id %}"
          class="inline-flex items-center justify-center rounded-full bg-white/5 px-6 py-3 font-semibold text-white border border-[var(--border)] hover:bg-white/10">
@@ -27,7 +27,7 @@
     </div>
 
     <p class="mt-6 text-xs text-[var(--muted)]">
-      Tu carrito NO fue vaciado. Puedes intentar pagar otra vez.
+      Tu carrito NO fue vaciado. Puedes retomar el checkout por transferencia.
     </p>
   </div>
 </div>

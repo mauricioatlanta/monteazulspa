@@ -8,7 +8,7 @@
   <h1 class="text-2xl font-semibold text-white mb-6">Revisar pedido</h1>
 
   <div class="rounded-2xl bg-[var(--surface)] border border-[var(--border)] p-6">
-    <p class="text-white/70">Orden {{ order.order_number|default:"MAZ-pendiente" }} • Total: <span class="text-white font-semibold">$ {{ order.total|intcomma }}</span></p>
+    <p class="text-white/70">Orden {{ order.order_number|default:"MAZ-pendiente" }} &bull; Total: <span class="text-white font-semibold">$ {{ order.total|intcomma }}</span></p>
     <div class="mt-4 space-y-2">
       {% for it in order.items.all %}
         <div class="flex justify-between text-sm text-white/80">
@@ -19,9 +19,9 @@
     </div>
 
     <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-      <a href="{% url 'cart:webpay_start' order.id %}"
+      <a href="{% url 'cart:checkout_transfer' order.id %}"
          class="relative inline-flex items-center justify-center rounded-full px-8 py-3 text-sm font-semibold text-black bg-[var(--accent)] transition-all hover:scale-[1.02] active:scale-[0.98]">
-        <span class="relative z-10">Pagar con Webpay →</span>
+        <span class="relative z-10">Ver datos para transferencia</span>
         <span class="absolute inset-0 rounded-full blur-xl opacity-40 bg-[var(--accent)]"></span>
       </a>
       <a href="{% url 'cart:view' %}"

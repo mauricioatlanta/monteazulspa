@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views_checkout import checkout, checkout_review
+from .views_checkout import checkout, checkout_review, checkout_transfer
 from .views_payments import payment_start, payment_success, payment_fail
 from .views_webpay import webpay_start, webpay_return
 
@@ -17,8 +17,9 @@ urlpatterns = [
     # Checkout
     path("checkout/", checkout, name="checkout"),
     path("checkout/revisar/<int:order_id>/", checkout_review, name="checkout_review"),
+    path("checkout/transferencia/<int:order_id>/", checkout_transfer, name="checkout_transfer"),
 
-    # Flujo de pago interno (simulación)
+    # Flujo de pago interno (simulacion)
     path("pago/iniciar/<int:order_id>/", payment_start, name="payment_start"),
     path("pago/exito/<int:order_id>/", payment_success, name="payment_success"),
     path("pago/fallo/<int:order_id>/", payment_fail, name="payment_fail"),

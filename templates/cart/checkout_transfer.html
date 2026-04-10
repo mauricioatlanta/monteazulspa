@@ -1,0 +1,76 @@
+{% extends "base_public.html" %}
+{% load humanize %}
+{% block meta_title %}Pago por transferencia bancaria | MonteAzul SPA{% endblock %}
+{% block meta_description %}Finaliza tu compra en MonteAzul SPA con transferencia bancaria.{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 py-12">
+  <div class="grid gap-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.85fr)]">
+    <div class="rounded-2xl bg-[var(--surface)] border border-[var(--border)] p-6 sm:p-8">
+      <div class="inline-flex items-center gap-2 rounded-full bg-white/5 border border-[var(--border)] px-4 py-2 text-sm text-white/80">
+        Pedido recibido
+      </div>
+
+      <h1 class="mt-4 text-3xl font-semibold text-white">Pago por transferencia bancaria</h1>
+      <p class="mt-3 text-white/70">
+        Tu pedido fue recibido. Para finalizar la compra, realiza la transferencia con los siguientes datos:
+      </p>
+
+      <div class="mt-6 rounded-2xl bg-black/20 border border-white/10 p-5">
+        <h2 class="text-lg font-semibold text-white">Datos</h2>
+        <ul class="mt-4 space-y-3 text-sm text-white/80">
+          <li class="border-b border-white/10 pb-3">- Monteazul SPA</li>
+          <li class="border-b border-white/10 pb-3">- RUT: 76.572.475-9</li>
+          <li class="border-b border-white/10 pb-3">- Banco Santander</li>
+          <li class="border-b border-white/10 pb-3">- Cuenta corriente: 70494965</li>
+          <li>- Correo: ventas@monteazulspa.cl</li>
+        </ul>
+      </div>
+
+      <div class="mt-6 rounded-2xl bg-black/20 border border-white/10 p-5">
+        <h2 class="text-lg font-semibold text-white">Instrucciones</h2>
+        <p class="mt-3 text-sm text-white/80">Una vez realizada la transferencia, env&iacute;a el comprobante:</p>
+        <ul class="mt-4 space-y-2 text-sm text-white/80">
+          <li>- al correo ventas@monteazulspa.cl</li>
+          <li>- o por WhatsApp al n&uacute;mero +569 7950 3154</li>
+        </ul>
+      </div>
+
+      <p class="mt-6 rounded-2xl border border-[var(--border)] bg-white/5 px-5 py-4 text-sm text-white/80">
+        Tu pedido quedar&aacute; en proceso de validaci&oacute;n hasta confirmar el pago.
+      </p>
+
+      <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+        <a href="{% url 'catalog:product_list' %}"
+           class="inline-flex items-center justify-center rounded-full bg-[var(--accent)] px-6 py-3 font-semibold text-black hover:opacity-90">
+          Seguir comprando
+        </a>
+        <a href="{% url 'cart:view' %}"
+           class="inline-flex items-center justify-center rounded-full bg-white/5 px-6 py-3 font-semibold text-white border border-[var(--border)] hover:bg-white/10">
+          Volver al carrito
+        </a>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-[var(--surface)] border border-[var(--border)] p-6 h-fit">
+      <h2 class="text-lg font-semibold text-white">Resumen del pedido</h2>
+      <p class="mt-3 text-white/70">
+        Orden {{ order.order_number|default:"MAZ-pendiente" }} &bull; Total: <span class="text-white font-semibold">$ {{ order.total|intcomma }}</span>
+      </p>
+
+      <div class="mt-5 space-y-3">
+        {% for it in order.items.all %}
+          <div class="flex items-start justify-between gap-4 rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/80">
+            <span>{{ it.name }} x{{ it.quantity }}</span>
+            <span class="text-white font-medium">$ {{ it.line_total|intcomma }}</span>
+          </div>
+        {% empty %}
+          <p class="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/60">
+            Esta orden no tiene items asociados.
+          </p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
