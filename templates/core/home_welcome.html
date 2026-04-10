@@ -1629,118 +1629,226 @@
     .delay-2 { animation-delay: 0.2s; }
     .delay-3 { animation-delay: 0.3s; }
 
-    /* ----- Reseñas de clientes ----- */
-    .reviews-section {
+    /* ----- Clientes que confían en MonteAzul ----- */
+    .testimonials-section {
       position: relative;
       overflow: hidden;
     }
-    .reviews-section::before {
+    .testimonials-section::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 50%;
+      inset: 0 auto auto 50%;
       transform: translateX(-50%);
-      width: 120%;
+      width: min(1080px, 100%);
       height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(0,212,230,0.2), rgba(0,212,230,0.4), rgba(0,212,230,0.2), transparent);
-      opacity: 0.8;
+      background: linear-gradient(90deg, transparent, rgba(0,212,230,0.18), rgba(0,212,230,0.42), rgba(0,212,230,0.18), transparent);
     }
-    .reviews-badge {
+    .testimonials-shell {
+      display: grid;
+      gap: 26px;
+    }
+    .testimonials-head {
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .testimonials-kicker {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
+      gap: 10px;
+      padding: 9px 16px;
       border-radius: 999px;
-      background: var(--accent-soft);
-      border: 1px solid rgba(0,212,230,0.3);
+      border: 1px solid rgba(0,212,230,0.24);
+      background: rgba(6,182,212,0.12);
       color: var(--accent);
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .testimonials-kicker::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+    }
+    .testimonials-note {
+      margin: 12px auto 0;
+      max-width: 680px;
+      color: var(--text-secondary);
+      font-size: 0.96rem;
+      line-height: 1.7;
+    }
+    .testimonials-spotlight {
+      position: relative;
+      display: grid;
+      gap: 22px;
+      padding: clamp(28px, 4vw, 40px);
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background:
+        radial-gradient(circle at top right, rgba(6,182,212,0.16), transparent 34%),
+        linear-gradient(155deg, rgba(255,255,255,0.065) 0%, rgba(255,255,255,0.025) 62%, rgba(255,255,255,0.02) 100%);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 30px 70px rgba(0,0,0,0.24);
+      overflow: hidden;
+    }
+    .testimonials-spotlight::after {
+      content: '“';
+      position: absolute;
+      top: 12px;
+      right: 22px;
+      font-size: clamp(5rem, 12vw, 7rem);
+      line-height: 1;
+      color: rgba(6,182,212,0.12);
+      font-family: Georgia, serif;
+      pointer-events: none;
+    }
+    .testimonials-spotlight-label {
+      display: inline-flex;
+      align-items: center;
+      justify-self: start;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.86);
       font-size: 0.75rem;
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      margin-bottom: 16px;
     }
-    .reviews-badge::before {
-      content: '';
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 10px var(--accent);
-      animation: pulse 2s ease-in-out infinite;
-    }
-    .reviews-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-    }
-    @media (max-width: 900px) { .reviews-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 560px) { .reviews-grid { grid-template-columns: 1fr; } }
-    .review-card {
+    .testimonials-spotlight-text {
       position: relative;
-      background: linear-gradient(160deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 28px 24px;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
-      overflow: hidden;
-    }
-    .review-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 4px;
-      height: 100%;
-      background: linear-gradient(180deg, var(--accent), transparent);
-      opacity: 0.8;
-    }
-    .review-card:hover {
-      border-color: rgba(0,212,230,0.35);
-      transform: translateY(-4px);
-      box-shadow: 0 16px 40px -12px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,212,230,0.08);
-    }
-    .review-card .review-quote-icon {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      width: 36px;
-      height: 36px;
-      opacity: 0.15;
-    }
-    .review-card .review-quote-icon svg {
-      width: 100%;
-      height: 100%;
-      color: var(--accent);
-    }
-    .review-card .review-text {
-      font-size: 0.98rem;
+      z-index: 1;
+      max-width: 860px;
+      margin: 0;
+      color: var(--text);
+      font-size: clamp(1.2rem, 2vw, 1.5rem);
       line-height: 1.65;
-      color: var(--text-secondary);
-      margin-bottom: 20px;
-      padding-right: 8px;
-      font-style: italic;
+      letter-spacing: -0.01em;
     }
-    .review-card .review-meta {
+    .testimonials-spotlight-meta {
       display: flex;
       flex-wrap: wrap;
+      gap: 16px 26px;
       align-items: center;
-      gap: 8px 16px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .testimonials-spotlight-name {
+      font-size: 1.02rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .testimonials-spotlight-company,
+    .testimonials-spotlight-city {
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+    }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 22px;
+    }
+    .testimonial-card {
+      position: relative;
+      min-height: 100%;
+      padding: 26px 22px 22px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025));
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+      overflow: hidden;
+    }
+    .testimonial-card::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(6,182,212,0.8), rgba(59,130,246,0.5), transparent);
+      opacity: 0.95;
+    }
+    .testimonial-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(6,182,212,0.24);
+      box-shadow: 0 22px 44px rgba(0,0,0,0.18);
+    }
+    .testimonial-text {
+      margin: 0 0 18px;
+      color: var(--text-secondary);
+      font-size: 0.96rem;
+      line-height: 1.7;
+    }
+    .testimonial-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
       padding-top: 16px;
       border-top: 1px solid rgba(255,255,255,0.06);
     }
-    .review-card .review-author {
-      font-weight: 700;
-      font-size: 0.95rem;
+    .testimonial-name {
       color: var(--text);
+      font-size: 0.95rem;
+      font-weight: 700;
     }
-    .review-card .review-location {
-      font-size: 0.8rem;
+    .testimonial-origin {
       color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
       font-family: 'JetBrains Mono', monospace;
-      letter-spacing: 0.03em;
+    }
+    .testimonials-footer {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px 18px;
+      padding-top: 8px;
+    }
+    .testimonials-footer-copy {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.65;
+      margin: 0;
+      max-width: 640px;
+    }
+    .testimonials-footer-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    @media (max-width: 980px) {
+      .testimonials-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 640px) {
+      .testimonials-spotlight {
+        padding: 24px 20px;
+        border-radius: 22px;
+      }
+      .testimonials-spotlight-meta {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .testimonials-grid {
+        grid-template-columns: 1fr;
+      }
+      .testimonials-footer {
+        align-items: flex-start;
+      }
+      .testimonials-footer-actions {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -1930,34 +2038,89 @@
       </div>
     </section>
 
-    <section class="section reviews-section" id="reseñas">
-      <div style="text-align: center;">
-        <span class="reviews-badge" aria-hidden="true">Reseñas verificadas</span>
-      </div>
-      <h2 class="section-title" style="text-align: center;">Opiniones de clientes que trabajan con nosotros</h2>
-      <p class="section-sub" style="text-align: center; margin-bottom: 40px;">Opiniones reales de clientes que compran con nosotros</p>
-      <div class="reviews-grid">
-        <article class="review-card">
-          <span class="review-quote-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg></span>
-          <p class="review-text">"Los productos son de excelente factura y se nota la calidad superior de los materiales en cada detalle."</p>
-          <div class="review-meta">
-            <span class="review-author">Ricardo</span>
+    <section class="section testimonials-section" id="testimonios-clientes">
+      <div class="testimonials-shell">
+        <div class="testimonials-head">
+          <span class="testimonials-kicker">Confianza del Rubro</span>
+          <h2 class="section-title" style="text-align: center;">Clientes que confían en MonteAzul</h2>
+          <p class="section-sub" style="text-align: center; margin-bottom: 0;">
+            Talleres, especialistas y clientes del rubro en distintas ciudades confían en nuestros productos para trabajar con continuidad y respaldo técnico.
+          </p>
+          <p class="testimonials-note">Relaciones de compra sostenidas, buen stock y soluciones concretas para el trabajo diario en escape.</p>
+        </div>
+
+        <article class="testimonials-spotlight">
+          <span class="testimonials-spotlight-label">Cliente destacado</span>
+          <p class="testimonials-spotlight-text">
+            Trabajamos con MonteAzul porque responden. Buen stock, buena calidad y soluciones reales para el día a día en el rubro.
+          </p>
+          <div class="testimonials-spotlight-meta">
+            <span class="testimonials-spotlight-name">Mauricio</span>
+            <span class="testimonials-spotlight-company">Atlanta Reciclajes</span>
+            <span class="testimonials-spotlight-city">Viña del Mar</span>
           </div>
         </article>
-        <article class="review-card">
-          <span class="review-quote-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg></span>
-          <p class="review-text">"La durabilidad y las terminaciones de los productos son de primer nivel. Superan con creces las expectativas."</p>
-          <div class="review-meta">
-            <span class="review-author">Alexis</span>
+
+        <div class="testimonials-grid">
+          <article class="testimonial-card">
+            <p class="testimonial-text">Llevamos tiempo comprando catalíticos y flexibles acá. La calidad es constante y nunca hemos tenido problemas con instalación ni reclamos.</p>
+            <div class="testimonial-meta">
+              <span class="testimonial-name">Fernando</span>
+              <span class="testimonial-origin">Santiago</span>
+            </div>
+          </article>
+          <article class="testimonial-card">
+            <p class="testimonial-text">Buen stock y buena atención. Cuando necesitamos medidas específicas, siempre encontramos solución rápida.</p>
+            <div class="testimonial-meta">
+              <span class="testimonial-name">Luis</span>
+              <span class="testimonial-origin">Santiago</span>
+            </div>
+          </article>
+          <article class="testimonial-card">
+            <p class="testimonial-text">Trabajamos directo con MonteAzul porque sabemos que lo que compramos funciona. Eso es clave para nosotros.</p>
+            <div class="testimonial-meta">
+              <span class="testimonial-name">Monalino</span>
+              <span class="testimonial-origin">Escape MB</span>
+            </div>
+          </article>
+          <article class="testimonial-card">
+            <p class="testimonial-text">Nos envían productos a región sin problema. Cumplen tiempos y la calidad es confiable.</p>
+            <div class="testimonial-meta">
+              <span class="testimonial-name">Maestranza Chevalier</span>
+              <span class="testimonial-origin">La Serena</span>
+            </div>
+          </article>
+          <article class="testimonial-card">
+            <p class="testimonial-text">Precios competitivos y productos que realmente duran. Eso nos ayuda a mantener nuestros clientes.</p>
+            <div class="testimonial-meta">
+              <span class="testimonial-name">Yonatan SPA</span>
+            </div>
+          </article>
+          <article class="testimonial-card">
+            <p class="testimonial-text">Siempre tienen lo que buscamos. Y si no, lo consiguen. Eso marca la diferencia.</p>
+            <div class="testimonial-meta">
+              <span class="testimonial-name">Alejandro</span>
+              <span class="testimonial-origin">Escape Cisternas</span>
+            </div>
+          </article>
+          <article class="testimonial-card">
+            <p class="testimonial-text">Buena relación precio-calidad. Es proveedor fijo en nuestro taller.</p>
+            <div class="testimonial-meta">
+              <span class="testimonial-name">Víctor Sepúlveda</span>
+              <span class="testimonial-origin">Santiago</span>
+            </div>
+          </article>
+        </div>
+
+        <div class="testimonials-footer">
+          <p class="testimonials-footer-copy">
+            Si buscas un proveedor estable para tu taller o una solución puntual con criterio técnico, nuestro equipo te ayuda a elegir el repuesto correcto.
+          </p>
+          <div class="testimonials-footer-actions">
+            <a href="https://wsp.cl/Atepara" target="_blank" rel="noopener" class="mz-btn-wa">Cotiza por WhatsApp</a>
+            <a href="{% url 'catalog:product_list' %}" class="mz-btn-outline">Ver catálogo</a>
           </div>
-        </article>
-        <article class="review-card">
-          <span class="review-quote-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg></span>
-          <p class="review-text">"Productos robustos y muy bien fabricados. Se nota el compromiso con la calidad técnica en cada pieza."</p>
-          <div class="review-meta">
-            <span class="review-author">Alejandro</span>
-          </div>
-        </article>
+        </div>
       </div>
     </section>
     <section class="section" id="cta-final">
