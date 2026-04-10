@@ -45,7 +45,6 @@ class TrackingEvent(models.Model):
     )
     
     class Meta:
-        app_label = 'tracking'
         ordering = ['-created_at']
         verbose_name = "Evento de tracking"
         verbose_name_plural = "Eventos de tracking"

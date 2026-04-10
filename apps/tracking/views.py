@@ -4,7 +4,6 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from datetime import timedelta
-from .models import TrackingEvent
 
 
 def get_client_ip(request):
@@ -25,6 +24,8 @@ def check_rate_limit(ip_address, event_type, max_events=20, window_minutes=5):
     if not ip_address:
         return True
     
+    from .models import TrackingEvent
+    
     time_threshold = timezone.now() - timedelta(minutes=window_minutes)
     recent_count = TrackingEvent.objects.filter(
         ip_address=ip_address,
@@ -44,6 +45,8 @@ def track_event(request):
     POST /api/tracking/
     Body: { "event": "whatsapp_click", "payload": {...} }
     """
+    from .models import TrackingEvent
+    
     try:
         # Parsear JSON del body
         try:

@@ -4,6 +4,19 @@ source /home/atlantareciclajes/venv_monteazul/bin/activate
 
 
 
+git status
+git add .
+git commit -m "Actualización monteazul: [describe brevemente el cambio]"
+git push origin main
+
+
+
+
+
+
+
+
+
 Flujo completo con cambios sin commitear
 En tu PC (local)
 cd e:\projecto\monteazulspa

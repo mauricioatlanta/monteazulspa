@@ -347,7 +347,11 @@
                 </p>
             <div class="products-grid">
                 {% for product in products_verified %}
+                    {% if product.slug %}
                     <a href="{% url 'catalog:product_detail' product.slug %}" class="product-card">
+                    {% else %}
+                    <div class="product-card" aria-disabled="true">
+                    {% endif %}
                         <div class="product-image">
                             {% if product.images.first and product.images.first.image %}
                                 <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" loading="lazy">
@@ -369,7 +373,11 @@
                                 <div class="product-price">{{ product.price|pesos_cl }} <span class="product-price-iva">IVA incluido</span></div>
                             </div>
                         </div>
+                    {% if product.slug %}
                     </a>
+                    {% else %}
+                    </div>
+                    {% endif %}
                 {% endfor %}
             </div>
             </section>
@@ -384,7 +392,11 @@
             </div>
             <div class="products-grid">
                 {% for product in products_suggested_brand_wide %}
+                    {% if product.slug %}
                     <a href="{% url 'catalog:product_detail' product.slug %}" class="product-card">
+                    {% else %}
+                    <div class="product-card" aria-disabled="true">
+                    {% endif %}
                         <div class="product-image">
                             {% if product.images.first and product.images.first.image %}
                                 <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" loading="lazy">
@@ -406,7 +418,11 @@
                                 <div class="product-price">{{ product.price|pesos_cl }} <span class="product-price-iva">IVA incluido</span></div>
                             </div>
                         </div>
+                    {% if product.slug %}
                     </a>
+                    {% else %}
+                    </div>
+                    {% endif %}
                 {% endfor %}
             </div>
         </section>
@@ -427,7 +443,11 @@
             </div>
             <div class="products-grid">
                 {% for product in suggested_list %}
+                    {% if product.slug %}
                     <a href="{% url 'catalog:product_detail' product.slug %}" class="product-card">
+                    {% else %}
+                    <div class="product-card" aria-disabled="true">
+                    {% endif %}
                         <div class="product-image">
                             {% if product.images.first and product.images.first.image %}
                                 <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" loading="lazy">
@@ -449,7 +469,11 @@
                                 <div class="product-price">{{ product.price|pesos_cl }} <span class="product-price-iva">IVA incluido</span></div>
                             </div>
                         </div>
+                    {% if product.slug %}
                     </a>
+                    {% else %}
+                    </div>
+                    {% endif %}
                 {% endfor %}
             </div>
         </section>

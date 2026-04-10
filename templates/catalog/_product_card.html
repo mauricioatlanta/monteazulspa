@@ -2,9 +2,13 @@
 {# Uso: {% include "catalog/_product_card.html" with product=product ops_mode=False is_cataliticos_subcat=is_cataliticos_subcat %} #}
 {% if ops_mode %}
 <div class="product-card-wrap {% if not product.is_active %}inactive{% endif %}">
-    <a href="{% url 'ops:catalog_admin_detail' product.slug %}" class="product-card-link">
+    <a href="{{ product.get_ops_admin_detail_url }}" class="product-card-link">
 {% else %}
+{% if product.slug %}
 <a href="{% url 'catalog:product_detail' product.slug %}" class="product-card{% if not product.is_active %} product-card-inactive{% endif %}">
+{% else %}
+<div class="product-card product-card-inactive" aria-disabled="true">
+{% endif %}
 {% endif %}
     <div class="product-card-img">
         {% if product.images.first and product.images.first.image %}
@@ -44,11 +48,15 @@
 {% if ops_mode %}
 </a>
     <div class="product-card-actions">
-        <a href="{% url 'ops:catalog_admin_detail' product.slug %}" class="btn btn-view">Ver</a>
-        <a href="{% url 'ops:catalog_admin_edit' product.slug %}" class="btn btn-edit">Editar</a>
-        <a href="{% url 'ops:catalog_admin_delete' product.slug %}" class="btn btn-delete">Borrar</a>
+        <a href="{{ product.get_ops_admin_detail_url }}" class="btn btn-view">Ver</a>
+        <a href="{{ product.get_ops_admin_edit_url }}" class="btn btn-edit">Editar</a>
+        <a href="{{ product.get_ops_admin_delete_url }}" class="btn btn-delete">Borrar</a>
     </div>
 </div>
 {% else %}
+{% if product.slug %}
 </a>
+{% else %}
+</div>
+{% endif %}
 {% endif %}

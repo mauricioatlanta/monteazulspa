@@ -25,7 +25,10 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Evento de tracking',
                 'verbose_name_plural': 'Eventos de tracking',
                 'ordering': ['-created_at'],
-                'indexes': [models.Index(fields=['-created_at', 'event'], name='tracking_tr_created_b8e4c5_idx')],
             },
+        ),
+        migrations.AddIndex(
+            model_name='trackingevent',
+            index=models.Index(fields=['-created_at', 'event'], name='tracking_tr_created_b8e4c5_idx'),
         ),
     ]

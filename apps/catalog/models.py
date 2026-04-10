@@ -1,6 +1,7 @@
 import uuid
 from django.db import models
 from django.utils import timezone
+from django.utils.text import slugify
 
 from django.urls import reverse
 
@@ -264,7 +265,56 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def build_unique_slug(self, source=None):
+        base_source = (source or self.slug or self.sku or self.name or "").strip()
+        base_slug = slugify(base_source)[:260] or "producto"
+        candidate = base_slug
+        suffix = 2
+
+        existing = Product.objects.all()
+        if self.pk:
+            existing = existing.exclude(pk=self.pk)
+
+        while existing.filter(slug=candidate).exists():
+            suffix_text = f"-{suffix}"
+            candidate = f"{base_slug[:280 - len(suffix_text)]}{suffix_text}"
+            suffix += 1
+
+        return candidate
+
+    def _get_ops_admin_url(self, action="detail"):
+        if not self.pk:
+            return ""
+
+        if self.slug:
+            route_name = {
+                "detail": "ops:catalog_admin_detail",
+                "edit": "ops:catalog_admin_edit",
+                "delete": "ops:catalog_admin_delete",
+            }[action]
+            return reverse(route_name, kwargs={"slug": self.slug})
+
+        fallback_route = {
+            "detail": "ops:catalog_admin_detail_by_pk",
+            "edit": "ops:catalog_admin_edit_by_pk",
+            "delete": "ops:catalog_admin_delete_by_pk",
+        }[action]
+        return reverse(fallback_route, kwargs={"pk": self.pk})
+
+    def get_ops_admin_detail_url(self):
+        return self._get_ops_admin_url("detail")
+
+    def get_ops_admin_edit_url(self):
+        return self._get_ops_admin_url("edit")
+
+    def get_ops_admin_delete_url(self):
+        return self._get_ops_admin_url("delete")
+
     def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = self.build_unique_slug()
+            if kwargs.get("update_fields") is not None:
+                kwargs["update_fields"] = list(set(kwargs["update_fields"]) | {"slug"})
         # Rellenar sku_canonico para matching/media si está vacío
         if self.sku and not self.sku_canonico:
             self.sku_canonico = normalize_sku_canonical(self.sku) or None
@@ -312,6 +362,8 @@ class Product(models.Model):
         return f"{self.sku} - {self.name}"
 
     def get_absolute_url(self):
+        if not self.slug:
+            return ""
         return reverse("catalog:product_detail", kwargs={"slug": self.slug})
 
     def compute_quality_score(self) -> int:

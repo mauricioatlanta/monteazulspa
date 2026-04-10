@@ -239,7 +239,11 @@
         {% if results %}
         <div class="products-grid">
             {% for product in results %}
+            {% if product.slug %}
             <a href="{% url 'catalog:product_detail' product.slug %}" class="product-card{% if not product.is_active %} product-card-inactive{% endif %}">
+            {% else %}
+            <div class="product-card product-card-inactive" aria-disabled="true">
+            {% endif %}
                 <div class="product-card-img">
                     {% if product.images.first and product.images.first.image %}
                     <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" loading="lazy" width="400" height="300">
@@ -265,7 +269,11 @@
                         <span class="product-card-cta">Ver más</span>
                     </div>
                 </div>
+            {% if product.slug %}
             </a>
+            {% else %}
+            </div>
+            {% endif %}
             {% endfor %}
         </div>
         {% else %}

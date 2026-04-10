@@ -141,7 +141,7 @@ def home(request):
             is_external = False
         else:
             href = "https://wsp.cl/Atepara"
-            badge = "Próximamente" if has_category else "Consultar"
+            badge = "Disponible bajo consulta" if has_category else "Consulta con un asesor especializado"
             is_external = True
         solutions_cards.append(
             {
@@ -150,6 +150,7 @@ def home(request):
                 "href": href,
                 "badge": badge,
                 "is_external": is_external,
+                "has_products": has_products,
             }
         )
     return render(request, 'core/home_welcome.html', {

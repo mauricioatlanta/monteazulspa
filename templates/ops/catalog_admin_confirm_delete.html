@@ -37,18 +37,18 @@
     <div class="breadcrumb">
         <a href="{% url 'ops:dashboard' %}">Operaciones</a> ›
         <a href="{% url 'ops:catalog_admin_list' %}">Catálogo</a> ›
-        <a href="{% url 'ops:catalog_admin_detail' product.slug %}">{{ product.sku }}</a> ›
+        <a href="{{ product.get_ops_admin_detail_url }}">{{ product.sku }}</a> ›
         Eliminar
     </div>
     <h1>Confirmar eliminación</h1>
     <div class="delete-confirm-card">
         <p>¿Estás seguro de que deseas eliminar el producto <span class="product-name">{{ product.name }}</span> ({{ product.sku }})?</p>
         <p style="font-size: 0.9rem; color: var(--text-muted);">El producto se desactivará y ya no aparecerá en el catálogo público. Esta acción se puede revertir desde el admin de Django si es necesario.</p>
-        <form method="post" action="{% url 'ops:catalog_admin_delete' product.slug %}">
+        <form method="post" action="{{ product.get_ops_admin_delete_url }}">
             {% csrf_token %}
             <div class="form-actions">
                 <button type="submit" class="btn-danger">Sí, eliminar</button>
-                <a href="{% url 'ops:catalog_admin_detail' product.slug %}" class="btn-cancel">Cancelar</a>
+                <a href="{{ product.get_ops_admin_detail_url }}" class="btn-cancel">Cancelar</a>
             </div>
         </form>
     </div>

@@ -57,8 +57,8 @@ urlpatterns = [
     path("normativas/", catalog_normativas, name="normativas"),
     path("carrito/", include(("apps.cart.urls", "cart"), namespace="cart")),
     path("blog/", include(("apps.blog.urls", "blog"), namespace="blog")),
-    # API de tracking
-    path("api/tracking/", include(("apps.tracking.urls", "tracking"), namespace="tracking")),
+    # API de tracking (lazy loading para evitar import circular)
+    path("api/tracking/", include("apps.tracking.urls")),
     # Centro de Operaciones (OWNER / ADMIN_OPERACIONES)
     path("ops/", include(("apps.ops.urls", "ops"), namespace="ops")),
     # Alias /operaciones/ -> mismo que ops (p. ej. /operaciones/catalogo/)

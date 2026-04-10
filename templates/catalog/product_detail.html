@@ -122,14 +122,14 @@
         {% else %}
           Repuesto de escape automotriz disponible en <strong>Santiago</strong>. Exhibición y ventas en <strong>Diez de Julio 354</strong> o despacho a todo Chile.
           {% if is_catalitico %}
-            {% if product.euro_norm %} Compatible con norma <strong>{{ product.get_euro_norm_display }}</strong>.{% endif %}
+            {% if product.category.slug == 'cataliticos-twc-diesel' or product.combustible == 'DIESEL' %} Compatible con sistemas de escape diésel.{% elif product.euro_norm %} Compatible con norma <strong>{{ product.get_euro_norm_display }}</strong>.{% endif %}
             {% if product.diametro_entrada %} Diámetro <strong>{{ product.diametro_entrada }}"</strong>.{% endif %}
             {% if product.tiene_sensor %} Incluye rosca para sensor O2.{% endif %}
           {% endif %}
         {% endif %}
       </p>
       <div class="flex flex-wrap items-center gap-2 mt-2">
-        {% if product.euro_norm %}
+        {% if product.euro_norm and product.category.slug != 'cataliticos-twc-diesel' and product.combustible != 'DIESEL' %}
           <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-[#00f0ff]/10 border border-[#00f0ff]/20 text-[#00f0ff] text-xs font-semibold">{{ product.get_euro_norm_display }}</span>
         {% endif %}
         {% if product.combustible %}
@@ -265,9 +265,9 @@ OEM: 18160-PAA-305 · No Accord 2003 en adelante</div>
     <div class="p-5 sm:p-6 border-b border-white/10 bg-black/20" id="ficha-header">
       <div class="text-xs font-mono text-white/60 uppercase tracking-wider">{{ product.sku }}</div>
       <h2 class="text-xl font-bold mt-1">Convertidor Catalítico {% if product.install_type == 'PLUG_PLAY' %}Ensamble Directo{% else %}Universal{% endif %}</h2>
-      <p class="text-sm text-white/70 mt-1">Norma: {% if product.euro_norm %}{{ product.get_euro_norm_display }}{% else %}—{% endif %} · Combustible: {% if product.combustible %}{{ product.get_combustible_display }}{% else %}—{% endif %}</p>
+      <p class="text-sm text-white/70 mt-1">Norma: {% if product.category.slug == 'cataliticos-twc-diesel' or product.combustible == 'DIESEL' %}Diésel{% elif product.euro_norm %}{{ product.get_euro_norm_display }}{% else %}—{% endif %} · Combustible: {% if product.combustible %}{{ product.get_combustible_display }}{% else %}—{% endif %}</p>
       <div class="flex flex-wrap gap-3 mt-4">
-        {% if product.euro_norm %}
+        {% if product.euro_norm and product.category.slug != 'cataliticos-twc-diesel' and product.combustible != 'DIESEL' %}
           <span class="inline-flex items-center px-4 py-2 rounded-xl bg-[#00f0ff]/15 border border-[#00f0ff]/30 text-[#00f0ff] font-bold text-sm uppercase tracking-wide">{{ product.get_euro_norm_display }}</span>
         {% endif %}
         {% if product.install_type == 'SOLDADURA' %}
@@ -288,7 +288,7 @@ OEM: 18160-PAA-305 · No Accord 2003 en adelante</div>
       <div class="overflow-x-auto">
         <table class="w-full text-sm border-collapse">
           <tbody class="text-white/85">
-            {% if product.euro_norm %}
+            {% if product.euro_norm and product.category.slug != 'cataliticos-twc-diesel' and product.combustible != 'DIESEL' %}
             <tr class="border-b border-white/10"><td class="py-2 pr-4 text-white/50">Norma ambiental</td><td class="py-2 font-medium">{{ product.get_euro_norm_display }}</td></tr>
             {% endif %}
             {% if product.combustible %}
@@ -320,9 +320,9 @@ OEM: 18160-PAA-305 · No Accord 2003 en adelante</div>
         <h4 class="font-semibold text-[#00f0ff] mb-2">Compatibilidad estimada</h4>
         <ul class="text-sm text-white/80 space-y-1">
           {% if product.combustible %}
-          <li>Vehículos {{ product.get_combustible_display }} {% if product.euro_norm %}{{ product.get_euro_norm_display }}{% endif %}</li>
+          <li>Vehículos {{ product.get_combustible_display }}{% if product.category.slug != 'cataliticos-twc-diesel' and product.combustible != 'DIESEL' and product.euro_norm %} {{ product.get_euro_norm_display }}{% endif %}</li>
           {% endif %}
-          <li>Sistemas {% if product.euro_norm %}{{ product.get_euro_norm_display }}{% else %}universales{% endif %}</li>
+          <li>{% if product.category.slug == 'cataliticos-twc-diesel' or product.combustible == 'DIESEL' %}Sistemas de escape diésel{% elif product.euro_norm %}Sistemas {{ product.get_euro_norm_display }}{% else %}Sistemas universales{% endif %}</li>
           <li>Reemplazo universal adaptable</li>
         </ul>
       </div>
@@ -345,17 +345,16 @@ OEM: 18160-PAA-305 · No Accord 2003 en adelante</div>
       </div>
       <div class="mt-4 rounded-xl bg-[#00f0ff]/10 border border-[#00f0ff]/25 p-4">
         {% if product.category.slug == 'cataliticos-twc-diesel' or product.combustible == 'DIESEL' %}
-        <h4 class="font-semibold text-[#00f0ff] mb-2">Normativa</h4>
+        <h4 class="font-semibold text-[#00f0ff] mb-2">Aplicación</h4>
         <ul class="text-sm text-white/80 space-y-1">
-          <li>✔ cumple norma Euro correspondiente</li>
-          <li>✔ Homologado para revisión técnica</li>
+          <li>Aplicación específica para motores diésel</li>
+          <li>No utiliza clasificación por norma Euro</li>
+          <li>Diseñado para sistemas de escape diésel</li>
         </ul>
         {% else %}
-        <h4 class="font-semibold text-[#00f0ff] mb-2">Certificación y normativa</h4>
+        <h4 class="font-semibold text-[#00f0ff] mb-2">Normativa</h4>
         <ul class="text-sm text-white/80 space-y-1">
-          <li>✔ Cumple normativa MTT Chile</li>
-          <li>✔ Norma Euro correspondiente</li>
-          <li>✔ Homologado para revisión técnica</li>
+          <li>{% if product.euro_norm %}Cumple {{ product.get_euro_norm_display }}{% else %}Cumple normativa correspondiente{% endif %}</li>
         </ul>
         {% endif %}
       </div>
@@ -385,8 +384,8 @@ OEM: 18160-PAA-305 · No Accord 2003 en adelante</div>
       <div><span class="text-xs uppercase text-white/50">Largo</span><p class="font-medium text-white">{% if product.length is not None %}{{ product.length }} cm{% else %}—{% endif %}</p></div>
       <div><span class="text-xs uppercase text-white/50">Ancho</span><p class="font-medium text-white">{% if product.width is not None %}{{ product.width }} cm{% else %}—{% endif %}</p></div>
       <div><span class="text-xs uppercase text-white/50">Alto</span><p class="font-medium text-white">{% if product.height is not None %}{{ product.height }} cm{% else %}—{% endif %}</p></div>
-      {% if product.euro_norm or product.combustible %}
-      <div><span class="text-xs uppercase text-white/50">Norma Euro</span><p class="font-medium text-white">{% if product.euro_norm %}{{ product.get_euro_norm_display }}{% else %}—{% endif %}</p></div>
+      {% if product.euro_norm or product.combustible or product.category.slug == 'cataliticos-twc-diesel' %}
+      <div><span class="text-xs uppercase text-white/50">{% if product.category.slug == 'cataliticos-twc-diesel' or product.combustible == 'DIESEL' %}Aplicación{% else %}Norma Euro{% endif %}</span><p class="font-medium text-white">{% if product.category.slug == 'cataliticos-twc-diesel' or product.combustible == 'DIESEL' %}Diésel{% elif product.euro_norm %}{{ product.get_euro_norm_display }}{% else %}—{% endif %}</p></div>
       <div><span class="text-xs uppercase text-white/50">Combustible</span><p class="font-medium text-white">{% if product.combustible %}{{ product.get_combustible_display }}{% else %}—{% endif %}</p></div>
       {% endif %}
       <div><span class="text-xs uppercase text-white/50">Material</span><p class="font-medium text-white">{% if product.material %}{{ product.get_material_display }}{% else %}—{% endif %}</p></div>
@@ -545,7 +544,7 @@ Por plataforma Delta II y motorización compartida con General Motors, este cata
           <summary class="cursor-pointer font-semibold text-white/90">¿Este catalítico ayuda a pasar revisión técnica?</summary>
           <p class="mt-2 text-sm text-white/75 leading-relaxed">
             Depende del estado del motor, sensores y correcta instalación. Este producto es una solución de reemplazo para sistemas de escape y
-            {% if product.euro_norm %}está orientado a norma {{ product.get_euro_norm_display }}{% else %}cumplimiento estándar{% endif %}.
+            {% if product.category.slug == 'cataliticos-twc-diesel' or product.combustible == 'DIESEL' %}está diseñado para sistemas de escape diésel{% elif product.euro_norm %}está orientado a norma {{ product.get_euro_norm_display }}{% else %}cumplimiento estándar{% endif %}.
           </p>
         </details>
 

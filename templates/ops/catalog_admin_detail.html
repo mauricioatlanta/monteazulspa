@@ -84,9 +84,11 @@
     <div class="action-bar">
         <a href="{% url 'ops:catalog_admin_list' %}{% if product.category %}?cat={{ product.category.slug }}{% endif %}" class="btn btn-back">← Volver al listado</a>
         <a href="{% url 'ops:catalog_admin_add' %}?cat={{ product.category.slug }}" class="btn btn-add">+ Agregar producto ({{ product.category.name }})</a>
-        <a href="{% url 'ops:catalog_admin_edit' product.slug %}" class="btn btn-edit">Editar</a>
-        <a href="{% url 'ops:catalog_admin_delete' product.slug %}" class="btn btn-delete">Borrar</a>
+        <a href="{{ product.get_ops_admin_edit_url }}" class="btn btn-edit">Editar</a>
+        <a href="{{ product.get_ops_admin_delete_url }}" class="btn btn-delete">Borrar</a>
+        {% if product.slug %}
         <a href="{% url 'catalog:product_detail' product.slug %}" class="btn btn-back" target="_blank">Ver en sitio público</a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

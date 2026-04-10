@@ -12,6 +12,10 @@ from .models import Product, ProductImage, Category
 class ProductAdminForm(forms.ModelForm):
     """ModelForm para editar producto: nombre, precio, descripción, categoría, stock, etc."""
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["slug"].required = False
+
     class Meta:
         model = Product
         fields = [
@@ -90,6 +94,15 @@ class ProductAdminForm(forms.ModelForm):
         if value is not None and value < 0:
             raise forms.ValidationError("El stock no puede ser negativo.")
         return value
+
+    def clean_slug(self):
+        value = (self.cleaned_data.get("slug") or "").strip()
+        if value:
+            return value
+
+        self.instance.name = self.cleaned_data.get("name") or self.instance.name
+        self.instance.sku = self.cleaned_data.get("sku") or self.instance.sku
+        return self.instance.build_unique_slug()
 
 
 class ProductImageForm(forms.ModelForm):

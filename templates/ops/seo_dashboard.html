@@ -39,8 +39,12 @@
                 <td style="font-weight:600; color:rgba(255,255,255,0.5);">{{ forloop.counter }}</td>
                 <td><code style="background:rgba(0,212,255,0.12); padding:0.2rem 0.4rem; border-radius:4px;">{{ stat.product.sku }}</code></td>
                 <td>
+                    {% if stat.product.slug %}
                     <a href="{% url 'catalog:product_detail' stat.product.slug %}" style="color:#4a9eff;" target="_blank" rel="noopener">{{ stat.product.name|truncatewords:8 }}</a>
-                    <a href="{% url 'ops:catalog_admin_detail' stat.product.slug %}" style="margin-left:0.35rem; color:rgba(255,255,255,0.5); font-size:0.8rem;" title="Editar en ops">✎</a>
+                    {% else %}
+                    <span style="color:#4a9eff;">{{ stat.product.name|truncatewords:8 }}</span>
+                    {% endif %}
+                    <a href="{{ stat.product.get_ops_admin_detail_url }}" style="margin-left:0.35rem; color:rgba(255,255,255,0.5); font-size:0.8rem;" title="Editar en ops">✎</a>
                 </td>
                 <td style="font-weight:600; color:#22d3ee;">{{ stat.views }}</td>
                 <td style="color:rgba(255,255,255,0.7);">{{ stat.last_viewed|date:"d/m/Y H:i" }}</td>

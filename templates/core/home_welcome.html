@@ -1524,7 +1524,7 @@
       margin-bottom: 10px;
     }
     .mz-card-badge.soon {
-      color: rgba(255,255,255,0.9);
+      color: rgba(16,185,129,0.95);
       background: rgba(16,185,129,0.10);
       border-color: rgba(16,185,129,0.28);
     }
@@ -1533,6 +1533,30 @@
       border-color: rgba(6,182,212,0.28);
       color: rgba(6,182,212,0.95);
     }
+    .mz-card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+      justify-content: center;
+    }
+    .mz-btn-wa-lg {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .6rem;
+      padding: 0.95rem 1.25rem;
+      border-radius: 16px;
+      font-weight: 900;
+      font-size: 1rem;
+      color: #fff;
+      background: var(--cta-primary);
+      border: 1px solid rgba(255,255,255,.12);
+      text-decoration: none;
+      box-shadow: 0 18px 50px rgba(16,185,129,.22);
+      transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+    .mz-btn-wa-lg:hover { transform: translateY(-2px); background: var(--cta-primary-hover); box-shadow: 0 22px 60px rgba(16,185,129,.3); }
 
     .mz-authority-grid {
       display: grid;
@@ -1809,13 +1833,21 @@
       <p class="section-sub" style="text-align: center; margin-bottom: 28px;">Ingresa directo a la familia de repuestos que necesitas</p>
       <div class="categories-grid">
         {% for card in solutions_cards %}
-        <a href="{{ card.href }}" class="category-card" title="{{ card.title }}" {% if card.is_external %}target="_blank" rel="noopener"{% endif %}>
+        <div class="category-card" title="{{ card.title }}">
           {% if card.badge %}
-            <div class="mz-card-badge {% if card.badge == 'Próximamente' %}soon{% else %}consult{% endif %}">{{ card.badge }}</div>
+            <div class="mz-card-badge {% if 'consulta' in card.badge|lower %}consult{% else %}soon{% endif %}">{{ card.badge }}</div>
           {% endif %}
           <h3>{{ card.title }}</h3>
           <p>{{ card.description }}</p>
-        </a>
+          <div class="mz-card-actions">
+            {% if card.has_products %}
+              <a href="{% url 'catalog:product_list' %}?cat={{ card.title|lower|cut:' '|slugify }}" class="mz-btn-outline" data-track="solutions_primary" data-track-label="{{ card.title }}">Ver categoría</a>
+              <a href="https://wsp.cl/Atepara" target="_blank" rel="noopener" class="mz-btn-wa" data-track="solutions_whatsapp" data-track-label="{{ card.title }}">Consultar compatibilidad</a>
+            {% else %}
+              <a href="https://wsp.cl/Atepara" target="_blank" rel="noopener" class="mz-btn-wa-lg" data-track="solutions_whatsapp" data-track-label="{{ card.title }}">Consultar por WhatsApp</a>
+            {% endif %}
+          </div>
+        </div>
         {% endfor %}
       </div>
     </section>
@@ -1852,10 +1884,10 @@
     <section class="section" id="problemas">
       <h2 class="section-title" style="text-align:center;">Solucionamos problemas reales de tu vehículo</h2>
       <div class="mz-problems-grid">
-        <a class="category-card" href="{% url 'catalog:product_list' %}?q=ruido%20escape"><h3>Ruido en el escape</h3></a>
-        <a class="category-card" href="{% url 'catalog:product_list' %}?q=potencia%20escape"><h3>Pérdida de potencia</h3></a>
-        <a class="category-card" href="{% url 'catalog:product_list' %}?q=catal%C3%ADtico"><h3>Falla en catalítico</h3></a>
-        <a class="category-card" href="{% url 'catalog:product_list' %}?q=revisi%C3%B3n%20t%C3%A9cnica"><h3>Revisión técnica rechazada</h3></a>
+        <a class="category-card" href="{% url 'catalog:product_list' %}?q=ruido%20escape" data-track="problem_click" data-track-label="Ruido en el escape"><h3>Ruido en el escape</h3></a>
+        <a class="category-card" href="{% url 'catalog:product_list' %}?q=potencia%20escape" data-track="problem_click" data-track-label="Pérdida de potencia"><h3>Pérdida de potencia</h3></a>
+        <a class="category-card" href="{% url 'catalog:product_list' %}?cat=cataliticos" data-track="problem_click" data-track-label="Falla en catalítico"><h3>Falla en catalítico</h3></a>
+        <a class="category-card" href="https://wsp.cl/Atepara" target="_blank" rel="noopener" data-track="problem_whatsapp" data-track-label="Revisión técnica rechazada"><h3>Revisión técnica rechazada</h3></a>
       </div>
     </section>
 
@@ -1884,9 +1916,9 @@
         </article>
         {% empty %}
         <div class="category-card" style="grid-column: 1 / -1; text-align: center;">
-          <div class="mz-card-badge soon" style="display:inline-flex;">Próximamente</div>
-          <h3 style="margin-bottom:8px;">Estamos preparando el listado de Top Sellers</h3>
-          <p style="color: var(--text-secondary); margin-bottom: 16px;">Mientras tanto, cuéntanos tu vehículo o medida y te cotizamos el repuesto correcto.</p>
+          <div class="mz-card-badge soon" style="display:inline-flex;">Disponible bajo consulta</div>
+          <h3 style="margin-bottom:8px;">Listados bajo consulta con asesor</h3>
+          <p style="color: var(--text-secondary); margin-bottom: 16px;">Cuéntanos tu vehículo o medida y te cotizamos el repuesto correcto.</p>
           <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
             <a href="https://wsp.cl/Atepara" target="_blank" rel="noopener" class="mz-btn-wa">Cotizar por WhatsApp</a>
             <a href="{% url 'catalog:product_list' %}" class="mz-btn-outline">Ver catálogo completo</a>
@@ -2019,6 +2051,49 @@
       if (sidebarClose) sidebarClose.addEventListener('click', closeSidebar);
       var sidebarLinks = document.querySelectorAll('.nav-sidebar-link');
       sidebarLinks.forEach(function(link) { link.addEventListener('click', closeSidebar); });
+
+      function track(name, payload) {
+        try {
+          var e = { event: name, ts: Date.now(), payload: payload || {} };
+          if (window.dataLayer && Array.isArray(window.dataLayer)) window.dataLayer.push(e);
+          console.log("TRACK", e);
+        } catch (_) {}
+      }
+
+      var waSelectors = ['.mz-btn-wa', '.mz-btn-wa-lg', '.btn-wa-large', '.wa-float', 'a[href*="wsp.cl"]'];
+      waSelectors.forEach(function(sel){
+        document.querySelectorAll(sel).forEach(function(el){
+          el.addEventListener('click', function(){
+            var label = el.getAttribute('data-track-label') || el.textContent.trim() || sel;
+            track('whatsapp_click', { source: label });
+          });
+        });
+      });
+
+      var searchForm = document.querySelector('.mz-hero-search-form');
+      if (searchForm) {
+        searchForm.addEventListener('submit', function(ev){
+          try {
+            var q = (searchForm.querySelector('input[name="q"]') || {}).value || '';
+            track('search', { q: q });
+          } catch (_) {}
+        });
+      }
+
+      document.querySelectorAll('[data-track]').forEach(function(el){
+        el.addEventListener('click', function(){
+          track(el.getAttribute('data-track'), { label: el.getAttribute('data-track-label') || el.textContent.trim() });
+        });
+      });
+
+      document.querySelectorAll('.product-grid .img-wrap, .product-grid .btn-consult, .product-grid .product-card-btn-primary').forEach(function(el){
+        el.addEventListener('click', function(){
+          var card = el.closest('.product-card');
+          var name = card ? (card.querySelector('.name') ? card.querySelector('.name').textContent.trim() : '') : '';
+          var sku = card ? (card.querySelector('.sku') ? card.querySelector('.sku').textContent.trim() : '') : '';
+          track('product_click', { name: name, sku: sku });
+        });
+      });
     })();
   </script>
 </body>

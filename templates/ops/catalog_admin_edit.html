@@ -55,12 +55,12 @@
     <div class="breadcrumb">
         <a href="{% url 'ops:dashboard' %}">Operaciones</a> ›
         <a href="{% url 'ops:catalog_admin_list' %}">Catálogo</a> ›
-        <a href="{% url 'ops:catalog_admin_detail' product.slug %}">{{ product.sku }}</a> ›
+        <a href="{{ product.get_ops_admin_detail_url }}">{{ product.sku }}</a> ›
         Editar
     </div>
     <h1>Editar producto: {{ product.sku }}</h1>
 
-    <form method="post" action="{% url 'ops:catalog_admin_edit' product.slug %}" enctype="multipart/form-data">
+    <form method="post" action="{{ product.get_ops_admin_edit_url }}" enctype="multipart/form-data">
         {% csrf_token %}
 
         <div class="form-card">
@@ -225,7 +225,7 @@
 
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">Guardar cambios</button>
-            <a href="{% url 'ops:catalog_admin_detail' product.slug %}" class="btn btn-secondary">Cancelar</a>
+            <a href="{{ product.get_ops_admin_detail_url }}" class="btn btn-secondary">Cancelar</a>
             <a href="{% url 'ops:catalog_admin_list' %}" class="btn btn-secondary">Volver al listado</a>
         </div>
     </form>

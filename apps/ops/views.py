@@ -1177,6 +1177,20 @@ def catalog_admin_detail(request, slug):
 
 
 @catalog_admin_required
+@require_http_methods(["GET"])
+def catalog_admin_detail_by_pk(request, pk):
+    """Detalle admin tolerante a productos legacy sin slug."""
+    product = get_object_or_404(
+        Product.objects.select_related("category").prefetch_related("images", "compatibilities"),
+        pk=pk,
+        deleted_at__isnull=True,
+    )
+    if product.slug:
+        return redirect("ops:catalog_admin_detail", slug=product.slug)
+    return render(request, "ops/catalog_admin_detail.html", {"product": product})
+
+
+@catalog_admin_required
 @require_http_methods(["GET", "POST"])
 def catalog_admin_edit(request, slug):
     """Editar producto (form + formset imágenes)."""
@@ -1210,6 +1224,41 @@ def catalog_admin_edit(request, slug):
 
 @catalog_admin_required
 @require_http_methods(["GET", "POST"])
+def catalog_admin_edit_by_pk(request, pk):
+    """Editar producto por PK para registros legacy sin slug."""
+    product = get_object_or_404(
+        Product.objects.prefetch_related("images"),
+        pk=pk,
+        deleted_at__isnull=True,
+    )
+    if request.method == "GET" and product.slug:
+        return redirect("ops:catalog_admin_edit", slug=product.slug)
+
+    form = ProductAdminForm(instance=product)
+    formset = ProductImageFormSet(instance=product)
+
+    if request.method == "POST":
+        form = ProductAdminForm(request.POST, instance=product)
+        formset = ProductImageFormSet(
+            request.POST, request.FILES, instance=product
+        )
+        if form.is_valid() and formset.is_valid():
+            form.save()
+            formset.save()
+            product.refresh_quality(save=True)
+            messages.success(request, f"Producto «{product.name}» actualizado correctamente.")
+            return redirect(product.get_ops_admin_detail_url())
+        messages.error(request, "Corrige los errores del formulario.")
+
+    return render(
+        request,
+        "ops/catalog_admin_edit.html",
+        {"product": product, "form": form, "formset": formset},
+    )
+
+
+@catalog_admin_required
+@require_http_methods(["GET", "POST"])
 def catalog_admin_delete(request, slug):
     """Eliminar producto (soft delete). Solo POST para confirmar."""
     product = get_object_or_404(
@@ -1217,6 +1266,26 @@ def catalog_admin_delete(request, slug):
         slug=slug,
         deleted_at__isnull=True,
     )
+    if request.method == "POST":
+        name = product.name
+        product.soft_delete()
+        messages.success(request, f"Producto «{name}» ha sido eliminado (desactivado).")
+        return redirect("ops:catalog_admin_list")
+    return render(request, "ops/catalog_admin_confirm_delete.html", {"product": product})
+
+
+@catalog_admin_required
+@require_http_methods(["GET", "POST"])
+def catalog_admin_delete_by_pk(request, pk):
+    """Eliminar producto por PK para registros legacy sin slug."""
+    product = get_object_or_404(
+        Product.objects.select_related("category"),
+        pk=pk,
+        deleted_at__isnull=True,
+    )
+    if request.method == "GET" and product.slug:
+        return redirect("ops:catalog_admin_delete", slug=product.slug)
+
     if request.method == "POST":
         name = product.name
         product.soft_delete()
